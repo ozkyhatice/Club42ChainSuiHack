@@ -16,7 +16,7 @@ module clubchain::club_tests {
         ts::next_tx(&mut scenario, ADMIN);
         {
             let ctx = ts::ctx(&mut scenario);
-            club::create_club(string::utf8(b"Test Club"), ctx);
+            club::create_club(string::utf8(b"Test Club"), string::utf8(b"Test description"), ctx);
         };
 
         // Verify club was created and shared
@@ -48,7 +48,7 @@ module clubchain::club_tests {
         ts::next_tx(&mut scenario, ADMIN);
         {
             let ctx = ts::ctx(&mut scenario);
-            club::create_club(string::utf8(b"Original Name"), ctx);
+            club::create_club(string::utf8(b"Original Name"), string::utf8(b"Test description"), ctx);
         };
 
         // Update club name with admin cap
@@ -77,7 +77,7 @@ module clubchain::club_tests {
         {
             let ctx = ts::ctx(&mut scenario);
             // Should abort with E_EMPTY_NAME
-            club::create_club(string::utf8(b""), ctx);
+            club::create_club(string::utf8(b""), string::utf8(b"Test description"), ctx);
         };
 
         ts::end(scenario);
@@ -92,7 +92,7 @@ module clubchain::club_tests {
         ts::next_tx(&mut scenario, ADMIN);
         {
             let ctx = ts::ctx(&mut scenario);
-            club::create_club(string::utf8(b"Original Name"), ctx);
+            club::create_club(string::utf8(b"Original Name"), string::utf8(b"Test description"), ctx);
         };
 
         // Try to update with empty name - should fail
@@ -119,7 +119,7 @@ module clubchain::club_tests {
         ts::next_tx(&mut scenario, ADMIN);
         {
             let ctx = ts::ctx(&mut scenario);
-            club::create_club(string::utf8(b"Test Club"), ctx);
+            club::create_club(string::utf8(b"Test Club"), string::utf8(b"Test description"), ctx);
         };
 
         // Delete the club
