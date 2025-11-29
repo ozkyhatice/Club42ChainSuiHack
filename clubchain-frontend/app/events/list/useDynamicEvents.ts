@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSuiClient } from '@mysten/dapp-kit';
 import { PACKAGE_ID } from '@/lib/constants';
-import type { EventItem } from '../types';
+import type { EventItem } from './types';
 
 export function useDynamicEvents() {
   const client = useSuiClient();
@@ -55,10 +55,11 @@ export function useDynamicEvents() {
       }
 
       // Sort by start time (most recent first)
-      eventObjects.sort((a, b) => (b.startTime || 0) - (a.startTime || 0));
+      eventObjects.sort((a, b) => b.startTime - a.startTime);
       setEvents(eventObjects);
     } catch (err) {
       setError(err as Error);
+      console.error('Error fetching events:', err);
       // Set empty array on error so UI can still render
       setEvents([]);
     } finally {
@@ -77,4 +78,3 @@ export function useDynamicEvents() {
     refetch: fetchEvents,
   };
 }
-

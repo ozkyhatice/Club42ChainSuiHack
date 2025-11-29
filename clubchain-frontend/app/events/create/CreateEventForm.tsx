@@ -5,8 +5,17 @@ import { useCurrentAccount } from '@mysten/dapp-kit';
 import { useCreateEvent } from './useCreateEvent';
 import { useAdminCaps } from '@/modules/admin/useAdminCap';
 import type { EventFormData } from '../types';
+import type { Club } from '@/src/services/blockchain/getClubs';
+import GamifiedButton from '@/components/ui/GamifiedButton';
+import Badge from '@/components/ui/Badge';
+import OwnerBadge from '@/components/ui/OwnerBadge';
+import { Calendar, Building2, FileText, Clock, CheckCircle, XCircle, Sparkles } from 'lucide-react';
 
-export default function CreateEventForm() {
+interface CreateEventFormProps {
+  ownedClubs?: Club[];
+}
+
+export default function CreateEventForm({ ownedClubs = [] }: CreateEventFormProps) {
   const account = useCurrentAccount();
   const { isSubmitting, txStatus, createEvent, resetStatus } = useCreateEvent();
   const { caps, loading: capsLoading } = useAdminCaps();
@@ -52,61 +61,76 @@ export default function CreateEventForm() {
 
   if (capsLoading) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="text-center py-8">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your clubs...</p>
+      <div className="bg-white rounded-xl shadow-elevation-2 p-8">
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">Loading your clubs...</p>
         </div>
       </div>
     );
   }
 
-  if (caps.length === 0) {
+  if (caps.length === 0 && ownedClubs.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-2xl font-bold mb-4">No Clubs Found</h2>
-        <p className="text-gray-600 mb-4">
-          You need to be a club admin to create events. Create a club first to get started.
+      <div className="bg-white rounded-xl shadow-elevation-2 p-8">
+        <h2 className="text-2xl font-bold mb-4 text-gray-900">No Clubs Found</h2>
+        <p className="text-gray-600 mb-6">
+          You need to be a club owner to create events. Create a club first to get started.
         </p>
-        <a
-          href="/clubs/create"
-          className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
+        <GamifiedButton
+          variant="primary"
+          icon={Building2}
+          onClick={() => window.location.href = '/clubs/create'}
         >
           Create a Club
-        </a>
+        </GamifiedButton>
       </div>
     );
   }
 
+  // Use ownedClubs if provided, otherwise use caps
+  const availableClubs = ownedClubs.length > 0 ? ownedClubs : caps;
+
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <h2 className="text-2xl font-bold mb-6">Create New Event</h2>
-      
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="bg-white rounded-xl shadow-elevation-2 p-8 animate-slideUp animation-delay-200">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Club Selection */}
         <div>
-          <label className="block text-sm font-medium mb-2">
-            Select Club
+          <label className="block text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+            <Building2 className="w-5 h-5 text-blue-600" />
+            Select Your Club
           </label>
           <select
             required
             value={selectedClubId}
             onChange={(e) => setSelectedClubId(e.target.value)}
-            className="w-full px-3 py-2 border rounded-lg"
+            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-gray-900 font-medium"
           >
-            <option value="">-- Select a club --</option>
-            {caps.map((cap) => (
-              <option key={cap.id} value={cap.club_id}>
-                Club {cap.club_id.slice(0, 8)}...
-              </option>
-            ))}
+            <option value="">-- Choose a club to host this event --</option>
+            {ownedClubs.length > 0 ? (
+              ownedClubs.map((club) => (
+                <option key={club.id} value={club.id}>
+                  {club.name}
+                </option>
+              ))
+            ) : (
+              caps.map((cap) => (
+                <option key={cap.id} value={cap.club_id}>
+                  Club {cap.club_id.slice(0, 8)}...
+                </option>
+              ))
+            )}
           </select>
-          <p className="text-xs text-gray-500 mt-1">
-            You can only create events for clubs where you are an admin
+          <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+            <OwnerBadge size="sm" showLabel={false} animate={false} />
+            You can only create events for clubs where you are the owner
           </p>
         </div>
 
+        {/* Event Title */}
         <div>
-          <label className="block text-sm font-medium mb-2">
+          <label className="block text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-purple-600" />
             Event Title
           </label>
           <input
@@ -114,51 +138,73 @@ export default function CreateEventForm() {
             required
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            className="w-full px-3 py-2 border rounded-lg"
-            placeholder="Workshop: Web3 Development"
+            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+            placeholder="e.g., Workshop: Web3 Development Bootcamp"
           />
         </div>
 
+        {/* Description */}
         <div>
-          <label className="block text-sm font-medium mb-2">
-            Description
+          <label className="block text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+            <FileText className="w-5 h-5 text-green-600" />
+            Event Description
           </label>
           <textarea
             required
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="w-full px-3 py-2 border rounded-lg"
-            rows={3}
-            placeholder="Learn Web3 basics..."
+            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none"
+            rows={4}
+            placeholder="Describe what participants will learn and experience..."
           />
         </div>
 
+        {/* Date & Time */}
         <div>
-          <label className="block text-sm font-medium mb-2">
-            Event Date
+          <label className="block text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+            <Clock className="w-5 h-5 text-orange-600" />
+            Date & Time
           </label>
           <input
             type="datetime-local"
             required
             value={formData.date}
             onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-            className="w-full px-3 py-2 border rounded-lg"
+            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
           />
         </div>
 
-        <button
-          type="submit"
+        {/* Submit Button */}
+        <GamifiedButton
+          variant="gradient"
+          size="lg"
+          fullWidth
           disabled={isSubmitting}
-          className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          loading={isSubmitting}
+          icon={Calendar}
         >
-          {isSubmitting ? 'Publishing...' : 'Publish Event'}
-        </button>
+          {isSubmitting ? 'Publishing Event...' : 'Publish Event on Blockchain'}
+        </GamifiedButton>
 
+        {/* Status Message */}
         {txStatus && (
-          <div className={`p-3 rounded-lg ${
-            txStatus.includes('Success') ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
+          <div className={`p-4 rounded-lg border-2 animate-slideUp ${
+            txStatus.includes('Success') 
+              ? 'bg-green-50 border-green-200' 
+              : 'bg-red-50 border-red-200'
           }`}>
-            <p className="text-sm">{txStatus}</p>
+            <div className="flex items-start gap-3">
+              {txStatus.includes('Success') ? (
+                <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+              ) : (
+                <XCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+              )}
+              <p className={`text-sm font-medium ${
+                txStatus.includes('Success') ? 'text-green-800' : 'text-red-800'
+              }`}>
+                {txStatus}
+              </p>
+            </div>
           </div>
         )}
       </form>

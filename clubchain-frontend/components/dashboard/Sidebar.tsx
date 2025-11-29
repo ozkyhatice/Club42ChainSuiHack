@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Users, Calendar, Building2, Sparkles, PlusCircle, TrendingUp } from "lucide-react";
+import { Home, Users, Calendar, Building2, Sparkles, PlusCircle, Shield, User } from "lucide-react";
+import { useIsAnyClubOwner } from "@/hooks/useClubOwnership";
+import { useIsSuperAdmin } from "@/hooks/useSuperAdmin";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -11,6 +13,8 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
+  const { isOwner } = useIsAnyClubOwner();
+  const { data: isSuperAdmin } = useIsSuperAdmin();
   
   const menuItems = [
     {
@@ -30,19 +34,46 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     },
     {
       icon: Building2,
-      label: "All Clubs",
+      label: "Browse Clubs",
       href: "/clubs",
     },
     {
       icon: Sparkles,
-      label: "All Events",
+      label: "Browse Events",
       href: "/events",
     },
     {
-      icon: PlusCircle,
-      label: "Create Event",
-      href: "/events/create",
+      icon: Building2,
+      label: "Create Club",
+      href: "/clubs/create",
       highlight: true,
+    },
+    ...(isOwner ? [
+      {
+        icon: PlusCircle,
+        label: "Create Event",
+        href: "/events/create",
+        highlight: true,
+      },
+      {
+        icon: Shield,
+        label: "Admin Panel",
+        href: "/admin",
+        ownerOnly: true,
+      },
+    ] : []),
+    ...(isSuperAdmin ? [
+      {
+        icon: Shield,
+        label: "Super Admin",
+        href: "/super-admin",
+        superAdmin: true,
+      },
+    ] : []),
+    {
+      icon: User,
+      label: "Profile",
+      href: "/profile",
     },
   ];
   
@@ -96,6 +127,10 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                         ? "bg-blue-50 text-blue-700 shadow-sm"
                         : item.highlight
                         ? "bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-md hover-lift"
+                        : (item as any).ownerOnly
+                        ? "bg-gradient-to-r from-yellow-400 to-amber-500 text-white hover:from-yellow-500 hover:to-amber-600 shadow-md hover-lift"
+                        : (item as any).superAdmin
+                        ? "bg-gradient-to-r from-red-500 to-pink-600 text-white hover:from-red-600 hover:to-pink-700 shadow-md hover-lift animate-pulse-glow"
                         : "text-gray-700 hover:bg-gray-100 hover:scale-105"
                       }
                     `}
@@ -111,27 +146,6 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             })}
           </ul>
           
-          {/* Quick Stats (optional) */}
-          <div className="mt-8 px-4 py-4 bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg border border-blue-100 hover-lift">
-            <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-blue-600" />
-              Quick Stats
-            </h3>
-            <div className="space-y-2 text-xs text-gray-600">
-              <p className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                Activity: Active
-              </p>
-              <p className="flex items-center gap-2">
-                <Users className="w-3 h-3" />
-                Clubs: --
-              </p>
-              <p className="flex items-center gap-2">
-                <Calendar className="w-3 h-3" />
-                Events: --
-              </p>
-            </div>
-          </div>
         </nav>
         
         {/* Sidebar footer */}

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { SuiClient, getFullnodeUrl } from "@mysten/sui.js/client";
+import { SuiClient, getFullnodeUrl } from "@mysten/sui/client";
 import { PACKAGE_ID, NETWORK } from "@/lib/constants";
 
 const EVENT_STRUCT = `${PACKAGE_ID}::event::Event`;

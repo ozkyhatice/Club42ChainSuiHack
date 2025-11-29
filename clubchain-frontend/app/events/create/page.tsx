@@ -1,42 +1,135 @@
 'use client';
 
 import { useCurrentAccount } from '@mysten/dapp-kit';
+import { useRouter } from 'next/navigation';
 import CreateEventForm from './CreateEventForm';
 import Link from 'next/link';
+import DashboardLayout from '@/components/dashboard/DashboardLayout';
+import GamifiedButton from '@/components/ui/GamifiedButton';
+import OwnerBadge from '@/components/ui/OwnerBadge';
+import { useUserOwnedClubs, useIsAnyClubOwner } from '@/hooks/useClubOwnership';
+import { Crown, AlertTriangle, ArrowLeft, Building2, Sparkles } from 'lucide-react';
 
 export default function CreateEventPage() {
   const account = useCurrentAccount();
+  const router = useRouter();
+  const { data: ownedClubs = [], isLoading: ownedLoading } = useUserOwnedClubs();
+  const { isOwner, clubCount } = useIsAnyClubOwner();
 
-  if (!account) {
+  // Loading state
+  if (ownedLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8">
-        <div className="max-w-2xl mx-auto text-center py-20">
-          <h1 className="text-3xl font-bold mb-4">Connect Your Wallet</h1>
-          <p className="text-gray-600 mb-8">
-            Please connect your wallet to create an event.
-          </p>
-          <Link
-            href="/"
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
-          >
-            Go to Home
-          </Link>
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="animate-spin h-12 w-12 border-4 border-blue-600 border-t-transparent rounded-full"></div>
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-2xl mx-auto">
-        <div className="mb-6">
-          <Link href="/events" className="text-blue-600 hover:underline">
-            ← Back to Events
-          </Link>
+  // Wallet not connected
+  if (!account) {
+    return (
+      <DashboardLayout>
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-white rounded-xl shadow-elevation-2 p-8 text-center">
+            <div className="inline-flex p-6 bg-orange-50 rounded-2xl mb-6">
+              <AlertTriangle className="w-16 h-16 text-orange-600" />
+            </div>
+            <h1 className="text-3xl font-bold mb-4 text-gray-900">Connect Your Wallet</h1>
+            <p className="text-gray-600 mb-8">
+              Please connect your Sui wallet to create events on the blockchain.
+            </p>
+            <GamifiedButton
+              variant="primary"
+              onClick={() => router.push('/dashboard')}
+              icon={ArrowLeft}
+            >
+              Back to Dashboard
+            </GamifiedButton>
+          </div>
         </div>
-        <CreateEventForm />
+      </DashboardLayout>
+    );
+  }
+
+  // Not a club owner
+  if (!isOwner || clubCount === 0) {
+    return (
+      <DashboardLayout>
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-white rounded-xl shadow-elevation-2 p-8 text-center">
+            <div className="inline-flex p-6 bg-yellow-50 rounded-2xl mb-6">
+              <Crown className="w-16 h-16 text-yellow-600" />
+            </div>
+            <h1 className="text-3xl font-bold mb-4 text-gray-900">Owner Access Required</h1>
+            <p className="text-gray-600 mb-6">
+              Only club owners can create events. You need to own at least one club to create an event.
+            </p>
+            <div className="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-4 mb-8 text-left">
+              <div className="flex items-start gap-3">
+                <Building2 className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                <div>
+                  <h3 className="font-semibold text-blue-900 mb-1">How to become a club owner?</h3>
+                  <p className="text-sm text-blue-800">
+                    Create a new club from the dashboard, or have an existing club owner transfer their ClubAdminCap to you.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-3 justify-center">
+              <GamifiedButton
+                variant="secondary"
+                onClick={() => router.push('/dashboard')}
+                icon={ArrowLeft}
+              >
+                Back to Dashboard
+              </GamifiedButton>
+              <GamifiedButton
+                variant="primary"
+                onClick={() => router.push('/clubs')}
+                icon={Building2}
+              >
+                Browse Clubs
+              </GamifiedButton>
+            </div>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // Owner - can create event
+  return (
+    <DashboardLayout>
+      <div className="max-w-3xl mx-auto">
+        {/* Header */}
+        <div className="mb-6 flex items-center justify-between">
+          <Link href="/events" className="text-blue-600 hover:underline flex items-center gap-2 group">
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            Back to Events
+          </Link>
+          <OwnerBadge />
+        </div>
+        
+        {/* Title Section */}
+        <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-xl p-8 text-white shadow-elevation-3 mb-6 animate-slideUp relative overflow-hidden">
+          <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-2">
+              <Sparkles className="w-8 h-8 animate-icon-pulse" />
+              <h1 className="text-3xl md:text-4xl font-bold">Create New Event</h1>
+            </div>
+            <p className="text-blue-100">
+              Create an event for one of your {clubCount} club{clubCount !== 1 ? 's' : ''}
+            </p>
+          </div>
+        </div>
+
+        {/* Form */}
+        <CreateEventForm ownedClubs={ownedClubs} />
       </div>
-    </div>
+    </DashboardLayout>
   );
 }
 

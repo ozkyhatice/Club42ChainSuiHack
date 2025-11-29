@@ -1,4 +1,3 @@
-import { Transaction } from "@mysten/sui/transactions";
 import { SuiClient } from "@mysten/sui/client";
 import { PACKAGE_ID } from "@/lib/constants";
 

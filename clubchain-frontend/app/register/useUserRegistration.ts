@@ -4,12 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCurrentAccount, useSignAndExecuteTransaction } from "@mysten/dapp-kit";
 import { Transaction } from "@mysten/sui/transactions";
-// USER_REGISTRY_ID'yi import ediyoruz
-import { PACKAGE_ID, USER_REGISTRY_ID } from "@/lib/constants"; 
+import { PACKAGE_ID, USER_REGISTRY_ID, CLOCK_OBJECT_ID } from "@/lib/constants"; 
 import type { RegistrationState, UserRegistrationData } from "./types";
-
-// Buradaki satırı siliyoruz veya constants'tan gelen ile değiştiriyoruz
-const REGISTRY_OBJECT_ID = USER_REGISTRY_ID;
 
 export function useUserRegistration() {
   const account = useCurrentAccount();
@@ -33,14 +29,15 @@ export function useUserRegistration() {
     try {
       const tx = new Transaction();
 
-      // Call register_user on the member module (renamed from user_registry)
+      // Call register_user on the member module
       tx.moveCall({
         target: `${PACKAGE_ID}::member::register_user`,
         arguments: [
-          tx.object(REGISTRY_OBJECT_ID),
+          tx.object(USER_REGISTRY_ID),
           tx.pure.u64(userData.intraId),
           tx.pure.string(userData.username),
           tx.pure.string(userData.email),
+          tx.object(CLOCK_OBJECT_ID),
         ],
       });
 

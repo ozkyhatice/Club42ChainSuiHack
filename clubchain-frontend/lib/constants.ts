@@ -1,35 +1,23 @@
-// Deployed package ID from Sui Testnet (Updated with participants functionality)
-export const PACKAGE_ID =
-  process.env.NEXT_PUBLIC_PACKAGE_ID ||
-  "0x26df297777639fb60efaa865462e4fa82d221afca84852e99e7391818676eafa";
+// Network configuration
+export const NETWORK = "testnet" as const;
 
-// Testnet configuration
-export const NETWORK =
-  (process.env.NEXT_PUBLIC_SUI_NETWORK as "testnet" | "devnet" | undefined) ||
-  "testnet";
+// Package ID - Testnet deployment (Updated with Super Admin system + club_v2)
+export const PACKAGE_ID = 
+  process.env.NEXT_PUBLIC_PACKAGE_ID || 
+  "0x11f1111a939b699e98d05265c37ac405162f9f41a3289bdd6f867ec32ffb3763";
 
-// Sui Clock object ID (shared object on all Sui networks)
+// UserRegistry Object ID - Testnet deployment
+export const CLUB_REGISTRY_OBJECT_ID = 
+  process.env.NEXT_PUBLIC_CLUB_REGISTRY_OBJECT_ID || 
+  "0xc4cf6bc0153d1ea52fa5e4ef451647c0b3bdad5dedde9b700b19a67039dba880";
+
+// Admin Cap Object ID - User specific, no default
+export const ADMIN_CAP_OBJECT_ID = process.env.NEXT_PUBLIC_ADMIN_CAP_OBJECT_ID || "";
+
+// Sui Clock Object ID - Standard shared object for timestamps
 export const CLOCK_OBJECT_ID = "0x6";
 
-// UserRegistry shared object ID (from deployment)
-export const REGISTRY_OBJECT_ID =
-  process.env.NEXT_PUBLIC_REGISTRY_OBJECT_ID ||
-  "0x2847eb19d6076339070a5d2b6b7d1a0e681d5c9d6b31460a13a1d2061a5e2d20";
-
-// UserRegistry ID (alias for REGISTRY_OBJECT_ID, used in registration flow)
-export const USER_REGISTRY_ID =
-  process.env.NEXT_PUBLIC_USER_REGISTRY_ID || REGISTRY_OBJECT_ID;
-
-// Optional ClubRegistry shared object ID (used to list clubs)
-export const CLUB_REGISTRY_OBJECT_ID =
-  process.env.NEXT_PUBLIC_CLUB_REGISTRY_ID || "";
-
-// Module names
-export const MODULES = {
-  CLUB: `${PACKAGE_ID}::club`,
-  EVENT: `${PACKAGE_ID}::event`,
-  MEMBER: `${PACKAGE_ID}::member`,
-  ADMIN_CAP: `${PACKAGE_ID}::admin_cap`,
-  MEMBER_SBT: `${PACKAGE_ID}::member_sbt`,
-};
-
+// User Registry Object ID - Testnet deployment (for member registration)
+export const USER_REGISTRY_ID = 
+  process.env.NEXT_PUBLIC_USER_REGISTRY_ID || 
+  "0xc4cf6bc0153d1ea52fa5e4ef451647c0b3bdad5dedde9b700b19a67039dba880";

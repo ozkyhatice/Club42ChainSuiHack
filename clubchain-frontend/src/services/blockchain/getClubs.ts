@@ -1,4 +1,4 @@
-import { SuiClient, getFullnodeUrl } from "@mysten/sui.js/client";
+import { SuiClient, getFullnodeUrl } from "@mysten/sui/client";
 import {
   PACKAGE_ID,
   NETWORK,
@@ -253,14 +253,7 @@ export async function fetchClubsFromChain(): Promise<Club[]> {
 }
 
 export async function getClubs(): Promise<Club[]> {
-  const clubs = await fetchClubsFromChain();
-  
-  if (clubs.length === 0) {
-    // Return empty array - let UI show "No clubs yet" message
-    return [];
-  }
-  
-  return clubs;
+  return await fetchClubsFromChain();
 }
 
 export async function getClubById(id: string): Promise<Club | null> {

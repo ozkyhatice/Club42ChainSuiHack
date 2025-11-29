@@ -60,6 +60,7 @@ export const ClubCard = memo(function ClubCard({ club }: Props) {
       {/* Action button */}
       <Link
         href={`/club/${club.id}`}
+        prefetch={false}
         className="relative inline-flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-semibold rounded-lg transition-all hover:scale-105 hover:shadow-lg group"
       >
         View Details

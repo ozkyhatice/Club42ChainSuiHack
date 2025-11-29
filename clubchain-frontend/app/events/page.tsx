@@ -1,147 +1,235 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { ConnectButton } from "@mysten/dapp-kit";
-import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import DashboardLayout from "@/components/dashboard/DashboardLayout";
+import { getClubs } from "@/src/services/blockchain/getClubs";
+import GamifiedButton from "@/components/ui/GamifiedButton";
+import StatCard from "@/components/ui/StatCard";
+import { Sparkles, Search, Calendar, Users, Plus, ArrowRight } from "lucide-react";
 import type { EventInfo } from "@/src/services/blockchain/getClubs";
+import Link from "next/link";
+import { useIsAnyClubOwner } from "@/hooks/useClubOwnership";
 
 export default function EventsPage() {
-  const [events, setEvents] = useState<EventInfo[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState("");
+  const { isOwner } = useIsAnyClubOwner();
 
-  useEffect(() => {
-    async function fetchEvents() {
-      try {
-        setLoading(true);
-        const response = await fetch("/api/clubs");
-        if (!response.ok) {
-          throw new Error("Failed to fetch events");
-        }
-        const { clubs } = await response.json();
-        
-        // Flatten all events from all clubs
-        const allEvents = clubs.flatMap((club: any) => club.events || []);
-        
-        // Sort by date (newest first)
-        const sortedEvents = allEvents.sort((a: EventInfo, b: EventInfo) => b.date - a.date);
-        
-        setEvents(sortedEvents);
-      } catch (err) {
-        setError("Failed to load events");
-      } finally {
-        setLoading(false);
-      }
-    }
+  // Fetch all clubs to get events
+  const { data: clubs = [], isLoading: clubsLoading } = useQuery({
+    queryKey: ["all-events-clubs"],
+    queryFn: getClubs,
+    staleTime: 60000,
+  });
 
-    fetchEvents();
-  }, []);
+  // Flatten all events from all clubs
+  const allEvents: EventInfo[] = clubs.flatMap((club) => club.events || []);
+  
+  // Sort by date (upcoming first)
+  const sortedEvents = [...allEvents].sort((a, b) => a.date - b.date);
+  
+  // Filter events by search
+  const filteredEvents = sortedEvents.filter(
+    (event) =>
+      event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      event.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Separate upcoming and past events
+  const now = Date.now();
+  const upcomingEvents = filteredEvents.filter((e) => e.date > now);
+  const pastEvents = filteredEvents.filter((e) => e.date <= now);
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-8">
-      <div className="max-w-6xl mx-auto">
-        <header className="flex justify-between items-center mb-12">
-          <Link href="/" className="text-3xl font-bold text-blue-900 hover:text-blue-700">
-            ClubChain
-          </Link>
-          <ConnectButton />
-        </header>
-
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">All Events</h1>
-          <p className="text-gray-600">
-            Browse all upcoming events from clubs on the platform
-          </p>
+    <DashboardLayout>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 rounded-xl p-8 text-white shadow-elevation-3 animate-slideUp relative overflow-hidden">
+          <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-2">
+              <Sparkles className="w-10 h-10 animate-icon-pulse" />
+              <h1 className="text-3xl md:text-4xl font-bold">All Events</h1>
+            </div>
+            <p className="text-purple-100 text-lg">
+              Discover and join events from all clubs on campus
+            </p>
+          </div>
         </div>
 
-        {loading && (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div
-                key={i}
-                className="h-48 animate-pulse rounded-2xl bg-blue-50/60"
+        {/* Stats */}
+        <div className="grid md:grid-cols-3 gap-6 animate-slideUp animation-delay-200">
+          <StatCard
+            label="Total Events"
+            value={clubsLoading ? "..." : allEvents.length}
+            icon={Calendar}
+            iconColor="text-purple-600"
+            iconBgColor="bg-purple-50"
+          />
+          <StatCard
+            label="Upcoming"
+            value={clubsLoading ? "..." : upcomingEvents.length}
+            icon={Sparkles}
+            iconColor="text-pink-600"
+            iconBgColor="bg-pink-50"
+          />
+          <StatCard
+            label="Past Events"
+            value={clubsLoading ? "..." : pastEvents.length}
+            icon={Calendar}
+            iconColor="text-gray-600"
+            iconBgColor="bg-gray-50"
+          />
+        </div>
+
+        {/* Search Bar */}
+        <div className="bg-white rounded-xl shadow-elevation-2 p-6 animate-slideUp animation-delay-300">
+          <div className="flex items-center gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search events by title or description..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
               />
-            ))}
-          </div>
-        )}
-
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-800">
-            {error}
-          </div>
-        )}
-
-        {!loading && !error && events.length === 0 && (
-          <div className="text-center py-16 bg-white/80 rounded-2xl border border-blue-100">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              No Events Yet
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Be the first to create an event for your club
-            </p>
-            <Link
-              href="/events/create"
-              className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition"
-            >
-              Create Event
-            </Link>
-          </div>
-        )}
-
-        {!loading && !error && events.length > 0 && (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {events.map((event) => (
-              <Link
-                key={event.id}
-                href={`/events/${event.id}`}
-                className="bg-white/80 rounded-2xl border border-blue-100 p-6 shadow-sm hover:shadow-md transition cursor-pointer block"
+            </div>
+            {isOwner && (
+              <GamifiedButton
+                variant="gradient"
+                size="md"
+                icon={Plus}
+                onClick={() => router.push("/events/create")}
               >
-                <div className="mb-3">
-                  <h3 className="text-xl font-semibold text-blue-900 mb-1">
-                    {event.title}
-                  </h3>
-                  <p className="text-xs text-gray-500">
-                    {new Date(event.date).toLocaleDateString("en-US", {
-                      weekday: "short",
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </p>
-                </div>
-
-                <p className="text-sm text-gray-600 mb-4 line-clamp-3">
-                  {event.description}
-                </p>
-
-                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                  <span className="text-xs text-gray-500">
-                    👥 {event.participants?.length || 0} participants
-                  </span>
-                  <span className="text-xs text-blue-600 font-medium">
-                    View Details →
-                  </span>
-                </div>
-              </Link>
-            ))}
+                Create Event
+              </GamifiedButton>
+            )}
           </div>
-        )}
+        </div>
 
-        <div className="mt-12 flex gap-4 justify-center">
-          <Link
-            href="/events/create"
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition font-semibold"
-          >
-            Create Event
-          </Link>
-          <Link
-            href="/"
-            className="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300 transition font-semibold"
-          >
-            Browse Clubs
-          </Link>
+        {/* Events List */}
+        <div className="animate-slideUp animation-delay-400">
+          {clubsLoading ? (
+            <div className="bg-white rounded-xl shadow-elevation-2 p-12 text-center">
+              <div className="animate-spin h-12 w-12 border-4 border-purple-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading events from blockchain...</p>
+            </div>
+          ) : filteredEvents.length === 0 ? (
+            <div className="bg-white rounded-xl shadow-elevation-2 p-12 text-center">
+              <div className="inline-flex p-6 bg-gray-50 rounded-2xl mb-6">
+                <Calendar className="w-16 h-16 text-gray-400" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                {searchTerm ? "No events found" : "No events yet"}
+              </h3>
+              <p className="text-gray-600 mb-6">
+                {searchTerm
+                  ? "Try a different search term"
+                  : "Be the first to create an event!"}
+              </p>
+              {isOwner && !searchTerm && (
+                <GamifiedButton
+                  variant="primary"
+                  icon={Plus}
+                  onClick={() => router.push("/events/create")}
+                >
+                  Create First Event
+                </GamifiedButton>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-8">
+              {/* Upcoming Events */}
+              {upcomingEvents.length > 0 && (
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <Sparkles className="w-6 h-6 text-purple-600 animate-icon-pulse" />
+                    Upcoming Events ({upcomingEvents.length})
+                  </h2>
+                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    {upcomingEvents.map((event) => (
+                      <EventCard key={event.id} event={event} />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Past Events */}
+              {pastEvents.length > 0 && (
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-500 mb-4 flex items-center gap-2">
+                    <Calendar className="w-6 h-6 text-gray-400" />
+                    Past Events ({pastEvents.length})
+                  </h2>
+                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 opacity-75">
+                    {pastEvents.map((event) => (
+                      <EventCard key={event.id} event={event} />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
-    </main>
+    </DashboardLayout>
+  );
+}
+
+// Event Card Component
+function EventCard({ event }: { event: EventInfo }) {
+  const eventDate = new Date(event.date);
+  const isUpcoming = event.date > Date.now();
+
+  return (
+    <Link
+      href={`/events/${event.id}`}
+      prefetch={false}
+      className="bg-white rounded-xl border-2 border-gray-200 p-6 shadow-elevation-2 hover-lift transition-all card-interactive group"
+    >
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex-1">
+          <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors">
+            {event.title}
+          </h3>
+          <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
+            <Calendar className="w-3 h-3" />
+            <span>
+              {eventDate.toLocaleDateString("en-US", {
+                weekday: "short",
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </span>
+          </div>
+        </div>
+        {isUpcoming && (
+          <span className="px-2 py-1 text-xs font-semibold bg-green-100 text-green-800 rounded-full">
+            Upcoming
+          </span>
+        )}
+      </div>
+
+      <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+        {event.description}
+      </p>
+
+      <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+        <div className="flex items-center gap-1 text-xs text-gray-500">
+          <Users className="w-3 h-3" />
+          <span>{event.participants?.length || 0} participants</span>
+        </div>
+        <div className="flex items-center gap-1 text-xs text-purple-600 font-medium group-hover:gap-2 transition-all">
+          <span>View Details</span>
+          <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+        </div>
+      </div>
+    </Link>
   );
 }

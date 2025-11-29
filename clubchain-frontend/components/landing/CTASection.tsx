@@ -16,14 +16,14 @@ export default function CTASection() {
           variant="primary"
           size="lg"
           onClick={() => router.push("/auth/signin")}
-          className="w-full sm:min-w-[200px] group"
+          className="w-full sm:min-w-[200px] group shadow-elevation-2 hover-lift bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
         >
-          <GraduationCap className="w-5 h-5 group-hover:scale-110 transition-transform" />
-          Sign in with 42
+          <GraduationCap className="w-5 h-5 group-hover:scale-110 transition-transform animate-icon-pulse" />
+          Sign In with 42
           <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
         </Button>
         
-        <div className="flex items-center justify-center w-full sm:w-auto">
+        <div className="flex items-center justify-center w-full sm:w-auto hover-lift">
           <ConnectButton />
         </div>
       </div>

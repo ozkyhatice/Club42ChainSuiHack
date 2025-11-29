@@ -1,25 +1,28 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useCurrentAccount, useSignAndExecuteTransaction } from "@mysten/dapp-kit";
+import { useState } from "react";
+import { useSignAndExecuteTransaction, useCurrentAccount } from "@mysten/dapp-kit";
+import DashboardLayout from "@/components/dashboard/DashboardLayout";
+import GamifiedButton from "@/components/ui/GamifiedButton";
+import { Building2, ArrowLeft, Sparkles } from "lucide-react";
 import { buildCreateClubTx } from "@/modules/contracts/club";
 import { PACKAGE_ID } from "@/lib/constants";
 
 export default function CreateClubPage() {
-  const account = useCurrentAccount();
   const router = useRouter();
+  const account = useCurrentAccount();
   const { mutate: signAndExecute } = useSignAndExecuteTransaction();
   
   const [clubName, setClubName] = useState("");
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    setError(null);
+
     if (!account) {
       setError("Please connect your wallet first");
       return;
@@ -29,162 +32,160 @@ export default function CreateClubPage() {
       setError("Club name is required");
       return;
     }
+
     if (!description.trim()) {
       setError("Description is required");
       return;
     }
 
+    if (!PACKAGE_ID) {
+      setError("Package ID not configured. Please check your environment variables.");
+      return;
+    }
+
     setIsSubmitting(true);
-    setError("");
 
     try {
-      if (!PACKAGE_ID) {
-        setError("Configuration error: PACKAGE_ID is not set");
-        setIsSubmitting(false);
-        return;
-      }
-
       const tx = buildCreateClubTx(PACKAGE_ID, clubName, description);
 
       signAndExecute(
-        { transaction: tx },
         {
-          onSuccess: () => {
-            setSuccess(true);
-            setTimeout(() => {
-              router.push("/admin");
-            }, 2000);
+          transaction: tx,
+        },
+        {
+          onSuccess: (result) => {
+            console.log("Club created successfully:", result);
+            router.push("/dashboard/my-clubs");
           },
-          onError: (err) => {
-            setError(err.message || "Failed to create club");
+          onError: (error) => {
+            console.error("Failed to create club:", error);
+            setError(error.message || "Failed to create club");
             setIsSubmitting(false);
           },
         }
       );
-    } catch (err) {
-      setError(String(err));
+    } catch (err: any) {
+      console.error("Error building transaction:", err);
+      setError(err.message || "Failed to build transaction");
       setIsSubmitting(false);
     }
   };
 
-  if (!account) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center p-8">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Connect Wallet
-          </h2>
-          <p className="text-gray-600 mb-6">
-            Please connect your wallet to create a club.
-          </p>
+  return (
+    <DashboardLayout>
+      <div className="max-w-2xl mx-auto">
+        {/* Back Button */}
+        <div className="mb-6">
           <button
-            onClick={() => router.push("/auth/signin")}
-            className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition"
+            onClick={() => router.back()}
+            className="text-blue-600 hover:underline flex items-center gap-2 group"
           >
-            Connect Wallet
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            Back
           </button>
         </div>
-      </div>
-    );
-  }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-8">
-      <div className="max-w-2xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Create New Club
-          </h1>
-          <p className="text-gray-600">
-            Create a new club and become its president. You will receive an admin capability.
-          </p>
+        {/* Header */}
+        <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-xl p-8 text-white shadow-elevation-3 mb-6 animate-slideUp relative overflow-hidden">
+          <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-2">
+              <Building2 className="w-10 h-10 animate-icon-pulse" />
+              <h1 className="text-3xl md:text-4xl font-bold">Create New Club</h1>
+            </div>
+            <p className="text-blue-100 text-lg">
+              Start your own community and become a club owner
+            </p>
+          </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-lg p-8">
+        {/* Form Card */}
+        <div className="bg-white rounded-xl shadow-elevation-2 p-8 animate-slideUp animation-delay-200">
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Club Name */}
             <div>
-              <label
-                htmlFor="clubName"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Club Name
+              <label htmlFor="clubName" className="block text-sm font-semibold text-gray-700 mb-2">
+                Club Name *
               </label>
               <input
-                type="text"
                 id="clubName"
+                type="text"
                 value={clubName}
                 onChange={(e) => setClubName(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Enter club name"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                 disabled={isSubmitting}
                 required
               />
             </div>
 
+            {/* Description */}
             <div>
-              <label
-                htmlFor="clubDescription"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Description
+              <label htmlFor="description" className="block text-sm font-semibold text-gray-700 mb-2">
+                Description *
               </label>
               <textarea
-                id="clubDescription"
+                id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Describe your club's mission..."
+                placeholder="Describe your club"
+                rows={4}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none"
                 disabled={isSubmitting}
                 required
-                rows={4}
               />
             </div>
 
+            {/* Info Box */}
+            <div className="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <Sparkles className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                <div>
+                  <h3 className="font-semibold text-blue-900 mb-1">
+                    What happens when you create a club?
+                  </h3>
+                  <ul className="text-sm text-blue-800 space-y-1">
+                    <li>• You'll receive a ClubAdminCap NFT proving your ownership</li>
+                    <li>• You can create events for your club</li>
+                    <li>• You can update club information</li>
+                    <li>• Members can join your club and participate in events</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Error Message */}
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <p className="text-red-600 text-sm">{error}</p>
+              <div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-4 animate-slideUp">
+                <p className="text-sm text-red-800">{error}</p>
               </div>
             )}
 
-            {success && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <p className="text-green-600 text-sm">
-                  Club created successfully! Redirecting...
-                </p>
-              </div>
-            )}
-
-            <div className="flex gap-4">
-              <button
+            {/* Submit Button */}
+            <div className="flex gap-3">
+              <GamifiedButton
                 type="submit"
-                disabled={isSubmitting || success}
-                className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 transition"
+                variant="primary"
+                size="lg"
+                icon={Building2}
+                disabled={isSubmitting}
+                fullWidth
               >
-                {isSubmitting ? "Creating..." : "Create Club"}
-              </button>
-              <button
+                {isSubmitting ? "Creating Club..." : "Create Club"}
+              </GamifiedButton>
+              <GamifiedButton
                 type="button"
+                variant="secondary"
+                size="lg"
                 onClick={() => router.back()}
                 disabled={isSubmitting}
-                className="flex-1 bg-gray-200 text-gray-700 py-3 px-4 rounded-lg font-semibold hover:bg-gray-300 disabled:bg-gray-100 transition"
               >
                 Cancel
-              </button>
+              </GamifiedButton>
             </div>
           </form>
         </div>
-
-        <div className="mt-6 bg-blue-50 rounded-lg p-6">
-          <h3 className="font-semibold text-blue-900 mb-2">What happens next?</h3>
-          <ul className="space-y-2 text-sm text-blue-800">
-            <li>• Your club will be created on the Sui blockchain</li>
-            <li>• You will receive a ClubAdminCap proving your admin status</li>
-            <li>• You can create and manage events for this club</li>
-            <li>• Only you can update or delete this club</li>
-          </ul>
-        </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }
-

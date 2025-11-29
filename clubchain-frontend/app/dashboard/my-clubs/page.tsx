@@ -1,8 +1,5 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import Card, { CardBody, CardHeader } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
@@ -10,26 +7,6 @@ import Link from "next/link";
 import { Users, Shield, Crown, Zap, Search } from "lucide-react";
 
 export default function MyClubsPage() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
-  
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/");
-    }
-  }, [status, router]);
-  
-  if (status === "loading") {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin h-12 w-12 border-4 border-blue-600 border-t-transparent rounded-full"></div>
-      </div>
-    );
-  }
-  
-  if (!session) {
-    return null;
-  }
   
   return (
     <DashboardLayout>
