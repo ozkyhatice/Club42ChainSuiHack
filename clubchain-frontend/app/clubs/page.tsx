@@ -34,12 +34,12 @@ export default function ClubsPage() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="bg-primary rounded-xl p-8 text-white shadow-elevation-3 animate-slideUp">
+        <div className="rounded-xl p-8 shadow-elevation-3 animate-slideUp" style={{ background: 'linear-gradient(90deg, #A78BFA 0%, #60A5FA 100%)' }}>
           <div className="flex items-center gap-3 mb-2">
-            <Building2 className="w-10 h-10 animate-icon-pulse" />
-            <h1 className="text-3xl md:text-4xl font-bold">All Clubs</h1>
+            <Building2 className="w-10 h-10 animate-icon-pulse" style={{ color: '#FFFFFF' }} />
+            <h1 className="text-3xl md:text-4xl font-bold" style={{ color: '#FFFFFF' }}>All Clubs</h1>
           </div>
-          <p className="text-white/90 text-lg">
+          <p className="text-lg" style={{ color: '#FFFFFF' }}>
             Discover and explore all clubs on campus
           </p>
         </div>

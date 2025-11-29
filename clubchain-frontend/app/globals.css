@@ -339,3 +339,98 @@ body {
 .card-interactive:active {
   transform: translateY(-2px) scale(1.01);
 }
+
+/* Global Shadow for UI Elements */
+button,
+[role="button"],
+input[type="submit"],
+input[type="button"],
+.card,
+[class*="Card"],
+[class*="card"] {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+button:hover,
+[role="button"]:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover,
+.card:hover,
+[class*="Card"]:hover,
+[class*="card"]:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Input fields with subtle shadow */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+textarea,
+select {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.3s ease;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+textarea:focus,
+select:focus {
+  box-shadow: 0 2px 8px rgba(124, 107, 160, 0.2);
+}
+
+/* Sui Wallet ConnectButton Dropdown Styling - Custom styled to match theme */
+[data-radix-popper-content-wrapper] {
+  z-index: 50 !important;
+}
+
+[data-radix-popper-content-wrapper] > div {
+  background: var(--card) !important;
+  border: 1px solid var(--border-light) !important;
+  border-radius: 0.75rem !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+  padding: 0.5rem !important;
+  min-width: 16rem !important;
+}
+
+[data-radix-popper-content-wrapper] button {
+  background: transparent !important;
+  border: none !important;
+  padding: 0.75rem 1rem !important;
+  color: var(--foreground) !important;
+  font-size: 0.875rem !important;
+  transition: all 0.2s ease !important;
+  border-radius: 0.5rem !important;
+}
+
+[data-radix-popper-content-wrapper] button:hover {
+  background: var(--secondary) !important;
+}
+
+[data-radix-popper-content-wrapper] button[data-error] {
+  color: var(--error) !important;
+}
+
+[data-radix-popper-content-wrapper] button[data-error]:hover {
+  background: rgba(220, 38, 38, 0.1) !important;
+}
+
+/* Hide ConnectButton's default dropdown when custom dropdown is used */
+.wallet-display-container [data-radix-popper-content-wrapper] {
+  display: none !important;
+}
+
+/* Override ConnectButton default styles to show our custom design */
+.wallet-display-container button[data-testid="connect-button"],
+.wallet-display-container [role="button"] {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  height: auto !important;
+  width: auto !important;
+}

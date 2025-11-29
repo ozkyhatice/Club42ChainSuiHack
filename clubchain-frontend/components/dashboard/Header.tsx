@@ -1,9 +1,9 @@
 "use client";
 
-import { ConnectButton } from "@mysten/dapp-kit";
 import UserProfile from "./UserProfile";
+import WalletDisplay from "./WalletDisplay";
 import Link from "next/link";
-import { Building2 } from "lucide-react";
+import { Building2, Menu, X } from "lucide-react";
 
 interface HeaderProps {
   onMenuToggle: () => void;
@@ -12,42 +12,37 @@ interface HeaderProps {
 
 export default function Header({ onMenuToggle, isMobileMenuOpen }: HeaderProps) {
   return (
-    <header className="bg-card border-b border-secondary sticky top-0 z-40 shadow-sm">
-      <div className="flex items-center justify-between px-4 sm:px-6 py-4">
+    <header className="bg-card/80 backdrop-blur-xl border-b border-border/50 sticky top-0 z-50 shadow-[0_2px_8px_rgba(0,0,0,0.1)]">
+      <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
         {/* Left: Menu toggle + Logo */}
         <div className="flex items-center gap-4">
           {/* Mobile menu toggle */}
           <button
             onClick={onMenuToggle}
-            className="lg:hidden p-2 rounded-lg hover:bg-secondary transition-colors"
+            className="lg:hidden p-2 rounded-lg hover:bg-secondary/50 transition-all hover:scale-105 active:scale-95"
             aria-label="Toggle menu"
           >
-            <svg
-              className="w-6 h-6 text-foreground"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              {isMobileMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
+            {isMobileMenuOpen ? (
+              <X className="w-6 h-6 text-foreground" />
+            ) : (
+              <Menu className="w-6 h-6 text-foreground" />
+            )}
           </button>
           
           {/* Logo */}
-          <Link href="/dashboard" className="flex items-center gap-2 group">
-            <Building2 className="w-6 h-6 text-[#8b7ba8] group-hover:scale-110 transition-transform" />
-            <h1 className="text-xl font-bold text-[#8b7ba8] group-hover:scale-105 transition-transform">
+          <Link href="/dashboard" className="flex items-center gap-2.5 group">
+            <div className="p-2 rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-all group-hover:scale-110">
+              <Building2 className="w-6 h-6 text-primary" />
+            </div>
+            <h1 className="text-xl sm:text-2xl font-bold text-primary group-hover:scale-105 transition-transform">
               42 Clubs
             </h1>
           </Link>
         </div>
         
         {/* Right: Wallet + Profile */}
-        <div className="flex items-center gap-3">
-          <ConnectButton />
+        <div className="flex items-center gap-3 sm:gap-4">
+          <WalletDisplay />
           <UserProfile />
         </div>
       </div>
