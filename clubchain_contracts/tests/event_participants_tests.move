@@ -318,3 +318,4 @@ module clubchain::event_participants_tests {
     }
 }
 
+
