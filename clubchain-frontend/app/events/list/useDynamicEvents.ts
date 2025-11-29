@@ -55,11 +55,10 @@ export function useDynamicEvents() {
       }
 
       // Sort by start time (most recent first)
-      eventObjects.sort((a, b) => b.startTime - a.startTime);
+      eventObjects.sort((a, b) => (b.startTime || 0) - (a.startTime || 0));
       setEvents(eventObjects);
     } catch (err) {
       setError(err as Error);
-      console.error('Error fetching events:', err);
       // Set empty array on error so UI can still render
       setEvents([]);
     } finally {

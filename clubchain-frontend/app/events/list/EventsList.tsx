@@ -12,9 +12,9 @@ interface EventsListProps {
 
 export default function EventsList({ events, isLoading, error, onRefresh }: EventsListProps) {
   const now = Date.now();
-  const upcomingEvents = events.filter(e => e.startTime > now);
-  const ongoingEvents = events.filter(e => e.startTime <= now && e.endTime > now);
-  const pastEvents = events.filter(e => e.endTime < now);
+  const upcomingEvents = events.filter(e => (e.startTime || 0) > now);
+  const ongoingEvents = events.filter(e => (e.startTime || 0) <= now && (e.endTime || 0) > now);
+  const pastEvents = events.filter(e => (e.endTime || 0) < now);
 
   if (isLoading) {
     return (

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useCurrentAccount, useSignAndExecuteTransaction } from "@mysten/dapp-kit";
 import { buildCreateEventTx } from "@/modules/contracts/event";
-import { PACKAGE_ID, CLOCK_OBJECT_ID } from "@/lib/constants";
+import { PACKAGE_ID } from "@/lib/constants";
 import type { EventFormData } from "../types";
 
 interface CreateEventState {
@@ -19,7 +19,7 @@ export function useCreateEvent() {
     txStatus: "",
   });
 
-  const createEvent = async (formData: EventFormData, adminCapId: string) => {
+  const createEvent = async (formData: EventFormData, adminCapId: string, clubId: string) => {
     if (!account) {
       setState({ isSubmitting: false, txStatus: "Please connect wallet first" });
       return;
@@ -30,42 +30,35 @@ export function useCreateEvent() {
       return;
     }
 
+    if (!clubId) {
+      setState({ isSubmitting: false, txStatus: "Club ID not found" });
+      return;
+    }
+
     setState({ isSubmitting: true, txStatus: "Creating transaction..." });
 
     try {
-      if (!PACKAGE_ID || !CLOCK_OBJECT_ID) {
-        console.error("Configuration error:", { PACKAGE_ID, CLOCK_OBJECT_ID });
+      if (!PACKAGE_ID) {
         setState({ 
           isSubmitting: false, 
-          txStatus: "Configuration error: PACKAGE_ID or CLOCK_OBJECT_ID not set" 
+          txStatus: "Configuration error: PACKAGE_ID not set" 
         });
         return;
       }
 
-      console.log("Building event transaction with:", {
-        PACKAGE_ID,
-        CLOCK_OBJECT_ID,
-        adminCapId,
-        formData,
-      });
-
       const eventData = {
-        clubId: formData.clubId,
+        clubId: clubId,
         title: formData.title,
         description: formData.description,
-        location: formData.location,
-        startTime: new Date(formData.startTime),
-        endTime: new Date(formData.endTime),
+        date: new Date(formData.date),
       };
 
       const tx = buildCreateEventTx(
         PACKAGE_ID,
-        CLOCK_OBJECT_ID,
         adminCapId,
+        clubId,
         eventData
       );
-
-      console.log("Transaction block created, signing...");
       signAndExecute(
         { transaction: tx },
         {
@@ -101,4 +94,3 @@ export function useCreateEvent() {
     resetStatus,
   };
 }
-

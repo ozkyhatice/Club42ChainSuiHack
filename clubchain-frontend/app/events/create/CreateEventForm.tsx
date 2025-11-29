@@ -16,9 +16,7 @@ export default function CreateEventForm() {
     clubId: '',
     title: '',
     description: '',
-    location: '',
-    startTime: '',
-    endTime: '',
+    date: '',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -38,7 +36,7 @@ export default function CreateEventForm() {
       clubId: selectedClubId,
     };
 
-    await createEvent(eventData, adminCap.id);
+    await createEvent(eventData, adminCap.id, selectedClubId);
     
     // Reset form on success
     if (txStatus.includes('Success')) {
@@ -46,9 +44,7 @@ export default function CreateEventForm() {
         clubId: '',
         title: '',
         description: '',
-        location: '',
-        startTime: '',
-        endTime: '',
+        date: '',
       });
       setSelectedClubId('');
     }
@@ -139,44 +135,15 @@ export default function CreateEventForm() {
 
         <div>
           <label className="block text-sm font-medium mb-2">
-            Location
+            Event Date
           </label>
           <input
-            type="text"
+            type="datetime-local"
             required
-            value={formData.location}
-            onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+            value={formData.date}
+            onChange={(e) => setFormData({ ...formData, date: e.target.value })}
             className="w-full px-3 py-2 border rounded-lg"
-            placeholder="Room 301"
           />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Start Time
-            </label>
-            <input
-              type="datetime-local"
-              required
-              value={formData.startTime}
-              onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              End Time
-            </label>
-            <input
-              type="datetime-local"
-              required
-              value={formData.endTime}
-              onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg"
-            />
-          </div>
         </div>
 
         <button
@@ -198,4 +165,3 @@ export default function CreateEventForm() {
     </div>
   );
 }
-

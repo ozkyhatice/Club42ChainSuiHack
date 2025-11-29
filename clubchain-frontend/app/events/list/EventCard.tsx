@@ -1,19 +1,20 @@
 'use client';
 
-import type { EventItem } from './types';
+import { memo } from 'react';
+import type { EventItem } from '../types';
 
 interface EventCardProps {
   event: EventItem;
 }
 
-export default function EventCard({ event }: EventCardProps) {
-  const startDate = new Date(event.startTime);
-  const endDate = new Date(event.endTime);
+const EventCard = memo(function EventCard({ event }: EventCardProps) {
+  const startDate = new Date(event.startTime || 0);
+  const endDate = new Date(event.endTime || 0);
   const now = Date.now();
   
-  const isUpcoming = event.startTime > now;
-  const isOngoing = event.startTime <= now && event.endTime > now;
-  const isPast = event.endTime < now;
+  const isUpcoming = (event.startTime || 0) > now;
+  const isOngoing = (event.startTime || 0) <= now && (event.endTime || 0) > now;
+  const isPast = (event.endTime || 0) < now;
 
   const getStatusBadge = () => {
     if (isOngoing) {
@@ -53,10 +54,12 @@ export default function EventCard({ event }: EventCardProps) {
       <p className="text-gray-600 mb-4 line-clamp-2">{event.description}</p>
 
       <div className="space-y-2 text-sm">
-        <div className="flex items-center text-gray-700">
-          <span className="mr-2">📍</span>
-          <span className="font-medium">{event.location}</span>
-        </div>
+        {event.location && (
+          <div className="flex items-center text-gray-700">
+            <span className="mr-2">📍</span>
+            <span className="font-medium">{event.location}</span>
+          </div>
+        )}
 
         <div className="flex items-center text-gray-700">
           <span className="mr-2">📅</span>
@@ -68,10 +71,12 @@ export default function EventCard({ event }: EventCardProps) {
           <span>{formatTime(startDate)} - {formatTime(endDate)}</span>
         </div>
 
-        <div className="flex items-center text-gray-500">
-          <span className="mr-2">👤</span>
-          <span className="text-xs font-mono">{event.creator.slice(0, 12)}...</span>
-        </div>
+        {event.creator && (
+          <div className="flex items-center text-gray-500">
+            <span className="mr-2">👤</span>
+            <span className="text-xs font-mono">{event.creator.slice(0, 12)}...</span>
+          </div>
+        )}
       </div>
 
       <div className="mt-4 pt-4 border-t flex justify-between items-center">
@@ -89,5 +94,7 @@ export default function EventCard({ event }: EventCardProps) {
       </div>
     </div>
   );
-}
+});
+
+export default EventCard;
 
