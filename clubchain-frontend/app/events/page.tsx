@@ -46,17 +46,14 @@ export default function EventsPage() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="bg-gradient-to-r from-primary via-accent to-primary-light rounded-xl p-8 text-white shadow-elevation-3 animate-slideUp relative overflow-hidden">
-          <div className="absolute inset-0 bg-white/5 backdrop-blur-sm"></div>
-          <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-2">
-              <Sparkles className="w-10 h-10 animate-icon-pulse" />
-              <h1 className="text-3xl md:text-4xl font-bold">All Events</h1>
-            </div>
-            <p className="text-white/80 text-lg">
-              Discover and join events from all clubs on campus
-            </p>
+        <div className="bg-primary rounded-xl p-8 text-white shadow-elevation-3 animate-slideUp">
+          <div className="flex items-center gap-3 mb-2">
+            <Sparkles className="w-10 h-10 animate-icon-pulse" />
+            <h1 className="text-3xl md:text-4xl font-bold">All Events</h1>
           </div>
+          <p className="text-white/90 text-lg">
+            Discover and join events from all clubs on campus
+          </p>
         </div>
 
         {/* Stats */}

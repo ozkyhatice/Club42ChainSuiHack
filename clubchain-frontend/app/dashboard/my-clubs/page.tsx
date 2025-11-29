@@ -74,8 +74,8 @@ export default function MyClubsPage() {
         <div className="grid sm:grid-cols-3 gap-4 mt-8">
           <Card className="hover-lift">
             <CardBody className="text-center">
-              <div className="inline-flex p-3 bg-blue-50 rounded-lg mb-2">
-                <Shield className="w-8 h-8 text-blue-600" />
+              <div className="inline-flex p-3 bg-[#f5f3f8] rounded-lg mb-2">
+                <Shield className="w-8 h-8 text-[#6b5b95]" />
               </div>
               <p className="text-2xl font-bold text-foreground">0</p>
               <p className="text-sm text-gray-400">Clubs Joined</p>

@@ -34,7 +34,7 @@ export default function EventsList({ events, isLoading, error, onRefresh }: Even
         <p className="text-red-600 text-sm mb-4">{error.message}</p>
         <button
           onClick={onRefresh}
-          className="text-blue-600 hover:underline font-medium"
+          className="text-[#6b5b95] hover:underline font-medium"
         >
           Try again
         </button>

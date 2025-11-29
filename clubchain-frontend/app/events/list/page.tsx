@@ -14,7 +14,7 @@ export default function EventsPage() {
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <Link href="/" className="text-blue-600 hover:underline mb-2 block">
+            <Link href="/" className="text-[#6b5b95] hover:underline mb-2 block">
               ← Home
             </Link>
             <h1 className="text-3xl font-bold">Campus Events</h1>
@@ -33,7 +33,7 @@ export default function EventsPage() {
               </button>
               <Link
                 href="/events/create"
-                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold transition"
+                className="bg-primary/20 text-primary border border-primary/30 shadow-sm hover:bg-primary/30 hover:scale-105 active:scale-95 px-6 py-3 rounded-lg font-medium transition-all group"
               >
                 + Create Event
               </Link>
@@ -49,7 +49,7 @@ export default function EventsPage() {
             </p>
             <Link
               href="/"
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 inline-block"
+              className="bg-primary/20 text-primary border border-primary/30 shadow-sm hover:bg-primary/30 hover:scale-105 active:scale-95 px-6 py-3 rounded-lg font-medium transition-all group inline-block"
             >
               Go to Home
             </Link>
@@ -64,7 +64,7 @@ export default function EventsPage() {
             />
 
             {account && !isLoading && events.length > 0 && (
-              <div className="mt-8 bg-blue-50 rounded-lg p-6 border border-blue-100">
+              <div className="mt-8 bg-[#f5f3f8] rounded-lg p-6 border border-[#e8e3f0]">
                 <h3 className="font-semibold mb-3 text-lg">💡 How ClubChain Works</h3>
                 <ul className="text-sm text-gray-700 space-y-2">
                   <li className="flex items-start">

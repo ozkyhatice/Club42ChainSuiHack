@@ -16,8 +16,8 @@ export function ClubList({ clubs }: ClubListProps) {
       {/* Empty state */}
       {showEmptyState && (
         <div className="rounded-2xl border border-blue-100 bg-white/80 p-12 text-center shadow-elevation-1 hover-lift">
-          <div className="inline-flex p-6 bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl mb-4">
-            <Building2 className="w-16 h-16 text-blue-600 animate-icon-pulse" />
+          <div className="inline-flex p-6 bg-gradient-to-br from-[#f5f3f8] to-[#e8e3f0] rounded-2xl mb-4">
+            <Building2 className="w-16 h-16 text-[#6b5b95] animate-icon-pulse" />
           </div>
           <p className="text-xl font-bold text-blue-900 mb-2">No clubs yet</p>
           <p className="text-sm text-gray-600">

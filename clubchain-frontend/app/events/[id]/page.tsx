@@ -37,10 +37,10 @@ export default function EventDetailPage({
 
         {loading && (
           <div className="bg-white/80 rounded-2xl border border-blue-100 p-8 animate-pulse">
-            <div className="h-8 bg-blue-100 rounded w-3/4 mb-4"></div>
-            <div className="h-4 bg-blue-50 rounded w-1/2 mb-6"></div>
-            <div className="h-32 bg-blue-50 rounded mb-6"></div>
-            <div className="h-10 bg-blue-100 rounded w-32"></div>
+            <div className="h-8 bg-[#e8e3f0] rounded w-3/4 mb-4"></div>
+            <div className="h-4 bg-[#f5f3f8] rounded w-1/2 mb-6"></div>
+            <div className="h-32 bg-[#f5f3f8] rounded mb-6"></div>
+            <div className="h-10 bg-[#e8e3f0] rounded w-32"></div>
           </div>
         )}
 
@@ -92,7 +92,7 @@ export default function EventDetailPage({
                   No participants yet. Be the first to join!
                 </p>
               ) : (
-                <div className="bg-blue-50 rounded-lg p-4 max-h-60 overflow-y-auto">
+                <div className="bg-[#f5f3f8] rounded-lg p-4 max-h-60 overflow-y-auto">
                   {event.participants.map((participant, index) => (
                     <div
                       key={participant}
@@ -124,7 +124,7 @@ export default function EventDetailPage({
                 <button
                   onClick={handleJoin}
                   disabled={actionLoading}
-                  className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-primary/20 text-primary border border-primary/30 shadow-sm hover:bg-primary/30 hover:scale-105 active:scale-95 px-8 py-3 rounded-lg font-medium transition-all group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none"
                 >
                   {actionLoading ? "Processing..." : "Join Event"}
                 </button>
@@ -162,7 +162,7 @@ export default function EventDetailPage({
         <div className="mt-8 flex gap-4">
           <Link
             href="/events"
-            className="text-blue-600 hover:text-blue-800 font-medium"
+            className="text-[#6b5b95] hover:text-[#4a3d75] font-medium"
           >
             ← Back to All Events
           </Link>

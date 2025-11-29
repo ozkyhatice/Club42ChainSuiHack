@@ -69,7 +69,7 @@ export default function MyEventsPage() {
           {/* <Card hover>
             <CardBody>
               <div className="flex flex-col sm:flex-row gap-4">
-                <div className="flex-shrink-0 w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex flex-col items-center justify-center text-white">
+                <div className="flex-shrink-0 w-20 h-20 bg-gradient-to-br from-[#7c6ba0] to-[#6b5b95] rounded-lg flex flex-col items-center justify-center text-white">
                   <div className="text-2xl font-bold">15</div>
                   <div className="text-xs">DEC</div>
                 </div>
@@ -96,8 +96,8 @@ export default function MyEventsPage() {
         <div className="grid sm:grid-cols-4 gap-4 mt-8">
           <Card className="hover-lift">
             <CardBody className="text-center">
-              <div className="inline-flex p-3 bg-blue-50 rounded-lg mb-2">
-                <Calendar className="w-8 h-8 text-blue-600" />
+              <div className="inline-flex p-3 bg-[#f5f3f8] rounded-lg mb-2">
+                <Calendar className="w-8 h-8 text-[#6b5b95]" />
               </div>
               <p className="text-2xl font-bold text-foreground">0</p>
               <p className="text-sm text-gray-400">Registered</p>
@@ -106,8 +106,8 @@ export default function MyEventsPage() {
           
           <Card className="hover-lift">
             <CardBody className="text-center">
-              <div className="inline-flex p-3 bg-purple-50 rounded-lg mb-2">
-                <Sparkles className="w-8 h-8 text-purple-600" />
+              <div className="inline-flex p-3 bg-[#f5f3f8] rounded-lg mb-2">
+                <Sparkles className="w-8 h-8 text-[#6b5b95]" />
               </div>
               <p className="text-2xl font-bold text-gray-900">0</p>
               <p className="text-sm text-gray-600">Created</p>

@@ -62,7 +62,7 @@ export default function AdminPage() {
   if (clubsLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin h-12 w-12 border-4 border-blue-600 border-t-transparent rounded-full"></div>
+        <div className="animate-spin h-12 w-12 border-4 border-[#6b5b95] border-t-transparent rounded-full"></div>
       </div>
     );
   }
@@ -71,17 +71,14 @@ export default function AdminPage() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-xl p-8 text-white shadow-elevation-3 animate-slideUp relative overflow-hidden">
-          <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
-          <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-2">
-              <Shield className="w-10 h-10 animate-icon-pulse" />
-              <h1 className="text-3xl md:text-4xl font-bold">Admin Panel</h1>
-            </div>
-            <p className="text-indigo-100 text-lg">
-              Manage club ownership and administrative privileges
-            </p>
+        <div className="bg-primary rounded-xl p-8 text-white shadow-elevation-3 animate-slideUp">
+          <div className="flex items-center gap-3 mb-2">
+            <Shield className="w-10 h-10 animate-icon-pulse" />
+            <h1 className="text-3xl md:text-4xl font-bold">Admin Panel</h1>
           </div>
+          <p className="text-white/90 text-lg">
+            Manage club ownership and administrative privileges
+          </p>
         </div>
 
         {/* Create Club Button */}
@@ -102,8 +99,8 @@ export default function AdminPage() {
             label="Total Clubs"
             value={clubs.length}
             icon={Building2}
-            iconColor="text-blue-600"
-            iconBgColor="bg-blue-50"
+            iconColor="text-[#6b5b95]"
+            iconBgColor="bg-[#f5f3f8]"
           />
           <StatCard
             label="Clubs You Own"
@@ -116,8 +113,8 @@ export default function AdminPage() {
             label="Total Admins"
             value={adminCaps.length}
             icon={Users}
-            iconColor="text-purple-600"
-            iconBgColor="bg-purple-50"
+            iconColor="text-[#6b5b95]"
+            iconBgColor="bg-[#f5f3f8]"
           />
         </div>
 
@@ -142,7 +139,7 @@ export default function AdminPage() {
         <div className="bg-white rounded-xl shadow-elevation-2 p-6 animate-slideUp animation-delay-600">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <Building2 className="w-6 h-6 text-blue-600" />
+              <Building2 className="w-6 h-6 text-[#6b5b95]" />
               All Clubs
             </h2>
             <div className="relative">

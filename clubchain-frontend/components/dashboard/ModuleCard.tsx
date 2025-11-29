@@ -108,7 +108,7 @@ export default function ModuleCard({
                 href={action.href}
                 className={`flex-1 text-center px-4 py-2 rounded-lg font-medium transition-all ${
                   action.variant === "primary"
-                    ? "bg-primary text-white hover:bg-primary-hover hover:scale-105"
+                    ? "bg-primary/20 text-primary border border-primary/30 shadow-sm hover:bg-primary/30 hover:scale-105 active:scale-95"
                     : "bg-secondary text-foreground hover:bg-secondary-hover hover:scale-105"
                 }`}
                 onClick={(e) => e.stopPropagation()}

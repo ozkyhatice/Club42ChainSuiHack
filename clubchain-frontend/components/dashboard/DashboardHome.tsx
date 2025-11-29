@@ -48,8 +48,8 @@ export default function DashboardHome() {
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-primary via-accent to-primary rounded-xl p-6 sm:p-8 text-white shadow-lg animate-slideUp relative overflow-hidden">
-        <div className="absolute inset-0 bg-white/5 backdrop-blur-sm"></div>
+      <div className="bg-gradient-to-r from-primary/50 via-accent/40 to-primary/50 rounded-xl p-6 sm:p-8 text-white shadow-lg animate-slideUp relative overflow-hidden">
+        <div className="absolute inset-0 bg-white/1 backdrop-blur-sm"></div>
         <div className="relative z-10">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
@@ -77,8 +77,8 @@ export default function DashboardHome() {
           label="Total Clubs"
           value={clubsLoading ? "..." : allClubs.length}
           icon={Building2}
-          iconColor="text-blue-600"
-          iconBgColor="bg-blue-50"
+          iconColor="text-[#6b5b95]"
+          iconBgColor="bg-[#f5f3f8]"
           onClick={() => router.push("/clubs")}
         />
         <StatCard
@@ -86,7 +86,7 @@ export default function DashboardHome() {
           value={clubsLoading ? "..." : totalEvents}
           icon={Sparkles}
           iconColor="text-accent"
-          iconBgColor="bg-accent/15"
+          iconBgColor="bg-accent/4"
           onClick={() => router.push("/events")}
         />
         {isOwner && (
@@ -118,13 +118,13 @@ export default function DashboardHome() {
           <CardBody>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold text-text-muted mb-2">42 Authentication</p>
+                <p className="text-sm font-semibold text-[#8b7ba8] mb-2">42 Authentication</p>
                 <p className="text-lg font-bold text-success flex items-center gap-2">
                   <CheckCircle className="w-5 h-5" />
                   Connected
                 </p>
               </div>
-              <div className="p-3 bg-success/10 rounded-lg">
+              <div className="p-3 bg-success/3 rounded-lg">
                 <Target className="w-8 h-8 text-success" />
               </div>
             </div>
@@ -154,7 +154,7 @@ export default function DashboardHome() {
                   </p>
                 )}
               </div>
-              <div className={`p-3 rounded-lg ${account ? 'bg-success/10' : 'bg-warning/10'}`}>
+              <div className={`p-3 rounded-lg ${account ? 'bg-success/3' : 'bg-warning/3'}`}>
                 <TrendingUp className={`w-8 h-8 ${account ? 'text-success' : 'text-warning'}`} />
               </div>
             </div>
@@ -164,7 +164,7 @@ export default function DashboardHome() {
       
       {/* Info Card - For Non-Owners */}
       {!isOwner && (
-        <div className="bg-gradient-to-br from-primary/10 to-accent/10 rounded-xl shadow-elevation-2 p-6 border-2 border-primary/20 animate-slideUp animation-delay-400">
+        <div className="bg-gradient-to-br from-primary/3 to-accent/3 rounded-xl shadow-elevation-2 p-6 border border-primary/5 animate-slideUp animation-delay-400">
           <div className="flex items-center gap-2 mb-4">
             <Building2 className="w-6 h-6 text-primary animate-icon-pulse" />
             <h2 className="text-2xl sm:text-3xl font-bold text-foreground">Club Membership</h2>
@@ -184,7 +184,7 @@ export default function DashboardHome() {
 
       {/* Owner-Only Quick Actions */}
       {isOwner && (
-        <div className="bg-gradient-to-br from-warning/10 to-warning/5 rounded-xl shadow-elevation-2 p-6 border-2 border-warning/20 animate-slideUp animation-delay-400">
+        <div className="bg-gradient-to-br from-warning/3 to-warning/2 rounded-xl shadow-elevation-2 p-6 border border-warning/5 animate-slideUp animation-delay-400">
           <div className="flex items-center gap-2 mb-4">
             <Crown className="w-6 h-6 text-warning fill-current animate-icon-pulse" />
             <h2 className="text-2xl sm:text-3xl font-bold text-foreground">Owner Dashboard</h2>
@@ -266,7 +266,7 @@ export default function DashboardHome() {
                   { label: "Browse Events", href: "/events", variant: "primary" }
                 ]
           }
-          badge={{ label: "Upcoming", color: "bg-accent/15 text-accent border-accent/20" }}
+          badge={{ label: "Upcoming", color: "bg-accent/4 text-accent border-accent/5" }}
           onClick={() => router.push("/dashboard/my-events")}
         />
         
@@ -275,7 +275,7 @@ export default function DashboardHome() {
           title="Club Directory"
           description="Discover all clubs on campus and find your community"
           icon={Building2}
-          iconColor="text-indigo-600"
+          iconColor="text-[#6b5b95]"
           stats={[
             { label: "Total Clubs", value: clubsLoading ? "--" : allClubs.length.toString() },
             { label: "Active", value: clubsLoading ? "--" : allClubs.length.toString() }
@@ -299,7 +299,7 @@ export default function DashboardHome() {
           actions={[
             { label: "View Events", href: "/events", variant: "primary" }
           ]}
-          badge={{ label: "Live", color: "bg-success/15 text-success border-success/20" }}
+          badge={{ label: "Live", color: "bg-success/4 text-success border-success/5" }}
           onClick={() => router.push("/events")}
         />
       </div>

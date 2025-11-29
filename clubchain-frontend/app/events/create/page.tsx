@@ -21,7 +21,7 @@ export default function CreateEventPage() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-[400px]">
-          <div className="animate-spin h-12 w-12 border-4 border-blue-600 border-t-transparent rounded-full"></div>
+          <div className="animate-spin h-12 w-12 border-4 border-[#6b5b95] border-t-transparent rounded-full"></div>
         </div>
       </DashboardLayout>
     );
@@ -105,7 +105,7 @@ export default function CreateEventPage() {
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
-          <Link href="/events" className="text-blue-600 hover:underline flex items-center gap-2 group">
+          <Link href="/events" className="text-[#6b5b95] hover:underline flex items-center gap-2 group">
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
             Back to Events
           </Link>
@@ -113,17 +113,14 @@ export default function CreateEventPage() {
         </div>
         
         {/* Title Section */}
-        <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-xl p-8 text-white shadow-elevation-3 mb-6 animate-slideUp relative overflow-hidden">
-          <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
-          <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-2">
-              <Sparkles className="w-8 h-8 animate-icon-pulse" />
-              <h1 className="text-3xl md:text-4xl font-bold">Create New Event</h1>
-            </div>
-            <p className="text-blue-100">
-              Create an event for one of your {clubCount} club{clubCount !== 1 ? 's' : ''}
-            </p>
+        <div className="bg-primary rounded-xl p-8 text-white shadow-elevation-3 mb-6 animate-slideUp">
+          <div className="flex items-center gap-3 mb-2">
+            <Sparkles className="w-8 h-8 animate-icon-pulse" />
+            <h1 className="text-3xl md:text-4xl font-bold">Create New Event</h1>
           </div>
+          <p className="text-white/90">
+            Create an event for one of your {clubCount} club{clubCount !== 1 ? 's' : ''}
+          </p>
         </div>
 
         {/* Form */}

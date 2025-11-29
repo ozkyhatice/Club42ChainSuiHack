@@ -61,7 +61,7 @@ export const ClubCard = memo(function ClubCard({ club }: Props) {
       <Link
         href={`/club/${club.id}`}
         prefetch={false}
-        className="relative inline-flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-primary to-accent text-white text-sm font-semibold rounded-lg transition-all hover:scale-105 hover:shadow-lg group"
+        className="relative inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary/20 text-primary border border-primary/30 shadow-sm hover:bg-primary/30 hover:scale-105 active:scale-95 text-sm font-medium rounded-lg transition-all group"
       >
         View Details
         <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

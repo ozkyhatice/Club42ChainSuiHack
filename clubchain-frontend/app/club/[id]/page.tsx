@@ -78,7 +78,7 @@ export default function ClubPage() {
               </p>
               <button
                 onClick={() => router.push("/clubs")}
-                className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors"
+                className="px-6 py-2 bg-primary/20 text-primary border border-primary/30 shadow-sm hover:bg-primary/30 hover:scale-105 active:scale-95 rounded-lg font-medium transition-all group"
               >
                 Back to Clubs
               </button>
@@ -106,30 +106,28 @@ export default function ClubPage() {
         </button>
 
         {/* Header Section */}
-        <div className="bg-gradient-to-r from-primary via-accent to-primary rounded-xl p-8 text-white shadow-elevation-3 animate-slideUp relative overflow-hidden">
-          <div className="absolute inset-0 bg-white/5 backdrop-blur-sm"></div>
-          <div className="relative z-10">
-            <div className="flex items-start justify-between flex-wrap gap-4">
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-3">
-                  <Building2 className="w-10 h-10 animate-icon-pulse" />
-                  <h1 className="text-3xl md:text-4xl font-bold">{club.name}</h1>
-                  {isOwner && <OwnerBadge size="lg" />}
+        <div className="bg-primary rounded-xl p-8 text-white shadow-elevation-3 animate-slideUp">
+          <div className="flex items-start justify-between flex-wrap gap-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-3">
+                <Building2 className="w-10 h-10 animate-icon-pulse" />
+                <h1 className="text-3xl md:text-4xl font-bold">{club.name}</h1>
+                {isOwner && <OwnerBadge size="lg" />}
+              </div>
+              <p className="text-white/90 text-lg mb-4">{club.description}</p>
+              
+              {/* Club Info */}
+              <div className="flex flex-wrap items-center gap-4 text-sm">
+                <div className="flex items-center gap-2 bg-primary-light/30 px-3 py-1.5 rounded-lg">
+                  <Users className="w-4 h-4" />
+                  <span className="font-medium">
+                    {club.events.length} Event{club.events.length !== 1 ? 's' : ''}
+                  </span>
                 </div>
-                <p className="text-white/90 text-lg mb-4">{club.description}</p>
-                
-                {/* Club Info */}
-                <div className="flex flex-wrap items-center gap-4 text-sm">
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-lg">
-                    <Users className="w-4 h-4" />
-                    <span className="font-medium">
-                      {club.events.length} Event{club.events.length !== 1 ? 's' : ''}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => copyToClipboard(club.id)}
-                    className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-lg hover:bg-white/20 transition-colors group"
-                  >
+                <button
+                  onClick={() => copyToClipboard(club.id)}
+                  className="flex items-center gap-2 bg-primary-light/30 px-3 py-1.5 rounded-lg hover:bg-primary-light/40 transition-colors group"
+                >
                     {copied ? (
                       <>
                         <CheckCircle2 className="w-4 h-4" />
@@ -143,8 +141,7 @@ export default function ClubPage() {
                         </span>
                       </>
                     )}
-                  </button>
-                </div>
+                </button>
               </div>
             </div>
           </div>

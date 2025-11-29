@@ -27,7 +27,7 @@ export default function FloatingElements() {
         <Zap className="w-16 h-16 text-yellow-600" strokeWidth={1.5} />
       </div>
       <div className="absolute bottom-1/3 right-1/4 opacity-10 animate-float animation-delay-200">
-        <Users className="w-14 h-14 text-indigo-600" strokeWidth={1.5} />
+        <Users className="w-14 h-14 text-[#6b5b95]" strokeWidth={1.5} />
       </div>
       <div className="absolute top-2/3 left-1/4 opacity-10 animate-float animation-delay-400">
         <Calendar className="w-16 h-16 text-green-600" strokeWidth={1.5} />

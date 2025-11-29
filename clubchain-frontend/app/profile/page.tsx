@@ -37,7 +37,7 @@ export default function ProfilePage() {
   if (status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin h-12 w-12 border-4 border-blue-600 border-t-transparent rounded-full"></div>
+        <div className="animate-spin h-12 w-12 border-4 border-[#6b5b95] border-t-transparent rounded-full"></div>
       </div>
     );
   }
@@ -59,10 +59,10 @@ export default function ProfilePage() {
             <div className="flex flex-col sm:flex-row items-center gap-6">
               {/* Avatar */}
               <div className="relative group">
-                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-4xl shadow-lg group-hover:scale-105 transition-transform">
+                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-primary flex items-center justify-center text-white font-bold text-4xl shadow-lg group-hover:scale-105 transition-transform">
                   {userInitials}
                 </div>
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 opacity-0 group-hover:opacity-20 blur-xl transition-opacity"></div>
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#7c6ba0] to-[#6b5b95] opacity-0 group-hover:opacity-20 blur-xl transition-opacity"></div>
               </div>
               
               {/* User Info */}
@@ -72,8 +72,8 @@ export default function ProfilePage() {
                 </h1>
                 <div className="flex flex-col sm:flex-row items-center gap-3 text-text-muted">
                   <span className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-success" />
-                    42 Student
+                    <CheckCircle className="w-4 h-4 text-[#8b7ba8]" />
+                    <span className="text-[#8b7ba8]">42 Student</span>
                   </span>
                   <span className="hidden sm:inline">•</span>
                   <span className="flex items-center gap-2">
@@ -164,7 +164,7 @@ export default function ProfilePage() {
             <CardBody>
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 bg-success/10 border border-success/20 rounded-lg">
-                  <span className="text-sm font-medium text-foreground">42 OAuth</span>
+                  <span className="text-sm font-medium text-[#8b7ba8]">42 OAuth</span>
                   <span className="flex items-center gap-2 text-success font-semibold">
                     <CheckCircle className="w-4 h-4" />
                     Connected

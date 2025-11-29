@@ -58,7 +58,7 @@ export default function UserProfile() {
 
       {/* Dropdown menu */}
       {isDropdownOpen && (
-        <div className="absolute right-0 mt-2 w-64 bg-card rounded-xl shadow-elevation-3 border border-border-light py-2 animate-scaleUp z-50 overflow-hidden backdrop-blur-sm">
+        <div className="absolute right-0 mt-2 w-64 bg-card rounded-xl shadow-elevation-3 border border-border-light py-2 animate-scaleUp z-50 overflow-hidden">
           {/* User info in dropdown (mobile) */}
           <div className="md:hidden px-4 py-3 border-b border-secondary">
             <p className="text-sm font-semibold text-foreground">{session.user.login}</p>

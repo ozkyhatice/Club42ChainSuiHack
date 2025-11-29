@@ -70,7 +70,7 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-2xl mx-auto">
         <div className="mb-6">
-          <Link href="/" className="text-blue-600 hover:underline">
+          <Link href="/" className="text-[#6b5b95] hover:underline">
             ← Back to Home
           </Link>
         </div>

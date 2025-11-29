@@ -121,7 +121,7 @@ export default function RegistrationFlow({ onSuccess }: RegistrationFlowProps) {
             <button
               onClick={handleRegister}
               disabled={isRegistering || !isConfigured}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
+              className="w-full bg-primary/20 text-primary border border-primary/30 shadow-sm hover:bg-primary/30 hover:scale-105 active:scale-95 py-3 rounded-lg font-medium transition-all group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none"
             >
               {isRegistering ? "Registering on blockchain..." : "Complete Registration"}
             </button>

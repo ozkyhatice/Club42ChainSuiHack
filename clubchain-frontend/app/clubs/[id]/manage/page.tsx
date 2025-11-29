@@ -137,7 +137,7 @@ export default function ManageClubPage({ params }: PageProps) {
           <div className="mb-6">
             <button
               onClick={() => router.back()}
-              className="text-blue-600 hover:underline flex items-center gap-2 group"
+              className="text-[#6b5b95] hover:underline flex items-center gap-2 group"
             >
               <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
               Back to Dashboard
@@ -145,20 +145,18 @@ export default function ManageClubPage({ params }: PageProps) {
           </div>
 
           {/* Header */}
-          <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-xl p-8 text-white shadow-elevation-3 mb-6 animate-slideUp relative overflow-hidden">
-            <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
-            <div className="relative z-10">
-              <div className="flex items-center justify-between flex-wrap gap-4">
-                <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <Settings className="w-8 h-8 animate-icon-pulse" />
-                    <h1 className="text-3xl md:text-4xl font-bold">
-                      Club Management
-                    </h1>
-                    <OwnerBadge size="md" />
-                  </div>
-                  <p className="text-indigo-100 text-lg mb-2">
-                    Update club details or manage settings
+          <div className="bg-primary rounded-xl p-8 text-white shadow-elevation-3 mb-6 animate-slideUp">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div>
+                <div className="flex items-center gap-3 mb-2">
+                  <Settings className="w-8 h-8 animate-icon-pulse" />
+                  <h1 className="text-3xl md:text-4xl font-bold">
+                    Club Management
+                  </h1>
+                  <OwnerBadge size="md" />
+                </div>
+                <p className="text-white/90 text-lg mb-2">
+                  Update club details or manage settings
                   </p>
                   <div className="flex items-center gap-2">
                     <Badge variant="info" size="sm" icon={<Shield className="w-3 h-3" />}>

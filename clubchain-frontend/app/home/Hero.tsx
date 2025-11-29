@@ -29,13 +29,13 @@ export default function Hero() {
           <div className="flex gap-4 justify-center">
             <Link
               href="/events"
-              className="bg-primary text-white px-8 py-3 rounded-lg font-semibold hover:bg-primary-hover transition"
+              className="bg-primary/20 text-primary border border-primary/30 shadow-sm hover:bg-primary/30 hover:scale-105 active:scale-95 px-8 py-3 rounded-lg font-medium transition-all group"
             >
               View Events
             </Link>
             <Link
               href="/events/create"
-              className="bg-success text-white px-8 py-3 rounded-lg font-semibold hover:bg-success-light transition"
+              className="bg-success/20 text-success border border-success/30 shadow-sm hover:bg-success/30 hover:scale-105 active:scale-95 px-8 py-3 rounded-lg font-medium transition-all group"
             >
               Create Event
             </Link>

@@ -176,20 +176,17 @@ export default function SuperAdminPage() {
       <DashboardLayout>
         <div className="max-w-6xl mx-auto space-y-6">
           {/* Header */}
-          <div className="bg-gradient-to-r from-red-600 via-pink-600 to-purple-600 rounded-xl p-8 text-white shadow-elevation-3 animate-slideUp relative overflow-hidden">
-            <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
-            <div className="relative z-10">
-              <div className="flex items-center gap-3 mb-2">
-                <Shield className="w-10 h-10 animate-icon-pulse fill-current" />
-                <h1 className="text-3xl md:text-4xl font-bold">Super Admin Panel</h1>
-                <Badge variant="error" size="md" className="bg-white/20 text-white border-white/30">
-                  SUPER ADMIN
-                </Badge>
-              </div>
-              <p className="text-pink-100 text-lg">
-                Full system control • Create clubs • Assign owners • Manage everything
-              </p>
+          <div className="bg-primary rounded-xl p-8 text-white shadow-elevation-3 animate-slideUp">
+            <div className="flex items-center gap-3 mb-2">
+              <Shield className="w-10 h-10 animate-icon-pulse fill-current" />
+              <h1 className="text-3xl md:text-4xl font-bold">Super Admin Panel</h1>
+              <Badge variant="error" size="md" className="bg-primary-light/30 text-white border-primary-light/50">
+                SUPER ADMIN
+              </Badge>
             </div>
+            <p className="text-white/90 text-lg">
+              Full system control • Create clubs • Assign owners • Manage everything
+            </p>
           </div>
 
           {/* Stats */}
@@ -200,8 +197,8 @@ export default function SuperAdminPage() {
                   <p className="text-sm text-gray-600 mb-1">Total Clubs</p>
                   <p className="text-3xl font-bold text-gray-900">{clubs.length}</p>
                 </div>
-                <div className="p-4 bg-blue-50 rounded-xl">
-                  <Building2 className="w-8 h-8 text-blue-600" />
+                <div className="p-4 bg-[#f5f3f8] rounded-xl">
+                  <Building2 className="w-8 h-8 text-[#6b5b95]" />
                 </div>
               </div>
             </div>
@@ -214,8 +211,8 @@ export default function SuperAdminPage() {
                     {clubs.reduce((sum, club) => sum + club.events.length, 0)}
                   </p>
                 </div>
-                <div className="p-4 bg-purple-50 rounded-xl">
-                  <Users className="w-8 h-8 text-purple-600" />
+                <div className="p-4 bg-[#f5f3f8] rounded-xl">
+                  <Users className="w-8 h-8 text-[#6b5b95]" />
                 </div>
               </div>
             </div>
@@ -239,7 +236,7 @@ export default function SuperAdminPage() {
             <div className="bg-white rounded-xl shadow-elevation-2 p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <Plus className="w-6 h-6 text-blue-600" />
+                  <Plus className="w-6 h-6 text-[#6b5b95]" />
                   <h2 className="text-2xl font-bold text-gray-900">Create Club</h2>
                 </div>
                 <GamifiedButton
@@ -338,7 +335,7 @@ export default function SuperAdminPage() {
             {/* Transfer Ownership */}
             <div className="bg-white rounded-xl shadow-elevation-2 p-6">
               <div className="flex items-center gap-2 mb-4">
-                <RefreshCw className="w-6 h-6 text-purple-600" />
+                <RefreshCw className="w-6 h-6 text-[#6b5b95]" />
                 <h2 className="text-2xl font-bold text-gray-900">Transfer Ownership</h2>
               </div>
 
@@ -351,7 +348,7 @@ export default function SuperAdminPage() {
                     required
                     value={selectedClubForTransfer}
                     onChange={(e) => setSelectedClubForTransfer(e.target.value)}
-                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-[#7c6ba0] focus:border-transparent outline-none"
                   >
                     <option value="">-- Select a club --</option>
                     {clubs.map((club) => (
@@ -371,7 +368,7 @@ export default function SuperAdminPage() {
                     required
                     value={newOwnerAddress}
                     onChange={(e) => setNewOwnerAddress(e.target.value)}
-                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none font-mono text-sm"
+                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none font-mono text-sm"
                     placeholder="0x..."
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -415,7 +412,7 @@ export default function SuperAdminPage() {
           <div className="bg-white rounded-xl shadow-elevation-2 p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                <Building2 className="w-6 h-6 text-blue-600" />
+                <Building2 className="w-6 h-6 text-[#6b5b95]" />
                 All Clubs ({clubs.length})
               </h2>
               <div className="flex items-center gap-3">
@@ -437,7 +434,7 @@ export default function SuperAdminPage() {
 
             {clubsLoading ? (
               <div className="text-center py-12">
-                <div className="animate-spin h-12 w-12 border-4 border-blue-600 border-t-transparent rounded-full mx-auto"></div>
+                <div className="animate-spin h-12 w-12 border-4 border-[#6b5b95] border-t-transparent rounded-full mx-auto"></div>
               </div>
             ) : filteredClubs.length === 0 ? (
               <div className="text-center py-12">

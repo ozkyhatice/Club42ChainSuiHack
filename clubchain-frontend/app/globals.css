@@ -7,9 +7,9 @@
   --foreground-dark: #e5e7eb;  /* Slightly darker for headings */
   --card: #1a1f2e;              /* Soft card background */
   --card-hover: #222736;       /* Card hover state */
-  --primary: #6366f1;           /* Soft indigo */
-  --primary-hover: #818cf8;     /* Lighter indigo */
-  --primary-light: #4f46e5;     /* Darker indigo for contrast */
+  --primary: #6b5b95;           /* Muted cool purple */
+  --primary-hover: #7c6ba0;     /* Lighter muted cool purple */
+  --primary-light: #5b4b8a;     /* Darker muted cool purple for contrast */
   --secondary: #2d3748;         /* Soft gray borders */
   --secondary-hover: #374151;   /* Secondary hover */
   --accent: #06b6d4;            /* Soft cyan */
@@ -24,9 +24,17 @@
   --border-light: #4b5563;      /* Lighter border */
   --input-bg: #1f2937;          /* Input background */
   --input-border: #4b5563;      /* Input border */
-  --input-focus: #6366f1;       /* Input focus ring */
+  --input-focus: #6b5b95;       /* Input focus ring */
   --text-muted: #d1d5db;        /* Muted text - brighter for readability */
   --text-secondary: #9ca3af;    /* Secondary text - more visible */
+  /* Muted cool purple shades */
+  --muted-purple-400: #8b7ba8;   /* Light muted purple */
+  --muted-purple-500: #7c6ba0;  /* Medium muted purple */
+  --muted-purple-600: #6b5b95;   /* Dark muted purple */
+  --muted-purple-700: #5b4b8a;  /* Darker muted purple */
+  --muted-purple-800: #4a3d75;  /* Very dark muted purple */
+  --muted-purple-50: #f5f3f8;    /* Very light muted purple */
+  --muted-purple-100: #e8e3f0;  /* Light muted purple */
 }
 
 @theme inline {

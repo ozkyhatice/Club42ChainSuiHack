@@ -30,14 +30,14 @@ export default function GamifiedButton({
   fullWidth = false,
   type = "button",
 }: GamifiedButtonProps) {
-  const baseStyles = "inline-flex items-center justify-center gap-2 font-semibold rounded-lg transition-all group hover-lift disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none";
+  const baseStyles = "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none";
   
   const variantStyles = {
-    primary: "bg-primary text-white hover:bg-primary-hover shadow-elevation-2 hover-glow",
-    secondary: "bg-secondary text-foreground hover:bg-secondary-hover border border-border",
-    success: "bg-success text-white hover:bg-success-light shadow-elevation-2",
-    danger: "bg-error text-white hover:bg-error-light shadow-elevation-2",
-    gradient: "bg-gradient-to-r from-primary via-accent to-primary-light text-white hover:from-primary-hover hover:via-accent-hover hover:to-primary shadow-elevation-3 animate-gradient",
+    primary: "bg-primary/20 text-primary border border-primary/30 shadow-sm hover:bg-primary/30 hover:scale-105 active:scale-95",
+    secondary: "bg-secondary text-foreground hover:bg-secondary-hover border border-border hover:scale-105 active:scale-95",
+    success: "bg-success/20 text-success border border-success/30 shadow-sm hover:bg-success/30 hover:scale-105 active:scale-95",
+    danger: "bg-error/20 text-error border border-error/30 shadow-sm hover:bg-error/30 hover:scale-105 active:scale-95",
+    gradient: "bg-primary/20 text-primary border border-primary/30 shadow-sm hover:bg-primary/30 hover:scale-105 active:scale-95",
   };
   
   const sizeStyles = {

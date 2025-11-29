@@ -3,6 +3,7 @@
 import { ConnectButton } from "@mysten/dapp-kit";
 import UserProfile from "./UserProfile";
 import Link from "next/link";
+import { Building2 } from "lucide-react";
 
 interface HeaderProps {
   onMenuToggle: () => void;
@@ -37,8 +38,8 @@ export default function Header({ onMenuToggle, isMobileMenuOpen }: HeaderProps) 
           
           {/* Logo */}
           <Link href="/dashboard" className="flex items-center gap-2 group">
-            <span className="text-2xl">🎓</span>
-            <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent group-hover:scale-105 transition-transform">
+            <Building2 className="w-6 h-6 text-[#8b7ba8] group-hover:scale-110 transition-transform" />
+            <h1 className="text-xl font-bold text-[#8b7ba8] group-hover:scale-105 transition-transform">
               42 Clubs
             </h1>
           </Link>

@@ -49,7 +49,7 @@ export default function RegistrationSteps({ currentStep }: RegistrationStepsProp
                   step.isComplete
                     ? "bg-green-500 text-white"
                     : step.isActive
-                    ? "bg-blue-500 text-white"
+                    ? "bg-primary/20 text-primary border border-primary/30 shadow-sm"
                     : "bg-gray-200 text-gray-500"
                 }`}
               >

@@ -48,7 +48,7 @@ export function AdminGuard({
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6b5b95] mx-auto mb-4"></div>
           <p className="text-gray-600">Checking permissions...</p>
         </div>
       </div>
@@ -69,7 +69,7 @@ export function AdminGuard({
             </p>
             <button
               onClick={() => router.push("/auth/signin")}
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition"
+              className="w-full bg-primary/20 text-primary border border-primary/30 shadow-sm hover:bg-primary/30 hover:scale-105 active:scale-95 py-2 px-4 rounded-lg font-medium transition-all group"
             >
               Connect Wallet
             </button>
@@ -102,7 +102,7 @@ export function AdminGuard({
             </p>
             <button
               onClick={() => router.push(redirectTo)}
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition"
+              className="w-full bg-primary/20 text-primary border border-primary/30 shadow-sm hover:bg-primary/30 hover:scale-105 active:scale-95 py-2 px-4 rounded-lg font-medium transition-all group"
             >
               Go Back
             </button>
