@@ -42,12 +42,15 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       label: "Browse Events",
       href: "/events",
     },
-    {
-      icon: Building2,
-      label: "Create Club",
-      href: "/clubs/create",
-      highlight: true,
-    },
+    ...(isSuperAdmin ? [
+      {
+        icon: Building2,
+        label: "Create Club",
+        href: "/clubs/create",
+        highlight: true,
+        superAdmin: true,
+      },
+    ] : []),
     ...(isOwner ? [
       {
         icon: PlusCircle,

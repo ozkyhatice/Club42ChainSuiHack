@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { getClubs } from "@/src/services/blockchain/getClubs";
 import { getUserAdminCaps } from "@/modules/contracts/admin-cap";
+import { useIsSuperAdmin } from "@/hooks/useSuperAdmin";
 import GamifiedButton from "@/components/ui/GamifiedButton";
 import Badge from "@/components/ui/Badge";
 import OwnerBadge from "@/components/ui/OwnerBadge";
@@ -28,6 +29,7 @@ export default function AdminPage() {
   const router = useRouter();
   const account = useCurrentAccount();
   const suiClient = useSuiClient();
+  const { data: isSuperAdmin } = useIsSuperAdmin();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedClub, setSelectedClub] = useState<string | null>(null);
 
@@ -81,17 +83,19 @@ export default function AdminPage() {
           </p>
         </div>
 
-        {/* Create Club Button */}
-        <div className="flex justify-end animate-slideUp animation-delay-200">
-          <GamifiedButton
-            variant="primary"
-            size="lg"
-            icon={Plus}
-            onClick={() => router.push("/clubs/create")}
-          >
-            Create New Club
-          </GamifiedButton>
-        </div>
+        {/* Create Club Button - Only visible to SuperAdmin */}
+        {isSuperAdmin && (
+          <div className="flex justify-end animate-slideUp animation-delay-200">
+            <GamifiedButton
+              variant="primary"
+              size="lg"
+              icon={Plus}
+              onClick={() => router.push("/clubs/create")}
+            >
+              Create New Club
+            </GamifiedButton>
+          </div>
+        )}
 
         {/* Stats */}
         <div className="grid md:grid-cols-3 gap-6 animate-slideUp animation-delay-300">

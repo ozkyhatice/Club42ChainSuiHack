@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useCurrentAccount, useSignAndExecuteTransaction } from "@mysten/dapp-kit";
+import { useCurrentAccount, useSignAndExecuteTransaction, useSuiClient } from "@mysten/dapp-kit";
 import { buildCreateEventTx } from "@/modules/contracts/event";
-import { PACKAGE_ID } from "@/lib/constants";
+import { PACKAGE_ID, CLOCK_OBJECT_ID } from "@/lib/constants";
+import { useUserClubOwnerBadges } from "@/hooks/useClubOwnerBadge";
 import type { EventFormData } from "../types";
 
 interface CreateEventState {
@@ -13,25 +14,33 @@ interface CreateEventState {
 
 export function useCreateEvent() {
   const account = useCurrentAccount();
+  const suiClient = useSuiClient();
   const { mutate: signAndExecute } = useSignAndExecuteTransaction();
+  const { data: userBadges = [] } = useUserClubOwnerBadges();
   const [state, setState] = useState<CreateEventState>({
     isSubmitting: false,
     txStatus: "",
   });
 
-  const createEvent = async (formData: EventFormData, adminCapId: string, clubId: string) => {
+  const createEvent = async (formData: EventFormData, clubId: string) => {
     if (!account) {
       setState({ isSubmitting: false, txStatus: "Please connect wallet first" });
       return;
     }
 
-    if (!adminCapId) {
-      setState({ isSubmitting: false, txStatus: "Admin capability not found" });
+    if (!clubId) {
+      setState({ isSubmitting: false, txStatus: "Club ID not found" });
       return;
     }
 
-    if (!clubId) {
-      setState({ isSubmitting: false, txStatus: "Club ID not found" });
+    // Find valid ClubOwnerBadge for this club
+    const validBadge = userBadges.find(badge => badge.clubId === clubId);
+    
+    if (!validBadge) {
+      setState({ 
+        isSubmitting: false, 
+        txStatus: "No valid ClubOwnerBadge found for this club. Please contact a Super Admin to issue a badge." 
+      });
       return;
     }
 
@@ -55,10 +64,13 @@ export function useCreateEvent() {
 
       const tx = buildCreateEventTx(
         PACKAGE_ID,
-        adminCapId,
+        validBadge.objectId,  // Use ClubOwnerBadge instead of AdminCap
         clubId,
-        eventData
+        eventData,
+        "", // encrypted_content_blob_id - can be added later
+        CLOCK_OBJECT_ID
       );
+      
       signAndExecute(
         { transaction: tx },
         {

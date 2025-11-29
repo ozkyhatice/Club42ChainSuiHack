@@ -1,24 +1,33 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSignAndExecuteTransaction, useCurrentAccount, useSuiClient } from "@mysten/dapp-kit";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import GamifiedButton from "@/components/ui/GamifiedButton";
-import { Building2, ArrowLeft, Sparkles } from "lucide-react";
+import { Building2, ArrowLeft, Sparkles, Shield, AlertTriangle } from "lucide-react";
 import { buildCreateClubTx, verifyPackageFunctions } from "@/modules/contracts/club";
 import { PACKAGE_ID } from "@/lib/constants";
+import { useIsSuperAdmin } from "@/hooks/useSuperAdmin";
 
 export default function CreateClubPage() {
   const router = useRouter();
   const account = useCurrentAccount();
   const suiClient = useSuiClient();
   const { mutate: signAndExecute } = useSignAndExecuteTransaction();
+  const { data: isSuperAdmin, isLoading: isCheckingAdmin } = useIsSuperAdmin();
   
   const [clubName, setClubName] = useState("");
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Redirect if not super admin
+  useEffect(() => {
+    if (!isCheckingAdmin && account && !isSuperAdmin) {
+      router.push("/dashboard");
+    }
+  }, [isCheckingAdmin, account, isSuperAdmin, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -190,6 +199,85 @@ export default function CreateClubPage() {
       setIsSubmitting(false);
     }
   };
+
+  // Loading state
+  if (isCheckingAdmin) {
+    return (
+      <DashboardLayout>
+        <div className="min-h-[400px] flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin h-12 w-12 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+            <p className="text-gray-400">Checking admin privileges...</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // Wallet not connected
+  if (!account) {
+    return (
+      <DashboardLayout>
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-card border border-secondary rounded-xl shadow-elevation-2 p-8 text-center">
+            <div className="inline-flex p-6 bg-warning/20 rounded-2xl mb-6 border border-warning/30">
+              <AlertTriangle className="w-16 h-16 text-warning" />
+            </div>
+            <h1 className="text-3xl font-bold mb-4 text-foreground">Connect Your Wallet</h1>
+            <p className="text-gray-400 mb-8">
+              Please connect your Sui wallet to create a club.
+            </p>
+            <GamifiedButton
+              variant="primary"
+              onClick={() => router.push("/dashboard")}
+              icon={ArrowLeft}
+            >
+              Back to Dashboard
+            </GamifiedButton>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // Not super admin
+  if (!isSuperAdmin) {
+    return (
+      <DashboardLayout>
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-card border border-secondary rounded-xl shadow-elevation-2 p-8 text-center">
+            <div className="inline-flex p-6 bg-error/20 rounded-2xl mb-6 border border-error/30">
+              <Shield className="w-16 h-16 text-error" />
+            </div>
+            <h1 className="text-3xl font-bold mb-4 text-foreground">Admin Access Required</h1>
+            <p className="text-gray-400 mb-6">
+              Only Super Admins can create clubs. You must hold the SuperAdminCap NFT to access this feature.
+            </p>
+            <div className="bg-primary/10 border-l-4 border-primary rounded-lg p-4 mb-8 text-left">
+              <div className="flex items-start gap-3">
+                <Shield className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                <div>
+                  <h3 className="font-semibold text-foreground mb-1">How to become a Super Admin?</h3>
+                  <p className="text-sm text-gray-400">
+                    Super Admin is assigned during contract deployment. Contact the system administrator to receive SuperAdminCap.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-3 justify-center">
+              <GamifiedButton
+                variant="secondary"
+                onClick={() => router.push("/dashboard")}
+                icon={ArrowLeft}
+              >
+                Back to Dashboard
+              </GamifiedButton>
+            </div>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>

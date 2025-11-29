@@ -7,11 +7,13 @@ import { getClubs } from "@/src/services/blockchain/getClubs";
 import { ClubList } from "@/src/modules/clubs/ClubList";
 import GamifiedButton from "@/components/ui/GamifiedButton";
 import StatCard from "@/components/ui/StatCard";
+import { useIsSuperAdmin } from "@/hooks/useSuperAdmin";
 import { Building2, Search, Plus, Sparkles } from "lucide-react";
 import { useState } from "react";
 
 export default function ClubsPage() {
   const router = useRouter();
+  const { data: isSuperAdmin } = useIsSuperAdmin();
   const [searchTerm, setSearchTerm] = useState("");
 
   // Fetch all clubs
@@ -116,13 +118,13 @@ export default function ClubsPage() {
                   ? "Try a different search term"
                   : "Be the first to create a club!"}
               </p>
-              {!searchTerm && (
+              {!searchTerm && isSuperAdmin && (
                 <GamifiedButton
                   variant="primary"
                   icon={Plus}
-                  onClick={() => router.push("/super-admin")}
+                  onClick={() => router.push("/clubs/create")}
                 >
-                  Create First Club (Super Admin)
+                  Create First Club
                 </GamifiedButton>
               )}
             </div>

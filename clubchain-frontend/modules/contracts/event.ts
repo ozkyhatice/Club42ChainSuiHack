@@ -13,20 +13,22 @@ export interface EventData {
 }
 
 /**
- * Build a transaction to create a new event (admin only)
- * Requires a ClubAdminCap for the specified club
+ * Build a transaction to create a new event (requires valid ClubOwnerBadge)
+ * Requires a ClubOwnerBadge that must be valid (not expired)
  * 
  * Smart contract signature:
- * create_event(cap: &ClubAdminCap, club: &mut Club, title: String, description: String, date: u64, ctx: &mut TxContext)
+ * create_event(owner_badge: &ClubOwnerBadge, club: &mut Club, title: String, description: String, date: u64, encrypted_content_blob_id: String, clock: &sui::clock::Clock, ctx: &mut TxContext)
  */
 export function buildCreateEventTx(
   packageId: string,
-  adminCapId: string,
+  ownerBadgeId: string,
   clubId: string,
-  eventData: EventData
+  eventData: EventData,
+  encryptedContentBlobId: string = "",
+  clockObjectId: string = "0x6" // Standard Sui Clock object ID
 ): Transaction {
-  if (!packageId || !adminCapId || !clubId) {
-    throw new Error("Package ID, Admin Cap ID, and Club ID are required");
+  if (!packageId || !ownerBadgeId || !clubId) {
+    throw new Error("Package ID, Owner Badge ID, and Club ID are required");
   }
 
   if (!eventData.title || !eventData.description || !eventData.date) {
@@ -45,11 +47,13 @@ export function buildCreateEventTx(
   tx.moveCall({
     target: `${packageId}::event::create_event`,
     arguments: [
-      tx.object(adminCapId),        // cap: &ClubAdminCap
-      tx.object(clubId),             // club: &mut Club
-      tx.pure.string(eventData.title),      // title: String
+      tx.object(ownerBadgeId),              // owner_badge: &ClubOwnerBadge
+      tx.object(clubId),                     // club: &mut Club
+      tx.pure.string(eventData.title),       // title: String
       tx.pure.string(eventData.description), // description: String
-      tx.pure.u64(dateMs),           // date: u64
+      tx.pure.u64(dateMs),                   // date: u64
+      tx.pure.string(encryptedContentBlobId), // encrypted_content_blob_id: String
+      tx.object(clockObjectId),              // clock: &sui::clock::Clock
     ],
   });
 

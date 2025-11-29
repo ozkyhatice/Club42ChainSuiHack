@@ -35,17 +35,13 @@ export default function CreateEventForm({ ownedClubs = [] }: CreateEventFormProp
       return;
     }
 
-    const adminCap = caps.find(cap => cap.club_id === selectedClubId);
-    if (!adminCap) {
-      return;
-    }
-
     const eventData = {
       ...formData,
       clubId: selectedClubId,
     };
 
-    await createEvent(eventData, adminCap.id, selectedClubId);
+    // createEvent now only needs clubId, it will find the ClubOwnerBadge internally
+    await createEvent(eventData, selectedClubId);
     
     // Reset form on success
     if (txStatus.includes('Success')) {
