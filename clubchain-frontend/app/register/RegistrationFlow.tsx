@@ -11,7 +11,7 @@ interface RegistrationFlowProps {
 export default function RegistrationFlow({ onSuccess }: RegistrationFlowProps) {
   const { data: session } = useSession();
   const account = useCurrentAccount();
-  const { isRegistering, error, success, register, isConfigured } = useUserRegistration();
+  const { isRegistering, error, success, register } = useUserRegistration();
 
   const handleRegister = () => {
     if (!session?.user) return;
@@ -95,18 +95,9 @@ export default function RegistrationFlow({ onSuccess }: RegistrationFlowProps) {
               wallet on the blockchain.
             </p>
 
-            {!isConfigured && (
-              <div className="bg-yellow-50 p-3 rounded-lg mb-4 border border-yellow-200">
-                <p className="text-xs text-yellow-800">
-                  ⚠️ <strong>Note:</strong> The registry contract needs to be deployed
-                  first. Update REGISTRY_OBJECT_ID in the code.
-                </p>
-              </div>
-            )}
-
             <button
               onClick={handleRegister}
-              disabled={isRegistering || !isConfigured}
+              disabled={isRegistering}
               className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
             >
               {isRegistering ? "Registering on blockchain..." : "Complete Registration"}

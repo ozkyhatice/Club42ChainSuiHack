@@ -28,11 +28,6 @@ export function useUserRegistration() {
 
     try {
       if (!PACKAGE_ID || !CLOCK_OBJECT_ID || !REGISTRY_OBJECT_ID) {
-        console.error("Configuration error:", { 
-          PACKAGE_ID, 
-          CLOCK_OBJECT_ID, 
-          REGISTRY_OBJECT_ID 
-        });
         setState({
           isRegistering: false,
           error: "Configuration error: Required IDs not set",
@@ -41,13 +36,6 @@ export function useUserRegistration() {
         return;
       }
 
-      console.log("Building registration transaction with:", {
-        PACKAGE_ID,
-        CLOCK_OBJECT_ID,
-        REGISTRY_OBJECT_ID,
-        userData,
-      });
-
       const tx = buildRegisterUserTx(
         PACKAGE_ID,
         CLOCK_OBJECT_ID,
@@ -55,20 +43,16 @@ export function useUserRegistration() {
         userData
       );
 
-      console.log("Transaction block created, signing...");
       signAndExecute(
         { transaction: tx },
         {
-          onSuccess: (result) => {
-            console.log("Registration successful:", result);
-            console.log("You received both a UserProfile and a ClubMemberSBT!");
+          onSuccess: () => {
             setState({ isRegistering: false, error: "", success: true });
             setTimeout(() => {
               router.push("/");
             }, 2000);
           },
           onError: (err) => {
-            console.error("Registration error:", err);
             setState({
               isRegistering: false,
               error: err.message,
@@ -78,7 +62,6 @@ export function useUserRegistration() {
         }
       );
     } catch (err) {
-      console.error("Transaction error:", err);
       setState({
         isRegistering: false,
         error: String(err),
