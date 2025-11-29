@@ -12,7 +12,7 @@ export type EventInfo = {
   encryptedContentBlobId?: string;
 };
 
-const EVENT_STRUCT = `${PACKAGE_ID}::event::Event`;
+const EVENT_STRUCT = `${PACKAGE_ID}::club_system::Event`;
 
 let client: SuiClient | null = null;
 const getClient = () => {
@@ -37,18 +37,18 @@ const toAddressVector = (value: any): string[] => {
 
 const buildEventFromObject = (objectId: string, fields: Record<string, any>): EventInfo => ({
   id: objectId,
-  clubId: fields.club_id,
-  createdBy: fields.created_by,
-  title: fields.title,
-  description: fields.description,
-  date: Number(fields.date ?? 0),
-  participants: toAddressVector(fields.participants),
-  encryptedContentBlobId: fields.encrypted_content_blob_id || undefined,
+  clubId: fields.club_id || fields.clubId || "",
+  createdBy: "", // Not available in new contract
+  title: fields.title || "",
+  description: fields.description || "",
+  date: Number(fields.start_time ?? fields.startTime ?? 0), // Use start_time as date
+  participants: [], // Not available in new contract (stored in ParticipationBadge)
+  encryptedContentBlobId: fields.encrypted_blob_id || fields.encryptedBlobId || undefined,
 });
 
 /**
  * Fetch all events directly from the blockchain by querying transaction history
- * This method finds events created via create_event_with_cap function
+ * This method finds events created via create_event function
  */
 export async function fetchEventsFromChain(): Promise<EventInfo[]> {
   try {
@@ -56,57 +56,13 @@ export async function fetchEventsFromChain(): Promise<EventInfo[]> {
     const events: EventInfo[] = [];
     const seenEventIds = new Set<string>();
 
-    // Query transactions that created events via create_event_with_cap
+    // Query transactions that created events via create_event
     try {
       const queryResponse = await suiClient.queryTransactionBlocks({
         filter: {
           MoveFunction: {
             package: PACKAGE_ID,
-            module: "event",
-            function: "create_event_with_cap",
-          },
-        },
-        options: {
-          showEffects: true,
-          showObjectChanges: true,
-        },
-        limit: 50,
-      });
-
-      for (const tx of queryResponse.data) {
-        const createdEvents = tx.objectChanges?.filter(
-          (change: any) =>
-            change.type === "created" &&
-            change.objectType?.includes("::event::Event")
-        ) ?? [];
-
-        for (const change of createdEvents) {
-          const eventId = (change as any).objectId;
-          if (!eventId || seenEventIds.has(eventId)) continue;
-          
-          seenEventIds.add(eventId);
-          
-          try {
-            const event = await fetchEventById(eventId);
-            if (event) {
-              events.push(event);
-            }
-          } catch (err) {
-            console.error(`Failed to fetch event ${eventId}:`, err);
-          }
-        }
-      }
-    } catch (err) {
-      console.error("Query create_event_with_cap failed:", err);
-    }
-
-    // Also query events created via create_event (with ClubOwnerBadge)
-    try {
-      const queryResponse = await suiClient.queryTransactionBlocks({
-        filter: {
-          MoveFunction: {
-            package: PACKAGE_ID,
-            module: "event",
+            module: "club_system",
             function: "create_event",
           },
         },
@@ -121,7 +77,7 @@ export async function fetchEventsFromChain(): Promise<EventInfo[]> {
         const createdEvents = tx.objectChanges?.filter(
           (change: any) =>
             change.type === "created" &&
-            change.objectType?.includes("::event::Event")
+            change.objectType?.includes("::club_system::Event")
         ) ?? [];
 
         for (const change of createdEvents) {
@@ -142,50 +98,6 @@ export async function fetchEventsFromChain(): Promise<EventInfo[]> {
       }
     } catch (err) {
       console.error("Query create_event failed:", err);
-    }
-
-    // Also query events created via create_event_as_admin (SuperAdmin)
-    try {
-      const queryResponse = await suiClient.queryTransactionBlocks({
-        filter: {
-          MoveFunction: {
-            package: PACKAGE_ID,
-            module: "event",
-            function: "create_event_as_admin",
-          },
-        },
-        options: {
-          showEffects: true,
-          showObjectChanges: true,
-        },
-        limit: 50,
-      });
-
-      for (const tx of queryResponse.data) {
-        const createdEvents = tx.objectChanges?.filter(
-          (change: any) =>
-            change.type === "created" &&
-            change.objectType?.includes("::event::Event")
-        ) ?? [];
-
-        for (const change of createdEvents) {
-          const eventId = (change as any).objectId;
-          if (!eventId || seenEventIds.has(eventId)) continue;
-          
-          seenEventIds.add(eventId);
-          
-          try {
-            const event = await fetchEventById(eventId);
-            if (event) {
-              events.push(event);
-            }
-          } catch (err) {
-            console.error(`Failed to fetch event ${eventId}:`, err);
-          }
-        }
-      }
-    } catch (err) {
-      console.error("Query create_event_as_admin failed:", err);
     }
 
     return events;

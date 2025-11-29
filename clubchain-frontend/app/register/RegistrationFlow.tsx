@@ -1,9 +1,9 @@
 "use client";
 
+import { useEffect } from "react";
 import { ConnectButton, useCurrentAccount } from "@mysten/dapp-kit";
 import { useSession } from "next-auth/react";
 import { useUserRegistration } from "./useUserRegistration";
-import { useBadgeAuth } from "@/hooks/useBadgeAuth";
 
 interface RegistrationFlowProps {
   onSuccess?: () => void;
@@ -13,25 +13,21 @@ export default function RegistrationFlow({ onSuccess }: RegistrationFlowProps) {
   const { data: session } = useSession();
   const account = useCurrentAccount();
   const { isRegistering, error, success, register, isConfigured } = useUserRegistration();
-  const { isSuperAdmin, isClubOwner, isLoading: isCheckingBadges } = useBadgeAuth();
 
-  const handleRegister = () => {
-    if (!session?.user) {
-      console.error("No session found. Please sign in first.");
-      return;
+  // Auto-register when wallet is connected
+  useEffect(() => {
+    if (account && session?.user && !isRegistering && !success && !error) {
+      if (session.user.intraId && session.user.login) {
+        register({
+          intraId: session.user.intraId,
+          username: session.user.login,
+          email: session.user.email || "",
+        });
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account, session?.user?.intraId, session?.user?.login, isRegistering, success, error]);
 
-    if (!session.user.intraId || !session.user.login || !session.user.email) {
-      console.error("Missing required user data in session");
-      return;
-    }
-    
-    register({
-      intraId: session.user.intraId,
-      username: session.user.login,
-      email: session.user.email,
-    });
-  };
 
   if (success) {
     return (
@@ -134,60 +130,24 @@ export default function RegistrationFlow({ onSuccess }: RegistrationFlowProps) {
         )}
       </div>
 
-      {/* Step 3: On-Chain Registration */}
-      {account && (
-        <div className="bg-gradient-to-br from-primary/20 via-primary/10 to-primary/20 border-2 border-primary/30 p-6 rounded-xl">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full bg-primary/30 flex items-center justify-center border border-primary/40">
-              <span className="text-primary text-lg font-bold">3</span>
+      {/* Auto-registration status */}
+      {account && (isRegistering || error) && (
+        <div className={`p-6 rounded-xl border-2 ${
+          isRegistering 
+            ? "bg-gradient-to-br from-primary/20 via-primary/10 to-primary/20 border-primary/30" 
+            : "bg-error/20 border-error/40"
+        }`}>
+          {isRegistering && (
+            <div className="flex items-center gap-3">
+              <span className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></span>
+              <p className="text-primary text-sm font-medium">
+                Registering on blockchain...
+              </p>
             </div>
-            <h3 className="font-bold text-lg text-primary">Step 3: Register On-Chain</h3>
-          </div>
+          )}
           
-          <div className="pl-13 space-y-4">
-            <p className="text-sm text-text-muted">
-              This will create a permanent link between your 42 account and your Sui
-              wallet on the blockchain.
-            </p>
-
-            {!isConfigured && (
-              <div className="bg-warning/20 border border-warning/40 p-4 rounded-lg">
-                <p className="text-xs text-warning-light">
-                  ⚠️ <strong>Note:</strong> The registry contract needs to be deployed
-                  first. Update REGISTRY_OBJECT_ID in the code.
-                </p>
-              </div>
-            )}
-
-            {(isSuperAdmin || isClubOwner) && (
-              <div className="bg-warning/20 border border-warning/40 p-4 rounded-lg mb-4">
-                <p className="text-sm text-warning-light">
-                  ⚠️ You already have badges (SuperAdmin or ClubOwner). Registration is not required. You will be redirected to the dashboard.
-                </p>
-              </div>
-            )}
-
-            <button
-              onClick={handleRegister}
-              disabled={isRegistering || !isConfigured || isCheckingBadges || isSuperAdmin || isClubOwner}
-              className="w-full bg-gradient-to-r from-primary/30 to-primary/20 hover:from-primary/40 hover:to-primary/30 text-primary border-2 border-primary/40 shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] py-4 rounded-xl font-semibold transition-all duration-300 group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none disabled:hover:shadow-lg"
-            >
-              {isRegistering ? (
-                <span className="flex items-center justify-center gap-2">
-                  <span className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></span>
-                  Registering on blockchain...
-                </span>
-              ) : (
-                <span className="flex items-center justify-center gap-2">
-                  Complete Registration
-                  <span className="group-hover:translate-x-1 transition-transform">→</span>
-                </span>
-              )}
-            </button>
-          </div>
-
           {error && (
-            <div className="mt-4 bg-error/20 border-2 border-error/40 p-4 rounded-lg">
+            <div>
               <p className="text-error-light text-sm font-semibold mb-2 flex items-center gap-2">
                 <span>⚠️</span>
                 Registration Error

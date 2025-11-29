@@ -97,10 +97,9 @@ export async function verifyPackageFunctions(
 
 /**
  * Build a transaction to create a new club (SUPER ADMIN ONLY)
- * Requires SuperAdminCap and owner_address parameter
- * The owner_address will receive a ClubAdminCap for the new club
+ * Requires SuperAdminCap
  * 
- * Function signature: create_club(super_admin: &SuperAdminCap, name: String, description: String, owner_address: address, ctx: &mut TxContext)
+ * Function signature: create_club(_: &SuperAdminCap, name: String, desc: String, ctx: &mut TxContext)
  * 
  * If you encounter ArityMismatch errors:
  * 1. Verify the package ID is correct
@@ -111,8 +110,7 @@ export function buildCreateClubTx(
   packageId: string,
   superAdminCapId: string,
   clubName: string,
-  description: string,
-  ownerAddress: string
+  description: string
 ): Transaction {
   if (!packageId) {
     console.error("buildCreateClubTx: packageId is undefined");
@@ -134,27 +132,21 @@ export function buildCreateClubTx(
     throw new Error("Club description is required");
   }
 
-  if (!ownerAddress) {
-    console.error("buildCreateClubTx: ownerAddress is undefined");
-    throw new Error("Owner address is required");
-  }
-
   const tx = new Transaction();
-  const functionTarget = `${packageId}::club::create_club`;
+  const functionTarget = `${packageId}::club_system::create_club`;
   
   // Trim inputs
   const trimmedName = clubName.trim();
   const trimmedDesc = description.trim();
   
-  // Build the moveCall with SuperAdminCap, name, description, and owner_address
-  // The function signature is: create_club(super_admin: &SuperAdminCap, name: String, description: String, owner_address: address, ctx: &mut TxContext)
+  // Build the moveCall with SuperAdminCap, name, and desc
+  // The function signature is: create_club(_: &SuperAdminCap, name: String, desc: String, ctx: &mut TxContext)
   tx.moveCall({
     target: functionTarget,
     arguments: [
       tx.object(superAdminCapId), // super_admin: &SuperAdminCap
       tx.pure.string(trimmedName), // name: String
-      tx.pure.string(trimmedDesc), // description: String
-      tx.pure.address(ownerAddress), // owner_address: address
+      tx.pure.string(trimmedDesc), // desc: String
     ],
   });
   
@@ -179,68 +171,20 @@ export function buildCreateClubTx(
     packageId,
     target: functionTarget,
     arguments: {
-      count: 4,
-      types: ["&SuperAdminCap", "String", "String", "address"],
+      count: 3,
+      types: ["&SuperAdminCap", "String", "String"],
       values: {
         superAdminCapId,
         name: trimmedName,
         description: trimmedDesc,
-        ownerAddress,
       },
     },
-    expectedSignature: "create_club(super_admin: &SuperAdminCap, name: String, description: String, owner_address: address, ctx: &mut TxContext)",
+    expectedSignature: "create_club(_: &SuperAdminCap, name: String, desc: String, ctx: &mut TxContext)",
     note: "ctx is automatically provided by Sui runtime - not passed as argument",
   });
 
   return tx;
 }
 
-/**
- * Build a transaction to update a club's name (admin only)
- */
-export function buildUpdateClubNameTx(
-  packageId: string,
-  adminCapId: string,
-  clubId: string,
-  newName: string
-): Transaction {
-  if (!packageId || !adminCapId || !clubId || !newName) {
-    throw new Error("All parameters are required");
-  }
-
-  const tx = new Transaction();
-
-  tx.moveCall({
-    target: `${packageId}::club::update_club_name`,
-    arguments: [
-      tx.object(adminCapId),
-      tx.object(clubId),
-      tx.pure.string(newName),
-    ],
-  });
-
-  return tx;
-}
-
-/**
- * Build a transaction to delete a club (admin only)
- */
-export function buildDeleteClubTx(
-  packageId: string,
-  adminCapId: string,
-  clubId: string
-): Transaction {
-  if (!packageId || !adminCapId || !clubId) {
-    throw new Error("All parameters are required");
-  }
-
-  const tx = new Transaction();
-
-  tx.moveCall({
-    target: `${packageId}::club::delete_club`,
-    arguments: [tx.object(adminCapId), tx.object(clubId)],
-  });
-
-  return tx;
-}
+// Note: update_club_name and delete_club functions are not available in the new contract
 

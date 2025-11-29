@@ -23,8 +23,8 @@ export type Club = {
   events: EventInfo[];
 };
 
-const CLUB_STRUCT = `${PACKAGE_ID}::club::Club`;
-const EVENT_STRUCT = `${PACKAGE_ID}::event::Event`;
+const CLUB_STRUCT = `${PACKAGE_ID}::club_system::Club`;
+const EVENT_STRUCT = `${PACKAGE_ID}::club_system::Event`;
 
 let client: SuiClient | null = null;
 const getClient = () => {
@@ -212,7 +212,7 @@ export async function fetchClubsFromChain(): Promise<Club[]> {
         const createdClubs = tx.objectChanges?.filter(
           (change: any) =>
             change.type === "created" &&
-            change.objectType?.includes("::club::Club")
+            change.objectType?.includes("::club_system::Club")
         ) ?? [];
 
         for (const change of createdClubs) {

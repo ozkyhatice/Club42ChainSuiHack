@@ -49,15 +49,15 @@ export default function DashboardHome() {
           </p>
           <div className="grid sm:grid-cols-3 gap-3">
             {canCreateEvent && (
-              <GamifiedButton
-                variant="gradient"
-                size="md"
-                icon={PlusCircle}
-                onClick={() => router.push("/events/create")}
-                fullWidth
-              >
-                Create Event
-              </GamifiedButton>
+            <GamifiedButton
+              variant="gradient"
+              size="md"
+              icon={PlusCircle}
+              onClick={() => router.push("/events/create")}
+              fullWidth
+            >
+              Create Event
+            </GamifiedButton>
             )}
             <GamifiedButton
               variant="primary"

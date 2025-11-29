@@ -13,7 +13,7 @@ import Card, { CardBody } from "@/components/ui/Card";
 import StatCard from "@/components/ui/StatCard";
 import Button from "@/components/ui/Button";
 import { useSignAndExecuteTransaction } from "@mysten/dapp-kit";
-import { buildJoinEventTx, buildLeaveEventTx } from "@/modules/contracts/event";
+import { buildJoinEventTx } from "@/modules/contracts/event";
 import { PACKAGE_ID } from "@/lib/constants";
 
 export default function ClubPage() {
@@ -132,56 +132,8 @@ export default function ClubPage() {
   };
 
   const handleLeaveClub = async () => {
-    if (!account?.address) {
-      alert("Please connect your wallet first");
-      return;
-    }
-
-    // Find all events user is participating in
-    const userEvents = club.events.filter(event =>
-      event.participants?.some(p => p.toLowerCase() === account.address.toLowerCase())
-    );
-
-    if (userEvents.length === 0) {
-      alert("You are not a member of this club.");
-      return;
-    }
-
-    if (!confirm(`Are you sure you want to leave this club? This will remove you from ${userEvents.length} event(s).`)) {
-      return;
-    }
-
-    try {
-      setActionLoading(true);
-      
-      // Leave from all events
-      for (const event of userEvents) {
-        try {
-          const tx = buildLeaveEventTx(PACKAGE_ID, event.id);
-          await new Promise((resolve, reject) => {
-            signAndExecute(
-              { transaction: tx },
-              {
-                onSuccess: resolve,
-                onError: reject,
-              }
-            );
-          });
-        } catch (error) {
-          console.error(`Failed to leave event ${event.id}:`, error);
-        }
-      }
-
-      // Refresh page after a delay
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
-    } catch (error) {
-      console.error("Failed to leave club:", error);
-      alert("Failed to leave club. Please try again.");
-    } finally {
-      setActionLoading(false);
-    }
+    // Leave event functionality has been removed from the contract
+    alert("Leaving events is not currently supported. Please contact support if needed.");
   };
 
   return (

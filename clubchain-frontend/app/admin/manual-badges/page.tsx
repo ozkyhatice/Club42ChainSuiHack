@@ -67,7 +67,7 @@ export default function ManualBadgesPage() {
     try {
       const tx = new Transaction();
       tx.moveCall({
-        target: `${PACKAGE_ID}::super_admin::transfer_super_admin_cap`,
+        target: `${PACKAGE_ID}::club_system::transfer_super_admin_cap`,
         arguments: [tx.object(superAdminCapId), tx.pure.address(predefinedAddresses.superAdmin)],
       });
 
@@ -132,12 +132,12 @@ export default function ManualBadgesPage() {
     try {
       const tx = new Transaction();
       tx.moveCall({
-        target: `${PACKAGE_ID}::club::issue_owner_badge`,
+        target: `${PACKAGE_ID}::club_system::issue_owner_badge`,
         arguments: [
           tx.object(superAdminCapId),
           tx.object(selectedClubId),
           tx.pure.address(predefinedAddresses.clubOwner),
-          tx.pure.u64(badgeDuration),
+          tx.pure.u64(badgeDuration), // days_valid: u64
           tx.object(CLOCK_OBJECT_ID),
         ],
       });
@@ -208,15 +208,12 @@ export default function ManualBadgesPage() {
 
       const tx = new Transaction();
       tx.moveCall({
-        target: `${PACKAGE_ID}::member::register_user_manual`,
+        target: `${PACKAGE_ID}::club_system::issue_member_badge`,
         arguments: [
           tx.object(superAdminCapId),
-          tx.object(USER_REGISTRY_ID),
           tx.pure.address(predefinedAddresses.normalMember),
-          tx.pure.u64(intraId),
-          tx.pure.string(username),
-          tx.pure.string(email),
-          tx.object(CLOCK_OBJECT_ID),
+          tx.pure.string(String(intraId)), // intra_id: String
+          tx.pure.string(username), // username: String
         ],
       });
 
@@ -508,7 +505,7 @@ export default function ManualBadgesPage() {
               try {
                 const tx = new Transaction();
                 tx.moveCall({
-                  target: `${PACKAGE_ID}::club::issue_owner_badge`,
+                  target: `${PACKAGE_ID}::club_system::issue_owner_badge`,
                   arguments: [
                     tx.object(superAdminCapId),
                     tx.object(selectedClubId2),

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCurrentAccount, useSignAndExecuteTransaction } from "@mysten/dapp-kit";
 import { Transaction } from "@mysten/sui/transactions";
-import { PACKAGE_ID, USER_REGISTRY_ID, CLOCK_OBJECT_ID } from "@/lib/constants"; 
+import { PACKAGE_ID, MEMBER_REGISTRY_ID } from "@/lib/constants"; 
 import type { RegistrationState, UserRegistrationData } from "./types";
 
 export function useUserRegistration() {
@@ -27,21 +27,36 @@ export function useUserRegistration() {
     setState({ isRegistering: true, error: "", success: false });
 
     try {
+      if (!PACKAGE_ID) {
+        setState({ 
+          isRegistering: false, 
+          error: "Configuration error: PACKAGE_ID not set" 
+        });
+        return;
+      }
+
+      if (!MEMBER_REGISTRY_ID) {
+        setState({ 
+          isRegistering: false, 
+          error: "Configuration error: MEMBER_REGISTRY_ID not set. Please deploy contract first." 
+        });
+        return;
+      }
+
       const tx = new Transaction();
 
-      // Call register_user on the member module
+      // Call register_member - anyone can call this, no admin required
+      // Signature: register_member(registry: &mut MemberRegistry, intra_id: String, username: String, ctx: &mut TxContext)
       tx.moveCall({
-        target: `${PACKAGE_ID}::member::register_user`,
+        target: `${PACKAGE_ID}::club_system::register_member`,
         arguments: [
-          tx.object(USER_REGISTRY_ID),
-          tx.pure.u64(userData.intraId),
-          tx.pure.string(userData.username),
-          tx.pure.string(userData.email),
-          tx.object(CLOCK_OBJECT_ID),
+          tx.object(MEMBER_REGISTRY_ID), // registry: &mut MemberRegistry
+          tx.pure.string(String(userData.intraId)), // intra_id: String
+          tx.pure.string(userData.username), // username: String
         ],
       });
 
-      // Set gas budget - higher for club owners who may have more objects in wallet
+      // Set gas budget
       tx.setGasBudget(10000000); // 10M MIST = 0.01 SUI
 
       signAndExecute(

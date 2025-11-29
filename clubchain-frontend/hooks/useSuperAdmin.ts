@@ -24,7 +24,7 @@ export function useIsSuperAdmin() {
         console.log("useIsSuperAdmin: Starting check", {
           address: account.address,
           PACKAGE_ID,
-          searchType: `${PACKAGE_ID}::super_admin::SuperAdminCap`,
+          searchType: `${PACKAGE_ID}::club_system::SuperAdminCap`,
         });
         
         // Check if user owns SuperAdminCap
@@ -37,7 +37,7 @@ export function useIsSuperAdmin() {
           const result = await suiClient.getOwnedObjects({
             owner: account.address,
             filter: {
-              StructType: `${PACKAGE_ID}::super_admin::SuperAdminCap`,
+              StructType: `${PACKAGE_ID}::club_system::SuperAdminCap`,
             },
             options: {
               showContent: true,
@@ -108,7 +108,7 @@ export function useSuperAdminCapId() {
           const result = await suiClient.getOwnedObjects({
             owner: account.address,
             filter: {
-              StructType: `${PACKAGE_ID}::super_admin::SuperAdminCap`,
+              StructType: `${PACKAGE_ID}::club_system::SuperAdminCap`,
             },
             options: {
               showContent: true,

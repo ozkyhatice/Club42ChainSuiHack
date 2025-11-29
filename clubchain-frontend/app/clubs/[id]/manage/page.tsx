@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCurrentAccount, useSignAndExecuteTransaction } from "@mysten/dapp-kit";
 import { AdminGuard } from "@/components/guards/AdminGuard";
 import { useIsClubAdmin } from "@/modules/admin/useAdminCap";
-import { buildUpdateClubNameTx, buildDeleteClubTx } from "@/modules/contracts/club";
+// Note: update_club_name and delete_club functions have been removed from the contract
 import { PACKAGE_ID } from "@/lib/constants";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import GamifiedButton from "@/components/ui/GamifiedButton";
@@ -66,7 +66,8 @@ export default function ManageClubPage({ params }: PageProps) {
         return;
       }
 
-      const tx = buildUpdateClubNameTx(PACKAGE_ID, adminCapId, clubId, newName);
+      // update_club_name function has been removed from the contract
+      throw new Error("Update club name functionality is not available");
 
       signAndExecute(
         { transaction: tx  },
@@ -105,7 +106,8 @@ export default function ManageClubPage({ params }: PageProps) {
         return;
       }
 
-      const tx = buildDeleteClubTx(PACKAGE_ID, adminCapId, clubId);
+      // delete_club function has been removed from the contract
+      throw new Error("Delete club functionality is not available");
 
       signAndExecute(
         { transaction: tx  },
@@ -164,7 +166,6 @@ export default function ManageClubPage({ params }: PageProps) {
                     </Badge>
                   </div>
                 </div>
-              </div>
             </div>
           </div>
 

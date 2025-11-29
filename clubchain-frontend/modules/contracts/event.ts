@@ -17,7 +17,7 @@ export interface EventData {
  * Requires a ClubOwnerBadge that must be valid (not expired)
  * 
  * Smart contract signature:
- * create_event(owner_badge: &ClubOwnerBadge, club: &mut Club, title: String, description: String, date: u64, encrypted_content_blob_id: String, clock: &sui::clock::Clock, ctx: &mut TxContext)
+ * create_event(badge: &ClubOwnerBadge, club: &Club, title: String, start_time: u64, end_time: u64, blob_id: String, description: String, clock: &Clock, ctx: &mut TxContext)
  */
 export function buildCreateEventTx(
   packageId: string,
@@ -37,85 +37,52 @@ export function buildCreateEventTx(
 
   const tx = new Transaction();
 
-  // Convert date to milliseconds
-  const dateMs = eventData.date.getTime();
+  // Convert date to milliseconds for start_time
+  const startTimeMs = eventData.date.getTime();
+  // End time is 2 hours after start (default)
+  const endTimeMs = startTimeMs + (2 * 60 * 60 * 1000);
 
-  if (isNaN(dateMs)) {
+  if (isNaN(startTimeMs)) {
     throw new Error("Invalid date value");
   }
 
   tx.moveCall({
-    target: `${packageId}::event::create_event`,
+    target: `${packageId}::club_system::create_event`,
     arguments: [
-      tx.object(ownerBadgeId),              // owner_badge: &ClubOwnerBadge
-      tx.object(clubId),                     // club: &mut Club
+      tx.object(ownerBadgeId),              // badge: &ClubOwnerBadge
+      tx.object(clubId),                     // club: &Club
       tx.pure.string(eventData.title),       // title: String
+      tx.pure.u64(startTimeMs),             // start_time: u64
+      tx.pure.u64(endTimeMs),               // end_time: u64
+      tx.pure.string(encryptedContentBlobId), // blob_id: String
       tx.pure.string(eventData.description), // description: String
-      tx.pure.u64(dateMs),                   // date: u64
-      tx.pure.string(encryptedContentBlobId), // encrypted_content_blob_id: String
-      tx.object(clockObjectId),              // clock: &sui::clock::Clock
+      tx.object(clockObjectId),              // clock: &Clock
     ],
   });
 
   return tx;
 }
 
-/**
- * Build a transaction to create a new event (SUPER ADMIN ONLY)
- * Super Admin can create events for any club without needing a ClubOwnerBadge
- * 
- * Smart contract signature:
- * create_event_as_admin(super_admin: &SuperAdminCap, club: &mut Club, title: String, description: String, date: u64, encrypted_content_blob_id: String, ctx: &mut TxContext)
- */
-export function buildCreateEventAsAdminTx(
-  packageId: string,
-  superAdminCapId: string,
-  clubId: string,
-  eventData: EventData,
-  encryptedContentBlobId: string = ""
-): Transaction {
-  if (!packageId || !superAdminCapId || !clubId) {
-    throw new Error("Package ID, SuperAdminCap ID, and Club ID are required");
-  }
-
-  if (!eventData.title || !eventData.description || !eventData.date) {
-    throw new Error("Complete event data is required");
-  }
-
-  const tx = new Transaction();
-
-  // Convert date to milliseconds
-  const dateMs = eventData.date.getTime();
-
-  if (isNaN(dateMs)) {
-    throw new Error("Invalid date value");
-  }
-
-  tx.moveCall({
-    target: `${packageId}::event::create_event_as_admin`,
-    arguments: [
-      tx.object(superAdminCapId),              // super_admin: &SuperAdminCap
-      tx.object(clubId),                       // club: &mut Club
-      tx.pure.string(eventData.title),         // title: String
-      tx.pure.string(eventData.description),   // description: String
-      tx.pure.u64(dateMs),                     // date: u64
-      tx.pure.string(encryptedContentBlobId),  // encrypted_content_blob_id: String
-    ],
-  });
-
-  return tx;
-}
+// Note: create_event_as_admin function is not available in the new contract
 
 /**
  * Build a transaction to join an event
- * Any user can join an event
+ * Requires MemberBadge to join
+ * 
+ * Smart contract signature:
+ * join_event(_: &MemberBadge, event: &Event, ctx: &mut TxContext)
  */
 export function buildJoinEventTx(
   packageId: string,
+  memberBadgeId: string,
   eventId: string
 ): Transaction {
   if (!packageId) {
     throw new Error("Package ID is required");
+  }
+
+  if (!memberBadgeId || memberBadgeId.trim() === "") {
+    throw new Error("Member Badge ID is required");
   }
 
   if (!eventId || eventId.trim() === "") {
@@ -125,35 +92,14 @@ export function buildJoinEventTx(
   const tx = new Transaction();
 
   tx.moveCall({
-    target: `${packageId}::event::join_event`,
-    arguments: [tx.object(eventId)],
+    target: `${packageId}::club_system::join_event`,
+    arguments: [
+      tx.object(memberBadgeId), // MemberBadge
+      tx.object(eventId),        // Event
+    ],
   });
 
   return tx;
 }
 
-/**
- * Build a transaction to leave an event
- * User must be a participant to leave
- */
-export function buildLeaveEventTx(
-  packageId: string,
-  eventId: string
-): Transaction {
-  if (!packageId) {
-    throw new Error("Package ID is required");
-  }
-
-  if (!eventId || eventId.trim() === "") {
-    throw new Error("Event ID is required");
-  }
-
-  const tx = new Transaction();
-
-  tx.moveCall({
-    target: `${packageId}::event::leave_event`,
-    arguments: [tx.object(eventId)],
-  });
-
-  return tx;
-}
+// Note: leave_event function is not available in the new contract

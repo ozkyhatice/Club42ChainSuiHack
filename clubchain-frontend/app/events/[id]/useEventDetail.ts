@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { useSignAndExecuteTransaction, useCurrentAccount } from "@mysten/dapp-kit";
-import { buildJoinEventTx, buildLeaveEventTx } from "@/modules/contracts/event";
+import { useSignAndExecuteTransaction, useCurrentAccount, useSuiClient } from "@mysten/dapp-kit";
+import { buildJoinEventTx } from "@/modules/contracts/event";
 import { PACKAGE_ID } from "@/lib/constants";
+import { useQuery } from "@tanstack/react-query";
 
 export type EventDetail = {
   id: string;
@@ -21,7 +22,28 @@ export function useEventDetail(eventId: string) {
   const [actionLoading, setActionLoading] = useState(false);
 
   const currentAccount = useCurrentAccount();
+  const suiClient = useSuiClient();
   const { mutate: signAndExecute } = useSignAndExecuteTransaction();
+
+  // Get user's MemberBadge
+  const { data: memberBadgeId } = useQuery({
+    queryKey: ["member-badge", currentAccount?.address],
+    queryFn: async () => {
+      if (!currentAccount?.address) return null;
+      const objects = await suiClient.getOwnedObjects({
+        owner: currentAccount.address,
+        filter: {
+          StructType: `${PACKAGE_ID}::club_system::MemberBadge`,
+        },
+        options: {
+          showContent: true,
+        },
+        limit: 1,
+      });
+      return objects.data[0]?.data?.objectId || null;
+    },
+    enabled: !!currentAccount?.address,
+  });
 
   // Fetch event details
   useEffect(() => {
@@ -67,11 +89,16 @@ export function useEventDetail(eventId: string) {
       return;
     }
 
+    if (!memberBadgeId) {
+      setError("You need a MemberBadge to join events. Please contact an administrator.");
+      return;
+    }
+
     try {
       setActionLoading(true);
       setError(null);
 
-      const tx = buildJoinEventTx(PACKAGE_ID, event.id);
+      const tx = buildJoinEventTx(PACKAGE_ID, memberBadgeId, event.id);
 
       signAndExecute(
         {
@@ -96,39 +123,9 @@ export function useEventDetail(eventId: string) {
     }
   };
 
+  // Note: leave_event function is not available in the new contract
   const handleLeave = async () => {
-    if (!currentAccount?.address || !event) {
-      setError("Please connect your wallet");
-      return;
-    }
-
-    try {
-      setActionLoading(true);
-      setError(null);
-
-      const tx = buildLeaveEventTx(PACKAGE_ID, event.id);
-
-      signAndExecute(
-        {
-          transaction: tx,
-        },
-        {
-          onSuccess: () => {
-            // Refresh event data
-            setTimeout(() => {
-              window.location.reload();
-            }, 1000);
-          },
-          onError: () => {
-            setError("Failed to leave event. You may not be a participant.");
-          },
-        }
-      );
-    } catch (err) {
-      setError("Failed to leave event");
-    } finally {
-      setActionLoading(false);
-    }
+    setError("Leaving events is not supported in the current contract version.");
   };
 
   return {

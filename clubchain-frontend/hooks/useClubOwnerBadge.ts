@@ -22,7 +22,7 @@ export function useHasValidClubOwnerBadge(clubId: string | undefined) {
         const objects = await suiClient.getOwnedObjects({
           owner: account.address,
           filter: {
-            StructType: `${PACKAGE_ID}::club::ClubOwnerBadge`,
+            StructType: `${PACKAGE_ID}::club_system::ClubOwnerBadge`,
           },
           options: {
             showContent: true,
@@ -77,7 +77,7 @@ export function useHasAnyValidClubOwnerBadge() {
         const objects = await suiClient.getOwnedObjects({
           owner: account.address,
           filter: {
-            StructType: `${PACKAGE_ID}::club::ClubOwnerBadge`,
+            StructType: `${PACKAGE_ID}::club_system::ClubOwnerBadge`,
           },
           options: {
             showContent: true,
@@ -130,7 +130,7 @@ export function useUserClubOwnerBadges() {
         const objects = await suiClient.getOwnedObjects({
           owner: account.address,
           filter: {
-            StructType: `${PACKAGE_ID}::club::ClubOwnerBadge`,
+            StructType: `${PACKAGE_ID}::club_system::ClubOwnerBadge`,
           },
           options: {
             showContent: true,

@@ -22,7 +22,7 @@ export function useIsRegistered() {
         const objects = await suiClient.getOwnedObjects({
           owner: account.address,
           filter: {
-            StructType: `${PACKAGE_ID}::member::UserProfile`,
+            StructType: `${PACKAGE_ID}::club_system::MemberBadge`,
           },
           options: {
             showContent: true,
@@ -56,7 +56,7 @@ export function useUserProfile() {
         const objects = await suiClient.getOwnedObjects({
           owner: account.address,
           filter: {
-            StructType: `${PACKAGE_ID}::member::UserProfile`,
+            StructType: `${PACKAGE_ID}::club_system::MemberBadge`,
           },
           options: {
             showContent: true,

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { SuiClient, getFullnodeUrl } from "@mysten/sui/client";
 import { PACKAGE_ID, NETWORK } from "@/lib/constants";
 
-const EVENT_STRUCT = `${PACKAGE_ID}::event::Event`;
+const EVENT_STRUCT = `${PACKAGE_ID}::club_system::Event`;
 
 let client: SuiClient | null = null;
 const getClient = () => {

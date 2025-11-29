@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useCurrentAccount, useSignAndExecuteTransaction } from "@mysten/dapp-kit";
 import { Transaction } from "@mysten/sui/transactions";
 import { PACKAGE_ID, CLOCK_OBJECT_ID } from "@/lib/constants";
-import { getUserAdminCaps } from "@/modules/contracts/admin-cap";
+import { useUserClubOwnerBadges } from "@/hooks/useClubOwnerBadge";
 import { useSuiClient } from "@mysten/dapp-kit";
 import { useQuery } from "@tanstack/react-query";
 import type { EventFormData } from "../types";
@@ -23,15 +23,8 @@ export function useCreateEvent() {
     txStatus: "",
   });
 
-  // Get user's admin caps
-  const { data: adminCaps = [] } = useQuery({
-    queryKey: ["user-admin-caps", account?.address],
-    queryFn: async () => {
-      if (!account?.address) return [];
-      return await getUserAdminCaps(suiClient, account.address);
-    },
-    enabled: !!account?.address,
-  });
+  // Get user's club owner badges
+  const { data: clubOwnerBadges = [] } = useUserClubOwnerBadges();
 
   const createEvent = async (formData: EventFormData, clubId: string) => {
     if (!account) {
@@ -44,10 +37,10 @@ export function useCreateEvent() {
       return;
     }
 
-    // Find the admin cap for this club
-    const adminCap = adminCaps.find(cap => cap.club_id === clubId);
-    if (!adminCap) {
-      setState({ isSubmitting: false, txStatus: "No admin capability found for this club" });
+    // Find a valid club owner badge for this club
+    const validBadge = clubOwnerBadges.find(badge => badge.clubId === clubId && !badge.isExpired);
+    if (!validBadge) {
+      setState({ isSubmitting: false, txStatus: "No valid ClubOwnerBadge found for this club" });
       return;
     }
 
@@ -96,7 +89,7 @@ export function useCreateEvent() {
       
       // Debug logging
       console.log("Transaction details:", {
-        target: `${PACKAGE_ID}::event::create_event`,
+        target: `${PACKAGE_ID}::club_system::create_event`,
         adminCapId: adminCap.id,
         clubId,
         title: formData.title,
@@ -135,17 +128,18 @@ export function useCreateEvent() {
 
       try {
         // Build the move call
+        // Signature: create_event(badge: &ClubOwnerBadge, club: &Club, title: String, start_time: u64, end_time: u64, blob_id: String, description: String, clock: &Clock, ctx: &mut TxContext)
         tx.moveCall({
-          target: `${PACKAGE_ID}::event::create_event`,
+          target: `${PACKAGE_ID}::club_system::create_event`,
           arguments: [
-            tx.object(adminCap.id), // ClubAdminCap
-            tx.pure.address(clubId), // club_id
-            tx.pure.string(formData.title), // title
-            tx.pure.string(formData.description), // description
-            tx.pure.string("TBD"), // location (placeholder)
-            tx.pure.u64(startTime), // start_time (milliseconds)
-            tx.pure.u64(endTime), // end_time (milliseconds)
-            tx.object(CLOCK_OBJECT_ID), // clock
+            tx.object(validBadge.id), // badge: &ClubOwnerBadge
+            tx.object(clubId), // club: &Club
+            tx.pure.string(formData.title), // title: String
+            tx.pure.u64(startTime), // start_time: u64
+            tx.pure.u64(endTime), // end_time: u64
+            tx.pure.string(""), // blob_id: String (encrypted_blob_id)
+            tx.pure.string(formData.description), // description: String
+            tx.object(CLOCK_OBJECT_ID), // clock: &Clock
           ],
         });
 
@@ -249,6 +243,6 @@ export function useCreateEvent() {
     txStatus: state.txStatus,
     createEvent,
     resetStatus,
-    adminCaps,
+    adminCaps: clubOwnerBadges,
   };
 }

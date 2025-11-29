@@ -19,7 +19,7 @@ export function useDynamicEvents() {
       // Query for all shared Event objects using multiGetObjects
       // Since events are shared objects, we need to query differently
       const response = await client.queryEvents({
-        query: { MoveEventType: `${PACKAGE_ID}::event::Event` },
+        query: { MoveEventType: `${PACKAGE_ID}::club_system::Event` },
         limit: 50,
       });
 
@@ -37,7 +37,7 @@ export function useDynamicEvents() {
       for (const item of objectsResponse.data) {
         if (item.data?.content?.dataType === 'moveObject') {
           const content = item.data.content as any;
-          if (content.type.includes('::event::Event')) {
+          if (content.type.includes('::club_system::Event')) {
             const fields = content.fields;
             eventObjects.push({
               objectId: item.data.objectId,

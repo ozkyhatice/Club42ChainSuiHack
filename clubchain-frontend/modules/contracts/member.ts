@@ -32,7 +32,7 @@ export function buildRegisterUserTx(
   const tx = new Transaction();
 
   tx.moveCall({
-    target: `${packageId}::member::register_user`,
+    target: `${packageId}::club_system::issue_member_badge`,
     arguments: [
       tx.object(registryObjectId),
       tx.pure.u64(userData.intraId),

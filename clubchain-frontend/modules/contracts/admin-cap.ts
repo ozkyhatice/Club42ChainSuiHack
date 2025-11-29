@@ -38,7 +38,7 @@ export async function getUserAdminCaps(
     const objects = await client.getOwnedObjects({
       owner: userAddress,
       filter: {
-        StructType: `${PACKAGE_ID}::admin_cap::ClubAdminCap`,
+        StructType: `${PACKAGE_ID}::club_system::ClubAdminCap`,
       },
       options: {
         showContent: true,
