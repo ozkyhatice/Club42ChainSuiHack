@@ -48,16 +48,38 @@ export function useUserRegistration() {
             console.log("Registration successful:", result);
             setState({ isRegistering: false, error: "", success: true });
             setTimeout(() => {
-              router.push("/");
+              router.push("/dashboard");
             }, 2000);
           },
           onError: (err) => {
             console.error("Registration error:", err);
-            setState({
-              isRegistering: false,
-              error: err.message,
-              success: false,
-            });
+            
+            // Check if error is "already registered" (error code 1)
+            // Error format: MoveAbort(..., 1) where 1 is the error code
+            const errorMessage = err.message || String(err) || JSON.stringify(err);
+            const isAlreadyRegistered = 
+              errorMessage.includes("code 1") || 
+              errorMessage.includes("already registered") ||
+              (errorMessage.includes("MoveAbort") && (
+                errorMessage.includes("}, 1)") || 
+                errorMessage.includes(", 1)") ||
+                errorMessage.match(/MoveAbort.*,\s*1\)/i)
+              ));
+            
+            if (isAlreadyRegistered) {
+              // User is already registered, redirect to dashboard
+              console.log("User is already registered, redirecting to dashboard...");
+              setState({ isRegistering: false, error: "", success: true });
+              setTimeout(() => {
+                router.push("/dashboard");
+              }, 1000);
+            } else {
+              setState({
+                isRegistering: false,
+                error: err.message || String(err),
+                success: false,
+              });
+            }
           },
         }
       );

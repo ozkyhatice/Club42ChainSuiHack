@@ -11,6 +11,7 @@ import { SessionProvider } from "next-auth/react";
 import { useState } from "react";
 import "@mysten/dapp-kit/dist/index.css";
 import { NETWORK } from "@/lib/constants";
+import WalletDisconnectListener from "@/components/auth/WalletDisconnectListener";
 
 const defaultNetwork = NETWORK;
 const { networkConfig } = createNetworkConfig({
@@ -42,6 +43,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           defaultNetwork={defaultNetwork}
         >
           <WalletProvider autoConnect>
+            <WalletDisconnectListener />
             {children}
           </WalletProvider>
         </SuiClientProvider>

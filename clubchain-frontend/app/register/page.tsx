@@ -7,11 +7,13 @@ import { useEffect } from "react";
 import Link from "next/link";
 import RegistrationFlow from "./RegistrationFlow";
 import RegistrationSteps from "./RegistrationSteps";
+import { useIsRegistered } from "@/hooks/useRegistrationStatus";
 
 export default function RegisterPage() {
   const { data: session, status } = useSession();
   const account = useCurrentAccount();
   const router = useRouter();
+  const { data: isRegistered, isLoading: isCheckingRegistration } = useIsRegistered();
 
   useEffect(() => {
     if (status !== "loading" && !session) {
@@ -19,7 +21,15 @@ export default function RegisterPage() {
     }
   }, [session, status, router]);
 
-  if (status === "loading") {
+  // Redirect to dashboard if user is already registered
+  useEffect(() => {
+    if (account && !isCheckingRegistration && isRegistered) {
+      console.log("User is already registered, redirecting to dashboard...");
+      router.push("/dashboard");
+    }
+  }, [account, isRegistered, isCheckingRegistration, router]);
+
+  if (status === "loading" || isCheckingRegistration) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-gray-600">Loading...</p>
@@ -31,6 +41,24 @@ export default function RegisterPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-gray-600">Redirecting to sign in...</p>
+      </div>
+    );
+  }
+
+  // Show loading while checking registration status
+  if (account && isCheckingRegistration) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-600">Checking registration status...</p>
+      </div>
+    );
+  }
+
+  // Redirect if already registered (this is a fallback, useEffect should handle it)
+  if (account && isRegistered) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-600">Redirecting to dashboard...</p>
       </div>
     );
   }

@@ -20,12 +20,13 @@ import {
   CheckCircle,
   AlertCircle
 } from "lucide-react";
-import { signOut } from "next-auth/react";
+import { useSynchronizedSignOut } from "@/hooks/useSynchronizedSignOut";
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const account = useCurrentAccount();
+  const { handleSignOut } = useSynchronizedSignOut();
   
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -98,7 +99,7 @@ export default function ProfilePage() {
                   variant="outline" 
                   size="sm" 
                   className="gap-2 text-red-600 hover:bg-red-50"
-                  onClick={() => signOut({ callbackUrl: "/" })}
+                  onClick={() => handleSignOut("/")}
                 >
                   <LogOut className="w-4 h-4" />
                   Sign Out

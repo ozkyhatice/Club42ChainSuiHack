@@ -3,19 +3,23 @@
 import { signIn, useSession, getProviders } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useCurrentAccount } from "@mysten/dapp-kit";
 import Button from "@/components/ui/Button";
 import Card, { CardBody } from "@/components/ui/Card";
 import FloatingElements from "@/components/landing/FloatingElements";
 import { GraduationCap, Rocket, AlertTriangle, Info, ArrowRight } from "lucide-react";
+import { useIsRegistered } from "@/hooks/useRegistrationStatus";
 
 export default function SignInPage() {
   const { data: session, status } = useSession();
+  const account = useCurrentAccount();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [providers, setProviders] = useState<Record<string, any> | null>(null);
   const [isLoadingProviders, setIsLoadingProviders] = useState(true);
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { data: isRegistered, isLoading: isCheckingRegistration } = useIsRegistered();
 
   useEffect(() => {
     const errorParam = searchParams.get("error");
@@ -40,10 +44,22 @@ export default function SignInPage() {
   }, []);
 
   useEffect(() => {
-    if (session) {
+    if (session && account) {
+      // If user has session and wallet connected, check registration status
+      if (!isCheckingRegistration) {
+        if (isRegistered) {
+          // User is already registered, go to dashboard
+          router.push("/dashboard");
+        } else {
+          // User is not registered, go to registration page
+          router.push("/register");
+        }
+      }
+    } else if (session && !account) {
+      // User has session but no wallet, go to registration to connect wallet
       router.push("/register");
     }
-  }, [session, router]);
+  }, [session, account, isRegistered, isCheckingRegistration, router]);
 
   const handleSignIn = async () => {
     try {
