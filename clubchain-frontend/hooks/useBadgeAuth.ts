@@ -28,8 +28,8 @@ export function useBadgeAuth(): BadgeAuthState {
   const account = useCurrentAccount();
   const suiClient = useSuiClient();
   
-  // Check SuperAdmin status
-  const { data: isSuperAdmin = false, isLoading: superAdminLoading } = useIsSuperAdmin();
+  // Check SuperAdmin status - don't use default false, let it be undefined until loaded
+  const { data: isSuperAdmin, isLoading: superAdminLoading, isError: superAdminError } = useIsSuperAdmin();
   
   // Check ClubOwner badges
   // useUserClubOwnerBadges already filters out expired badges
@@ -43,21 +43,32 @@ export function useBadgeAuth(): BadgeAuthState {
   
   const isLoading = superAdminLoading || badgesLoading || memberLoading;
   
+  // Only return definitive values when loading is complete
+  const finalIsSuperAdmin = superAdminLoading ? false : (isSuperAdmin ?? false);
+  const finalIsClubOwner = badgesLoading ? false : (clubOwnerBadges.length > 0);
+  
   // Debug logging
-  if (!isLoading && account) {
+  if (account) {
     console.log("useBadgeAuth state:", {
+      account: account.address,
       isSuperAdmin,
+      finalIsSuperAdmin,
+      superAdminLoading,
+      superAdminError,
       clubOwnerBadgesCount: clubOwnerBadges.length,
       clubOwnerBadges,
       ownedClubIds,
-      isClubOwner: clubOwnerBadges.length > 0,
+      isClubOwner: finalIsClubOwner,
       isMember,
+      isLoading,
+      badgesLoading,
+      memberLoading,
     });
   }
   
   return {
-    isSuperAdmin,
-    isClubOwner: clubOwnerBadges.length > 0, // If there are any valid badges, user is a club owner
+    isSuperAdmin: finalIsSuperAdmin,
+    isClubOwner: finalIsClubOwner,
     ownedClubIds: [...new Set(ownedClubIds)], // Remove duplicates
     isMember,
     isLoading,

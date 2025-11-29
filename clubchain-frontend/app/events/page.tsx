@@ -5,10 +5,11 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { getClubs } from "@/src/services/blockchain/getClubs";
+import { getEvents } from "@/src/services/blockchain/getEvents";
+import type { EventInfo } from "@/src/services/blockchain/getEvents";
 import GamifiedButton from "@/components/ui/GamifiedButton";
 import StatCard from "@/components/ui/StatCard";
-import { Sparkles, Search, Calendar, Users, Plus, ArrowRight } from "lucide-react";
-import type { EventInfo } from "@/src/services/blockchain/getClubs";
+import { Sparkles, Search, Calendar, Users, Plus, ArrowRight, MapPin } from "lucide-react";
 import Link from "next/link";
 import { useCanCreateEvent } from "@/hooks/useBadgeAuth";
 
@@ -17,15 +18,22 @@ export default function EventsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const canCreateEvent = useCanCreateEvent();
 
-  // Fetch all clubs to get events
-  const { data: clubs = [], isLoading: clubsLoading } = useQuery({
-    queryKey: ["all-events-clubs"],
+  // Fetch all events directly from blockchain
+  const { data: allEvents = [], isLoading: eventsLoading } = useQuery({
+    queryKey: ["all-events"],
+    queryFn: getEvents,
+    staleTime: 60000,
+  });
+
+  // Fetch clubs for name lookup
+  const { data: clubs = [] } = useQuery({
+    queryKey: ["clubs-for-events"],
     queryFn: getClubs,
     staleTime: 60000,
   });
 
-  // Flatten all events from all clubs
-  const allEvents: EventInfo[] = clubs.flatMap((club) => club.events || []);
+  // Create a map of club IDs to club names
+  const clubNameMap = new Map(clubs.map(club => [club.id, club.name]));
   
   // Sort by date (upcoming first)
   const sortedEvents = [...allEvents].sort((a, b) => a.date - b.date);
@@ -60,21 +68,21 @@ export default function EventsPage() {
         <div className="grid md:grid-cols-3 gap-6 animate-slideUp animation-delay-200">
           <StatCard
             label="Total Events"
-            value={clubsLoading ? "..." : allEvents.length}
+            value={eventsLoading ? "..." : allEvents.length}
             icon={Calendar}
             iconColor="text-primary"
             iconBgColor="bg-primary/10"
           />
           <StatCard
             label="Upcoming"
-            value={clubsLoading ? "..." : upcomingEvents.length}
+            value={eventsLoading ? "..." : upcomingEvents.length}
             icon={Sparkles}
             iconColor="text-accent"
             iconBgColor="bg-accent/10"
           />
           <StatCard
             label="Past Events"
-            value={clubsLoading ? "..." : pastEvents.length}
+            value={eventsLoading ? "..." : pastEvents.length}
             icon={Calendar}
             iconColor="text-text-muted"
             iconBgColor="bg-secondary"
@@ -109,7 +117,7 @@ export default function EventsPage() {
 
         {/* Events List */}
         <div className="animate-slideUp animation-delay-400">
-          {clubsLoading ? (
+          {eventsLoading ? (
             <div className="bg-card border border-border rounded-xl shadow-elevation-2 p-12 text-center">
               <div className="animate-spin h-12 w-12 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
               <p className="text-text-muted">Loading events from blockchain...</p>
@@ -148,7 +156,7 @@ export default function EventsPage() {
                   </h2>
                   <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     {upcomingEvents.map((event) => (
-                      <EventCard key={event.id} event={event} />
+                      <EventCard key={event.id} event={event} clubName={clubNameMap.get(event.clubId)} />
                     ))}
                   </div>
                 </div>
@@ -163,7 +171,7 @@ export default function EventsPage() {
                   </h2>
                   <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 opacity-75">
                     {pastEvents.map((event) => (
-                      <EventCard key={event.id} event={event} />
+                      <EventCard key={event.id} event={event} clubName={clubNameMap.get(event.clubId)} />
                     ))}
                   </div>
                 </div>
@@ -177,7 +185,7 @@ export default function EventsPage() {
 }
 
 // Event Card Component
-function EventCard({ event }: { event: EventInfo }) {
+function EventCard({ event, clubName }: { event: EventInfo; clubName?: string }) {
   const eventDate = new Date(event.date);
   const isUpcoming = event.date > Date.now();
 
@@ -192,6 +200,12 @@ function EventCard({ event }: { event: EventInfo }) {
           <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
             {event.title}
           </h3>
+          {clubName && (
+            <div className="flex items-center gap-2 text-xs text-text-secondary mb-2">
+              <MapPin className="w-3 h-3" />
+              <span>{clubName}</span>
+            </div>
+          )}
           <div className="flex items-center gap-2 text-xs text-text-secondary mb-2">
             <Calendar className="w-3 h-3" />
             <span>

@@ -114,6 +114,45 @@ module clubchain::event {
         club::push_event(club, event_id);
     }
 
+    /// Create a new event using ClubAdminCap (CLUB ADMIN)
+    /// Club admin can create events for their own club using ClubAdminCap
+    public entry fun create_event_with_cap(
+        cap: &ClubAdminCap,
+        club_id: address,
+        title: String,
+        description: String,
+        _location: String,
+        start_time: u64,
+        _end_time: u64,
+        _clock: &sui::clock::Clock,
+        ctx: &mut TxContext
+    ) {
+        // Verify the caller has admin capability for this club
+        admin_cap::assert_admin(cap, club_id);
+        
+        let sender = tx_context::sender(ctx);
+        
+        // Validate inputs
+        assert!(std::string::length(&title) > 0, E_EMPTY_TITLE);
+        assert!(std::string::length(&description) > 0, E_EMPTY_DESCRIPTION);
+        
+        let event = Event {
+            id: object::new(ctx),
+            club_id,
+            created_by: sender,
+            title,
+            description,
+            date: start_time, // Using start_time as the primary event date
+            participants: std::vector::empty(),
+            encrypted_content_blob_id: std::string::utf8(b""), // Empty for now, can be updated later
+        };
+        let _event_id = object::id_address(&event);
+        transfer::share_object(event);
+        
+        // Note: We can't call club::push_event here because we don't have the Club object
+        // Events will be tracked through queries by club_id
+    }
+
     /// Create a new event (SUPER ADMIN ONLY)
     /// Super Admin can create events for any club without needing a ClubOwnerBadge
     public entry fun create_event_as_admin(

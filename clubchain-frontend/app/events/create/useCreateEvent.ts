@@ -5,7 +5,8 @@ import { useCurrentAccount, useSignAndExecuteTransaction, useSuiClient } from "@
 import { buildCreateEventTx, buildCreateEventAsAdminTx } from "@/modules/contracts/event";
 import { PACKAGE_ID, CLOCK_OBJECT_ID } from "@/lib/constants";
 import { useUserClubOwnerBadges } from "@/hooks/useClubOwnerBadge";
-import { useIsSuperAdmin, useSuperAdminCapId } from "@/hooks/useSuperAdmin";
+import { useSuperAdminCapId } from "@/hooks/useSuperAdmin";
+import { useBadgeAuth } from "@/hooks/useBadgeAuth";
 import type { EventFormData } from "../types";
 
 interface CreateEventState {
@@ -18,7 +19,7 @@ export function useCreateEvent() {
   const suiClient = useSuiClient();
   const { mutate: signAndExecute } = useSignAndExecuteTransaction();
   const { data: userBadges = [] } = useUserClubOwnerBadges();
-  const { data: isSuperAdmin } = useIsSuperAdmin();
+  const badgeAuth = useBadgeAuth();
   const { data: superAdminCapId } = useSuperAdminCapId();
   const [state, setState] = useState<CreateEventState>({
     isSubmitting: false,
@@ -56,8 +57,17 @@ export function useCreateEvent() {
 
       let tx;
       
+      // Debug logging
+      console.log("useCreateEvent: Permission check", {
+        account: account.address,
+        isSuperAdmin: badgeAuth.isSuperAdmin,
+        superAdminCapId,
+        userBadgesCount: userBadges.length,
+        clubId,
+      });
+      
       // If SuperAdmin, use create_event_as_admin (no badge needed)
-      if (isSuperAdmin && superAdminCapId) {
+      if (badgeAuth.isSuperAdmin && superAdminCapId) {
         tx = buildCreateEventAsAdminTx(
           PACKAGE_ID,
           superAdminCapId,

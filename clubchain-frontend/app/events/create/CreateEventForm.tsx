@@ -2,12 +2,10 @@
 
 import { useState } from 'react';
 import { useCurrentAccount } from '@mysten/dapp-kit';
-import { useCreateEvent } from './useCreateEvent';
-import { useAdminCaps } from '@/modules/admin/useAdminCap';
+import { useCreateEvent } from './useCreateEventSimple';
 import type { EventFormData } from '../types';
 import type { Club } from '@/src/services/blockchain/getClubs';
 import GamifiedButton from '@/components/ui/GamifiedButton';
-import Badge from '@/components/ui/Badge';
 import OwnerBadge from '@/components/ui/OwnerBadge';
 import { Calendar, Building2, FileText, Clock, CheckCircle, XCircle, Sparkles } from 'lucide-react';
 
@@ -17,8 +15,7 @@ interface CreateEventFormProps {
 
 export default function CreateEventForm({ ownedClubs = [] }: CreateEventFormProps) {
   const account = useCurrentAccount();
-  const { isSubmitting, txStatus, createEvent, resetStatus } = useCreateEvent();
-  const { caps, loading: capsLoading } = useAdminCaps();
+  const { isSubmitting, txStatus, createEvent, resetStatus, adminCaps } = useCreateEvent();
 
   const [selectedClubId, setSelectedClubId] = useState<string>('');
   const [formData, setFormData] = useState<EventFormData>({

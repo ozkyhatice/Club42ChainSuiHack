@@ -2,55 +2,37 @@
 
 import { useCurrentAccount } from '@mysten/dapp-kit';
 import { useRouter } from 'next/navigation';
-import CreateEventForm from './CreateEventForm';
+import CreateEventForm from './CreateEventFormSimple';
 import Link from 'next/link';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import GamifiedButton from '@/components/ui/GamifiedButton';
 import OwnerBadge from '@/components/ui/OwnerBadge';
 import { useUserOwnedClubs, useIsAnyClubOwner } from '@/hooks/useClubOwnership';
-import { useHasAnyValidClubOwnerBadge } from '@/hooks/useClubOwnerBadge';
-import { useIsSuperAdmin } from '@/hooks/useSuperAdmin';
-import { useCanCreateEvent, useBadgeAuth } from '@/hooks/useBadgeAuth';
 import { getClubs } from '@/src/services/blockchain/getClubs';
 import { useQuery } from '@tanstack/react-query';
-import { Crown, AlertTriangle, ArrowLeft, Building2, Sparkles, Shield } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, Sparkles } from 'lucide-react';
 
 export default function CreateEventPage() {
   const account = useCurrentAccount();
   const router = useRouter();
   const { data: ownedClubs = [], isLoading: ownedLoading } = useUserOwnedClubs();
   const { isOwner, clubCount } = useIsAnyClubOwner();
-  const { data: hasValidBadge, isLoading: isCheckingBadge } = useHasAnyValidClubOwnerBadge();
-  const { data: isSuperAdmin, isLoading: isCheckingSuperAdmin } = useIsSuperAdmin();
-  const badgeAuth = useBadgeAuth();
-  const canCreateEvent = badgeAuth.isSuperAdmin || badgeAuth.isClubOwner;
   
-  // Fetch all clubs if SuperAdmin (to show all clubs in dropdown)
-  const { data: allClubs = [], isLoading: allClubsLoading } = useQuery({
-    queryKey: ["all-clubs-for-event-creation"],
-    queryFn: getClubs,
-    enabled: !!isSuperAdmin, // Only fetch if SuperAdmin
-    staleTime: 60000,
-  });
-  
-  // Determine which clubs to show: SuperAdmin sees all clubs, others see only owned clubs
-  const availableClubs = isSuperAdmin ? allClubs : ownedClubs;
-
-  // Loading state
-  if (ownedLoading || isCheckingBadge || isCheckingSuperAdmin || badgeAuth.isLoading || (isSuperAdmin && allClubsLoading)) {
-    return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <div className="animate-spin h-12 w-12 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p className="text-gray-400">Checking permissions...</p>
-          </div>
-        </div>
-      </DashboardLayout>
-    );
+  // Debug logging
+  if (account) {
+    console.log("CreateEventPage - Club Ownership Check:", {
+      account: account.address,
+      ownedClubsCount: ownedClubs.length,
+      clubCount,
+      isOwner,
+      ownedLoading,
+    });
   }
+  
+  // Available clubs - just use owned clubs since we don't have SuperAdmin system
+  const availableClubs = ownedClubs;
 
-  // Wallet not connected
+  // Wallet not connected - check this first before any loading checks
   if (!account) {
     return (
       <DashboardLayout>
@@ -76,85 +58,47 @@ export default function CreateEventPage() {
     );
   }
 
-  // Check if user can create events (SuperAdmin OR has valid ClubOwnerBadge)
-  // Wait for badge auth to finish loading before checking
-  if (!badgeAuth.isLoading && !canCreateEvent) {
+  // Loading state - wait for club ownership check
+  if (ownedLoading) {
     return (
       <DashboardLayout>
-        <div className="max-w-2xl mx-auto">
-          <div className="bg-card border border-secondary rounded-xl shadow-elevation-2 p-8 text-center">
-            <div className="inline-flex p-6 bg-error/20 rounded-2xl mb-6 border border-error/30">
-              <Shield className="w-16 h-16 text-error" />
-            </div>
-            <h1 className="text-3xl font-bold mb-4 text-foreground">Event Creation Access Required</h1>
-            <p className="text-gray-400 mb-6">
-              You need either a valid ClubOwnerBadge or SuperAdmin privileges to create events. ClubOwnerBadge proves your club ownership and has an expiration date.
-            </p>
-            <div className="bg-primary/10 border-l-4 border-primary rounded-lg p-4 mb-8 text-left">
-              <div className="flex items-start gap-3">
-                <Shield className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                <div>
-                  <h3 className="font-semibold text-foreground mb-1">How to get a ClubOwnerBadge?</h3>
-                  <p className="text-sm text-gray-400">
-                    ClubOwnerBadge is issued by Super Admins. Contact a Super Admin to receive a valid badge for your club.
-                    The badge expires after a certain period (default: 90 days) and needs to be renewed.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="flex gap-3 justify-center">
-              <GamifiedButton
-                variant="secondary"
-                onClick={() => router.push('/dashboard')}
-                icon={ArrowLeft}
-              >
-                Back to Dashboard
-              </GamifiedButton>
-            </div>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin h-12 w-12 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+            <p className="text-gray-400">Checking club ownership...</p>
           </div>
         </div>
       </DashboardLayout>
     );
   }
 
-  // Not a club owner and not SuperAdmin (fallback check)
-  if (!isSuperAdmin && (!isOwner || clubCount === 0)) {
+  // Check if user owns any clubs (has ClubAdminCap)
+  if (!isOwner || ownedClubs.length === 0) {
     return (
       <DashboardLayout>
         <div className="max-w-2xl mx-auto">
           <div className="bg-card border border-secondary rounded-xl shadow-elevation-2 p-8 text-center">
-            <div className="inline-flex p-6 bg-warning/20 rounded-2xl mb-6 border border-warning/30">
-              <Crown className="w-16 h-16 text-warning" />
+            <div className="inline-flex p-6 bg-error/20 rounded-2xl mb-6 border border-error/30">
+              <AlertTriangle className="w-16 h-16 text-error" />
             </div>
-            <h1 className="text-3xl font-bold mb-4 text-foreground">Owner Access Required</h1>
+            <h1 className="text-3xl font-bold mb-4 text-foreground">No Club Admin Access</h1>
             <p className="text-gray-400 mb-6">
-              Only club owners can create events. You need to own at least one club to create an event.
+              You need to be the admin of at least one club to create events. Create a club first to get admin access.
             </p>
-            <div className="bg-primary/10 border-l-4 border-primary rounded-lg p-4 mb-8 text-left">
-              <div className="flex items-start gap-3">
-                <Building2 className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                <div>
-                  <h3 className="font-semibold text-foreground mb-1">How to become a club owner?</h3>
-                  <p className="text-sm text-gray-400">
-                    Create a new club from the dashboard, or have an existing club owner transfer their ClubAdminCap to you.
-                  </p>
-                </div>
-              </div>
-            </div>
             <div className="flex gap-3 justify-center">
+              <GamifiedButton
+                variant="primary"
+                onClick={() => router.push('/clubs/create')}
+                icon={Sparkles}
+              >
+                Create a Club
+              </GamifiedButton>
               <GamifiedButton
                 variant="secondary"
                 onClick={() => router.push('/dashboard')}
                 icon={ArrowLeft}
               >
                 Back to Dashboard
-              </GamifiedButton>
-              <GamifiedButton
-                variant="primary"
-                onClick={() => router.push('/clubs')}
-                icon={Building2}
-              >
-                Browse Clubs
               </GamifiedButton>
             </div>
           </div>
@@ -183,10 +127,7 @@ export default function CreateEventPage() {
             <h1 className="text-3xl md:text-4xl font-bold">Create New Event</h1>
           </div>
           <p className="text-white/90">
-            {isSuperAdmin 
-              ? "Create an event for any club (Super Admin privilege)"
-              : `Create an event for one of your ${clubCount} club${clubCount !== 1 ? 's' : ''}`
-            }
+            Create an event for one of your {clubCount} club{clubCount !== 1 ? 's' : ''}
           </p>
         </div>
 

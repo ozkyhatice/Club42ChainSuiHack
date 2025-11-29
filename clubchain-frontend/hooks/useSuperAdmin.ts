@@ -15,21 +15,64 @@ export function useIsSuperAdmin() {
   return useQuery({
     queryKey: ["is-super-admin", account?.address],
     queryFn: async () => {
-      if (!account?.address || !PACKAGE_ID) return false;
+      if (!account?.address || !PACKAGE_ID) {
+        console.log("useIsSuperAdmin: Missing account or PACKAGE_ID", { account: account?.address, PACKAGE_ID });
+        return false;
+      }
 
       try {
+        console.log("useIsSuperAdmin: Starting check", {
+          address: account.address,
+          PACKAGE_ID,
+          searchType: `${PACKAGE_ID}::super_admin::SuperAdminCap`,
+        });
+        
         // Check if user owns SuperAdminCap
-        const objects = await suiClient.getOwnedObjects({
-          owner: account.address,
-          filter: {
-            StructType: `${PACKAGE_ID}::super_admin::SuperAdminCap`,
-          },
-          options: {
-            showContent: true,
-          },
+        // Use pagination to ensure we get all objects
+        let hasNextPage = true;
+        let cursor: string | null = null;
+        let found = false;
+
+        while (hasNextPage && !found) {
+          const result = await suiClient.getOwnedObjects({
+            owner: account.address,
+            filter: {
+              StructType: `${PACKAGE_ID}::super_admin::SuperAdminCap`,
+            },
+            options: {
+              showContent: true,
+            },
+            cursor: cursor || undefined,
+            limit: 50,
+          });
+
+          console.log("useIsSuperAdmin: Query result", {
+            address: account.address,
+            cursor,
+            hasNextPage: result.hasNextPage,
+            dataLength: result.data.length,
+            data: result.data,
+          });
+
+          if (result.data.length > 0) {
+            found = true;
+            console.log("useIsSuperAdmin: Found SuperAdminCap", {
+              address: account.address,
+              count: result.data.length,
+              objects: result.data.map(obj => obj.data?.objectId),
+            });
+          }
+
+          hasNextPage = result.hasNextPage;
+          cursor = result.nextCursor || null;
+        }
+
+        console.log("useIsSuperAdmin: Final result", {
+          address: account.address,
+          isSuperAdmin: found,
         });
 
-        return objects.data.length > 0;
+        return found;
       } catch (error) {
         console.error("Error checking super admin status:", error);
         return false;
@@ -50,22 +93,49 @@ export function useSuperAdminCapId() {
   return useQuery({
     queryKey: ["super-admin-cap-id", account?.address],
     queryFn: async () => {
-      if (!account?.address || !PACKAGE_ID) return null;
+      if (!account?.address || !PACKAGE_ID) {
+        console.log("useSuperAdminCapId: Missing account or PACKAGE_ID", { account: account?.address, PACKAGE_ID });
+        return null;
+      }
 
       try {
-        const objects = await suiClient.getOwnedObjects({
-          owner: account.address,
-          filter: {
-            StructType: `${PACKAGE_ID}::super_admin::SuperAdminCap`,
-          },
-          options: {
-            showContent: true,
-          },
+        // Use pagination to ensure we get all objects
+        let hasNextPage = true;
+        let cursor: string | null = null;
+        let capId: string | null = null;
+
+        while (hasNextPage && !capId) {
+          const result = await suiClient.getOwnedObjects({
+            owner: account.address,
+            filter: {
+              StructType: `${PACKAGE_ID}::super_admin::SuperAdminCap`,
+            },
+            options: {
+              showContent: true,
+            },
+            cursor: cursor || undefined,
+            limit: 50,
+          });
+
+          if (result.data.length > 0) {
+            capId = result.data[0].data?.objectId || null;
+            console.log("useSuperAdminCapId: Found SuperAdminCap", {
+              address: account.address,
+              capId,
+              count: result.data.length,
+            });
+          }
+
+          hasNextPage = result.hasNextPage;
+          cursor = result.nextCursor || null;
+        }
+
+        console.log("useSuperAdminCapId: Final result", {
+          address: account.address,
+          capId,
         });
 
-        if (objects.data.length === 0) return null;
-        
-        return objects.data[0].data?.objectId || null;
+        return capId;
       } catch (error) {
         console.error("Error getting super admin cap ID:", error);
         return null;
