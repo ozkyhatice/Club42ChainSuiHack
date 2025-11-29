@@ -3,6 +3,7 @@
 import { ConnectButton } from "@mysten/dapp-kit";
 import Hero from "./Hero";
 import FeatureCards from "./FeatureCards";
+import { ClubList } from "@/src/modules/clubs/ClubList";
 
 export default function Home() {
   return (
@@ -15,6 +16,7 @@ export default function Home() {
 
         <Hero />
         <FeatureCards />
+        <ClubList />
       </div>
     </main>
   );

@@ -1,4 +1,6 @@
-export default function FeatureCards() {
+import { memo } from "react";
+
+const FeatureCards = memo(function FeatureCards() {
   const features = [
     {
       icon: "📅",
@@ -29,5 +31,7 @@ export default function FeatureCards() {
       ))}
     </div>
   );
-}
+});
+
+export default FeatureCards;
 
