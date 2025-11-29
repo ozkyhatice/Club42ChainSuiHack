@@ -76,7 +76,7 @@ module clubchain::admin_cap_tests {
         ts::next_tx(&mut scenario, ADMIN);
         {
             let ctx = ts::ctx(&mut scenario);
-            club::create_club(string::utf8(b"Test Club"), ctx);
+            club::create_club(string::utf8(b"Test Club"), string::utf8(b"Test description"), ctx);
         };
 
         // Verify admin cap was transferred to creator
