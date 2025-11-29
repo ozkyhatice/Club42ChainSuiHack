@@ -1,0 +1,68 @@
+# ============================================
+# Sui Blockchain Contracts (clubchain_contracts)
+# ============================================
+clubchain_contracts/build/*
+clubchain_contracts/traces/*
+clubchain_contracts/.trace
+clubchain_contracts/.coverage*
+
+# ============================================
+# Next.js Frontend (clubchain-frontend)
+# ============================================
+
+# Dependencies
+clubchain-frontend/node_modules/
+clubchain-frontend/.pnp
+clubchain-frontend/.pnp.*
+clubchain-frontend/.yarn/*
+!clubchain-frontend/.yarn/patches
+!clubchain-frontend/.yarn/plugins
+!clubchain-frontend/.yarn/releases
+!clubchain-frontend/.yarn/versions
+
+# Testing
+clubchain-frontend/coverage/
+
+# Next.js
+clubchain-frontend/.next/
+clubchain-frontend/out/
+
+# Production
+clubchain-frontend/build/
+
+# Debug & Logs
+clubchain-frontend/npm-debug.log*
+clubchain-frontend/yarn-debug.log*
+clubchain-frontend/yarn-error.log*
+clubchain-frontend/.pnpm-debug.log*
+
+# Environment Variables (IMPORTANT!)
+clubchain-frontend/.env*
+clubchain-frontend/.env.local
+clubchain-frontend/.env.development.local
+clubchain-frontend/.env.test.local
+clubchain-frontend/.env.production.local
+
+# TypeScript
+clubchain-frontend/*.tsbuildinfo
+clubchain-frontend/next-env.d.ts
+
+# Vercel
+clubchain-frontend/.vercel
+
+# ============================================
+# General / OS Files
+# ============================================
+.DS_Store
+*.pem
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ============================================
+# Cursor IDE
+# ============================================
+.cursor/
+
