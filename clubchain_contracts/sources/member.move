@@ -4,6 +4,8 @@ module clubchain::member {
     use sui::transfer;
     use std::string::String;
     use sui::table::{Self, Table};
+    use sui::clock::{Self, Clock};
+    use clubchain::member_sbt;
 
     /// Member profile linked to 42 intra ID
     /// Represents a verified member of the 42 campus community
@@ -38,12 +40,14 @@ module clubchain::member {
     }
 
     /// Register a new member with their 42 intra credentials
+    /// Also mints a ClubMemberSBT (Soul-Bound Token) as proof of verified 42 identity
     /// 
     /// # Arguments
     /// * `registry` - The global UserRegistry shared object
     /// * `intra_id` - 42 intra user ID (must be unique)
     /// * `username` - 42 username
     /// * `email` - 42 email address
+    /// * `clock` - Sui Clock object for timestamp
     /// 
     /// # Aborts
     /// * Error code 1: This intra_id is already registered
@@ -53,6 +57,7 @@ module clubchain::member {
         intra_id: u64,
         username: String,
         email: String,
+        clock: &Clock,
         ctx: &mut TxContext
     ) {
         let sender = tx_context::sender(ctx);
@@ -77,8 +82,13 @@ module clubchain::member {
         table::add(&mut registry.intra_to_wallet, intra_id, sender);
         table::add(&mut registry.wallet_to_intra, sender, intra_id);
 
-        // Transfer profile to member
+        // Mint ClubMemberSBT (Soul-Bound Token)
+        let current_time = clock::timestamp_ms(clock);
+        let sbt = member_sbt::mint_member_sbt(intra_id, username, current_time, ctx);
+
+        // Transfer both profile and SBT to member
         transfer::transfer(profile, sender);
+        member_sbt::transfer_to(sbt, sender);
     }
 
     /// Check if a 42 intra ID is already registered
@@ -99,6 +109,16 @@ module clubchain::member {
     /// Get intra_id associated with a wallet address
     public fun get_intra_by_wallet(registry: &UserRegistry, wallet: address): u64 {
         *table::borrow(&registry.wallet_to_intra, wallet)
+    }
+
+    #[test_only]
+    /// Create a registry for testing purposes
+    public fun create_registry_for_testing(ctx: &mut TxContext): UserRegistry {
+        UserRegistry {
+            id: object::new(ctx),
+            intra_to_wallet: table::new(ctx),
+            wallet_to_intra: table::new(ctx),
+        }
     }
 }
 

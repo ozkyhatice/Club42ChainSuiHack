@@ -3,14 +3,17 @@
 import { useState } from 'react';
 import { useCurrentAccount } from '@mysten/dapp-kit';
 import { useCreateEvent } from './useCreateEvent';
+import { useAdminCaps } from '@/modules/admin/useAdminCap';
 import type { EventFormData } from '../types';
 
 export default function CreateEventForm() {
   const account = useCurrentAccount();
   const { isSubmitting, txStatus, createEvent, resetStatus } = useCreateEvent();
+  const { caps, loading: capsLoading } = useAdminCaps();
 
+  const [selectedClubId, setSelectedClubId] = useState<string>('');
   const [formData, setFormData] = useState<EventFormData>({
-    clubId: account?.address || '',
+    clubId: '',
     title: '',
     description: '',
     location: '',
@@ -20,26 +23,92 @@ export default function CreateEventForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await createEvent(formData);
+    
+    if (!selectedClubId) {
+      return;
+    }
+
+    const adminCap = caps.find(cap => cap.club_id === selectedClubId);
+    if (!adminCap) {
+      return;
+    }
+
+    const eventData = {
+      ...formData,
+      clubId: selectedClubId,
+    };
+
+    await createEvent(eventData, adminCap.id);
     
     // Reset form on success
     if (txStatus.includes('Success')) {
       setFormData({
-        clubId: account?.address || '',
+        clubId: '',
         title: '',
         description: '',
         location: '',
         startTime: '',
         endTime: '',
       });
+      setSelectedClubId('');
     }
   };
+
+  if (capsLoading) {
+    return (
+      <div className="bg-white rounded-lg shadow p-6">
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your clubs...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (caps.length === 0) {
+    return (
+      <div className="bg-white rounded-lg shadow p-6">
+        <h2 className="text-2xl font-bold mb-4">No Clubs Found</h2>
+        <p className="text-gray-600 mb-4">
+          You need to be a club admin to create events. Create a club first to get started.
+        </p>
+        <a
+          href="/clubs/create"
+          className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
+        >
+          Create a Club
+        </a>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-lg shadow p-6">
       <h2 className="text-2xl font-bold mb-6">Create New Event</h2>
       
       <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium mb-2">
+            Select Club
+          </label>
+          <select
+            required
+            value={selectedClubId}
+            onChange={(e) => setSelectedClubId(e.target.value)}
+            className="w-full px-3 py-2 border rounded-lg"
+          >
+            <option value="">-- Select a club --</option>
+            {caps.map((cap) => (
+              <option key={cap.id} value={cap.club_id}>
+                Club {cap.club_id.slice(0, 8)}...
+              </option>
+            ))}
+          </select>
+          <p className="text-xs text-gray-500 mt-1">
+            You can only create events for clubs where you are an admin
+          </p>
+        </div>
+
         <div>
           <label className="block text-sm font-medium mb-2">
             Event Title
@@ -108,20 +177,6 @@ export default function CreateEventForm() {
               className="w-full px-3 py-2 border rounded-lg"
             />
           </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            Club ID (optional)
-          </label>
-          <input
-            type="text"
-            value={formData.clubId}
-            onChange={(e) => setFormData({ ...formData, clubId: e.target.value })}
-            className="w-full px-3 py-2 border rounded-lg text-sm"
-            placeholder={account?.address}
-          />
-          <p className="text-xs text-gray-500 mt-1">Leave empty to use your address</p>
         </div>
 
         <button

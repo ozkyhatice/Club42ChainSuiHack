@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useCurrentAccount, useSignAndExecuteTransaction } from "@mysten/dapp-kit";
-import { Transaction } from "@mysten/sui/transactions";
+import { buildCreateEventTx } from "@/modules/contracts/event";
 import { PACKAGE_ID, CLOCK_OBJECT_ID } from "@/lib/constants";
 import type { EventFormData } from "../types";
 
@@ -19,43 +19,60 @@ export function useCreateEvent() {
     txStatus: "",
   });
 
-  const createEvent = async (formData: EventFormData) => {
+  const createEvent = async (formData: EventFormData, adminCapId: string) => {
     if (!account) {
       setState({ isSubmitting: false, txStatus: "Please connect wallet first" });
+      return;
+    }
+
+    if (!adminCapId) {
+      setState({ isSubmitting: false, txStatus: "Admin capability not found" });
       return;
     }
 
     setState({ isSubmitting: true, txStatus: "Creating transaction..." });
 
     try {
-      const tx = new Transaction();
+      if (!PACKAGE_ID || !CLOCK_OBJECT_ID) {
+        console.error("Configuration error:", { PACKAGE_ID, CLOCK_OBJECT_ID });
+        setState({ 
+          isSubmitting: false, 
+          txStatus: "Configuration error: PACKAGE_ID or CLOCK_OBJECT_ID not set" 
+        });
+        return;
+      }
 
-      // Convert datetime to unix timestamp (milliseconds)
-      const startTimeMs = new Date(formData.startTime).getTime();
-      const endTimeMs = new Date(formData.endTime).getTime();
-
-      tx.moveCall({
-        target: `${PACKAGE_ID}::event::create_event`,
-        arguments: [
-          tx.pure.address(formData.clubId || account.address),
-          tx.pure.string(formData.title),
-          tx.pure.string(formData.description),
-          tx.pure.string(formData.location),
-          tx.pure.u64(startTimeMs),
-          tx.pure.u64(endTimeMs),
-          tx.object(CLOCK_OBJECT_ID),
-        ],
+      console.log("Building event transaction with:", {
+        PACKAGE_ID,
+        CLOCK_OBJECT_ID,
+        adminCapId,
+        formData,
       });
 
+      const eventData = {
+        clubId: formData.clubId,
+        title: formData.title,
+        description: formData.description,
+        location: formData.location,
+        startTime: new Date(formData.startTime),
+        endTime: new Date(formData.endTime),
+      };
+
+      const tx = buildCreateEventTx(
+        PACKAGE_ID,
+        CLOCK_OBJECT_ID,
+        adminCapId,
+        eventData
+      );
+
+      console.log("Transaction block created, signing...");
       signAndExecute(
-        {
-          transaction: tx,
-        },
+        { transaction: tx },
         {
           onSuccess: (result) => {
             setState({
               isSubmitting: false,
-              txStatus: `Success! Digest: ${result.digest}`,
+              txStatus: `Success! Event created. Digest: ${result.digest}`,
             });
           },
           onError: (error) => {

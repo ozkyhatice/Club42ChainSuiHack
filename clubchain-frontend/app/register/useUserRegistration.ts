@@ -3,12 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCurrentAccount, useSignAndExecuteTransaction } from "@mysten/dapp-kit";
-import { Transaction } from "@mysten/sui/transactions";
-import { PACKAGE_ID } from "@/lib/constants";
+import { buildRegisterUserTx } from "@/modules/contracts/member";
+import { PACKAGE_ID, CLOCK_OBJECT_ID, REGISTRY_OBJECT_ID } from "@/lib/constants";
 import type { RegistrationState, UserRegistrationData } from "./types";
-
-// NOTE: This will need to be updated with the actual registry object ID after deployment
-const REGISTRY_OBJECT_ID = "REPLACE_WITH_REGISTRY_OBJECT_ID";
 
 export function useUserRegistration() {
   const account = useCurrentAccount();
@@ -30,24 +27,41 @@ export function useUserRegistration() {
     setState({ isRegistering: true, error: "", success: false });
 
     try {
-      const tx = new Transaction();
+      if (!PACKAGE_ID || !CLOCK_OBJECT_ID || !REGISTRY_OBJECT_ID) {
+        console.error("Configuration error:", { 
+          PACKAGE_ID, 
+          CLOCK_OBJECT_ID, 
+          REGISTRY_OBJECT_ID 
+        });
+        setState({
+          isRegistering: false,
+          error: "Configuration error: Required IDs not set",
+          success: false,
+        });
+        return;
+      }
 
-      // Call register_user on the member module (renamed from user_registry)
-      tx.moveCall({
-        target: `${PACKAGE_ID}::member::register_user`,
-        arguments: [
-          tx.object(REGISTRY_OBJECT_ID),
-          tx.pure.u64(userData.intraId),
-          tx.pure.string(userData.username),
-          tx.pure.string(userData.email),
-        ],
+      console.log("Building registration transaction with:", {
+        PACKAGE_ID,
+        CLOCK_OBJECT_ID,
+        REGISTRY_OBJECT_ID,
+        userData,
       });
 
+      const tx = buildRegisterUserTx(
+        PACKAGE_ID,
+        CLOCK_OBJECT_ID,
+        REGISTRY_OBJECT_ID,
+        userData
+      );
+
+      console.log("Transaction block created, signing...");
       signAndExecute(
         { transaction: tx },
         {
           onSuccess: (result) => {
             console.log("Registration successful:", result);
+            console.log("You received both a UserProfile and a ClubMemberSBT!");
             setState({ isRegistering: false, error: "", success: true });
             setTimeout(() => {
               router.push("/");
@@ -76,7 +90,6 @@ export function useUserRegistration() {
   return {
     ...state,
     register,
-    isConfigured: REGISTRY_OBJECT_ID !== "REPLACE_WITH_REGISTRY_OBJECT_ID",
   };
 }
 
