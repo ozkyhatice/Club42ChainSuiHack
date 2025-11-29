@@ -41,6 +41,9 @@ export function useUserRegistration() {
         ],
       });
 
+      // Set gas budget - higher for club owners who may have more objects in wallet
+      tx.setGasBudget(10000000); // 10M MIST = 0.01 SUI
+
       signAndExecute(
         { transaction: tx },
         {
@@ -53,18 +56,37 @@ export function useUserRegistration() {
           },
           onError: (err) => {
             console.error("Registration error:", err);
+            console.error("Error details:", JSON.stringify(err, null, 2));
             
-            // Check if error is "already registered" (error code 1)
-            // Error format: MoveAbort(..., 1) where 1 is the error code
-            const errorMessage = err.message || String(err) || JSON.stringify(err);
-            const isAlreadyRegistered = 
-              errorMessage.includes("code 1") || 
-              errorMessage.includes("already registered") ||
-              (errorMessage.includes("MoveAbort") && (
-                errorMessage.includes("}, 1)") || 
-                errorMessage.includes(", 1)") ||
-                errorMessage.match(/MoveAbort.*,\s*1\)/i)
-              ));
+            // Extract error message from various possible formats
+            let errorMessage = "";
+            if (typeof err === 'string') {
+              errorMessage = err;
+            } else if (err instanceof Error) {
+              errorMessage = err.message;
+            } else if (err && typeof err === 'object') {
+              errorMessage = err.message || err.error || JSON.stringify(err);
+            } else {
+              errorMessage = String(err);
+            }
+            
+            console.log("Parsed error message:", errorMessage);
+            
+            // Check for error codes from Move contract
+            // Error code 1: intra_id already registered
+            // Error code 2: wallet already registered
+            const errorCode1 = /MoveAbort.*[,\s]1\)/i.test(errorMessage) || 
+                              errorMessage.includes("code 1") ||
+                              errorMessage.includes("}, 1)") ||
+                              errorMessage.includes(", 1)");
+            
+            const errorCode2 = /MoveAbort.*[,\s]2\)/i.test(errorMessage) || 
+                              errorMessage.includes("code 2") ||
+                              errorMessage.includes("}, 2)") ||
+                              errorMessage.includes(", 2)");
+            
+            const isAlreadyRegistered = errorCode1 || errorCode2 || 
+                                       errorMessage.toLowerCase().includes("already registered");
             
             if (isAlreadyRegistered) {
               // User is already registered, redirect to dashboard
@@ -74,9 +96,24 @@ export function useUserRegistration() {
                 router.push("/dashboard");
               }, 1000);
             } else {
+              // Show detailed error message
+              let userFriendlyError = errorMessage;
+              
+              // Provide more specific error messages
+              if (errorMessage.includes("insufficient gas") || errorMessage.includes("gas")) {
+                userFriendlyError = "Insufficient gas. Please ensure you have enough SUI tokens in your wallet.";
+              } else if (errorMessage.includes("object") && errorMessage.includes("not found")) {
+                userFriendlyError = "Transaction failed: Required object not found. Please try again.";
+              } else if (errorMessage.includes("permission") || errorMessage.includes("unauthorized")) {
+                userFriendlyError = "Permission denied. Please check your wallet connection.";
+              } else if (errorMessage.length > 200) {
+                // Truncate very long error messages
+                userFriendlyError = errorMessage.substring(0, 200) + "...";
+              }
+              
               setState({
                 isRegistering: false,
-                error: err.message || String(err),
+                error: userFriendlyError,
                 success: false,
               });
             }

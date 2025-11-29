@@ -84,8 +84,8 @@ export default function RegisterPage() {
     );
   }
 
-  // Calculate current step for progress indicator
-  const currentStep = !session ? 1 : !account ? 2 : 3;
+  // Calculate current step for progress indicator (only 2 steps now)
+  const currentStep = !session ? 1 : !account ? 2 : 2;
 
   return (
     <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8">
