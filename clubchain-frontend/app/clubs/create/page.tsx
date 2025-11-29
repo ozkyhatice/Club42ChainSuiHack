@@ -12,6 +12,7 @@ export default function CreateClubPage() {
   const { mutate: signAndExecute } = useSignAndExecuteTransaction();
   
   const [clubName, setClubName] = useState("");
+  const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -28,41 +29,39 @@ export default function CreateClubPage() {
       setError("Club name is required");
       return;
     }
+    if (!description.trim()) {
+      setError("Description is required");
+      return;
+    }
 
     setIsSubmitting(true);
     setError("");
 
     try {
       if (!PACKAGE_ID) {
-        console.error("PACKAGE_ID is undefined");
         setError("Configuration error: PACKAGE_ID is not set");
         setIsSubmitting(false);
         return;
       }
 
-      console.log("Building transaction with PACKAGE_ID:", PACKAGE_ID);
-      const tx = buildCreateClubTx(PACKAGE_ID, clubName);
+      const tx = buildCreateClubTx(PACKAGE_ID, clubName, description);
 
-      console.log("Transaction block created, signing...");
       signAndExecute(
         { transaction: tx },
         {
-          onSuccess: (result) => {
-            console.log("Club created successfully:", result);
+          onSuccess: () => {
             setSuccess(true);
             setTimeout(() => {
               router.push("/admin");
             }, 2000);
           },
           onError: (err) => {
-            console.error("Error creating club:", err);
             setError(err.message || "Failed to create club");
             setIsSubmitting(false);
           },
         }
       );
     } catch (err) {
-      console.error("Transaction error:", err);
       setError(String(err));
       setIsSubmitting(false);
     }
@@ -119,6 +118,25 @@ export default function CreateClubPage() {
                 placeholder="Enter club name"
                 disabled={isSubmitting}
                 required
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="clubDescription"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Description
+              </label>
+              <textarea
+                id="clubDescription"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Describe your club's mission..."
+                disabled={isSubmitting}
+                required
+                rows={4}
               />
             </div>
 

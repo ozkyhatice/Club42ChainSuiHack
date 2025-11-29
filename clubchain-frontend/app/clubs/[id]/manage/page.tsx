@@ -46,40 +46,28 @@ export default function ManageClubPage({ params }: PageProps) {
 
     try {
       if (!PACKAGE_ID) {
-        console.error("PACKAGE_ID is undefined");
         setError("Configuration error: PACKAGE_ID is not set");
         setIsUpdating(false);
         return;
       }
 
-      console.log("Building update transaction with:", {
-        PACKAGE_ID,
-        adminCapId,
-        clubId,
-        newName,
-      });
-
       const tx = buildUpdateClubNameTx(PACKAGE_ID, adminCapId, clubId, newName);
 
-      console.log("Transaction block created, signing...");
       signAndExecute(
         { transaction: tx },
         {
-          onSuccess: (result) => {
-            console.log("Club updated successfully:", result);
+          onSuccess: () => {
             setSuccess("Club name updated successfully!");
             setNewName("");
             setIsUpdating(false);
           },
           onError: (err) => {
-            console.error("Error updating club:", err);
             setError(err.message || "Failed to update club");
             setIsUpdating(false);
           },
         }
       );
     } catch (err) {
-      console.error("Transaction error:", err);
       setError(String(err));
       setIsUpdating(false);
     }
@@ -96,33 +84,23 @@ export default function ManageClubPage({ params }: PageProps) {
 
     try {
       if (!PACKAGE_ID) {
-        console.error("PACKAGE_ID is undefined");
         setError("Configuration error: PACKAGE_ID is not set");
         setIsDeleting(false);
         setShowDeleteConfirm(false);
         return;
       }
 
-      console.log("Building delete transaction with:", {
-        PACKAGE_ID,
-        adminCapId,
-        clubId,
-      });
-
       const tx = buildDeleteClubTx(PACKAGE_ID, adminCapId, clubId);
 
-      console.log("Transaction block created, signing...");
       signAndExecute(
         { transaction: tx },
         {
-          onSuccess: (result) => {
-            console.log("Club deleted successfully:", result);
+          onSuccess: () => {
             setTimeout(() => {
               router.push("/admin");
             }, 1000);
           },
           onError: (err) => {
-            console.error("Error deleting club:", err);
             setError(err.message || "Failed to delete club");
             setIsDeleting(false);
             setShowDeleteConfirm(false);
@@ -130,7 +108,6 @@ export default function ManageClubPage({ params }: PageProps) {
         }
       );
     } catch (err) {
-      console.error("Transaction error:", err);
       setError(String(err));
       setIsDeleting(false);
       setShowDeleteConfirm(false);
