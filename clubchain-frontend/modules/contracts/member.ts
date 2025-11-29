@@ -22,16 +22,10 @@ export function buildRegisterUserTx(
   userData: UserRegistrationData
 ): Transaction {
   if (!packageId || !clockObjectId || !registryObjectId) {
-    console.error("buildRegisterUserTx: missing required IDs", {
-      packageId,
-      clockObjectId,
-      registryObjectId,
-    });
     throw new Error("Package ID, Clock ID, and Registry ID are required");
   }
 
   if (!userData.intraId || !userData.username || !userData.email) {
-    console.error("buildRegisterUserTx: incomplete user data", userData);
     throw new Error("Complete user data is required");
   }
 
@@ -46,13 +40,6 @@ export function buildRegisterUserTx(
       tx.pure.string(userData.email),
       tx.object(clockObjectId),
     ],
-  });
-
-  console.log("✅ Transaction built:", {
-    function: "register_user",
-    packageId,
-    registryObjectId,
-    userData,
   });
 
   return tx;

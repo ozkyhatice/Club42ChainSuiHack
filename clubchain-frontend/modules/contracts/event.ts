@@ -9,9 +9,7 @@ export interface EventData {
   clubId: string;
   title: string;
   description: string;
-  location: string;
-  startTime: Date;
-  endTime: Date;
+  date: Date;
 }
 
 /**
@@ -20,91 +18,35 @@ export interface EventData {
  */
 export function buildCreateEventTx(
   packageId: string,
-  clockObjectId: string,
   adminCapId: string,
+  clubId: string,
   eventData: EventData
 ): Transaction {
-  if (!packageId || !clockObjectId || !adminCapId) {
-    console.error("buildCreateEventTx: missing required parameters", {
-      packageId,
-      clockObjectId,
-      adminCapId,
-    });
-    throw new Error("Package ID, Clock ID, and Admin Cap ID are required");
+  if (!packageId || !adminCapId || !clubId) {
+    throw new Error("Package ID, Admin Cap ID, and Club ID are required");
   }
 
-  if (!eventData.clubId || !eventData.title || !eventData.startTime || !eventData.endTime) {
-    console.error("buildCreateEventTx: incomplete event data", eventData);
+  if (!eventData.title || !eventData.description || !eventData.date) {
     throw new Error("Complete event data is required");
   }
 
   const tx = new Transaction();
 
-  // Convert dates to milliseconds
-  const startTimeMs = eventData.startTime.getTime();
-  const endTimeMs = eventData.endTime.getTime();
+  // Convert date to milliseconds
+  const dateMs = eventData.date.getTime();
 
-  if (isNaN(startTimeMs) || isNaN(endTimeMs)) {
-    console.error("buildCreateEventTx: invalid dates", {
-      startTime: eventData.startTime,
-      endTime: eventData.endTime,
-    });
-    throw new Error("Invalid date values");
+  if (isNaN(dateMs)) {
+    throw new Error("Invalid date value");
   }
 
   tx.moveCall({
     target: `${packageId}::event::create_event`,
     arguments: [
       tx.object(adminCapId),
-      tx.pure.address(eventData.clubId),
+      tx.object(clubId),
       tx.pure.string(eventData.title),
       tx.pure.string(eventData.description),
-      tx.pure.string(eventData.location),
-      tx.pure.u64(startTimeMs),
-      tx.pure.u64(endTimeMs),
-      tx.object(clockObjectId),
-    ],
-  });
-
-  console.log("✅ Transaction built:", {
-    function: "create_event",
-    packageId,
-    adminCapId,
-    eventData: {
-      ...eventData,
-      startTimeMs,
-      endTimeMs,
-    },
-  });
-
-  return tx;
-}
-
-/**
- * Build a transaction to update an event (admin only)
- */
-export function buildUpdateEventTx(
-  packageId: string,
-  adminCapId: string,
-  eventId: string,
-  eventData: Omit<EventData, "clubId">
-): Transaction {
-  const tx = new Transaction();
-
-  // Convert dates to milliseconds
-  const startTimeMs = eventData.startTime.getTime();
-  const endTimeMs = eventData.endTime.getTime();
-
-  tx.moveCall({
-    target: `${packageId}::event::update_event`,
-    arguments: [
-      tx.object(adminCapId),
-      tx.object(eventId),
-      tx.pure.string(eventData.title),
-      tx.pure.string(eventData.description),
-      tx.pure.string(eventData.location),
-      tx.pure.u64(startTimeMs),
-      tx.pure.u64(endTimeMs),
+      tx.pure.u64(dateMs),
     ],
   });
 
@@ -112,38 +54,53 @@ export function buildUpdateEventTx(
 }
 
 /**
- * Build a transaction to cancel an event (admin only)
+ * Build a transaction to join an event
+ * Any user can join an event
  */
-export function buildCancelEventTx(
+export function buildJoinEventTx(
   packageId: string,
-  adminCapId: string,
   eventId: string
 ): Transaction {
+  if (!packageId) {
+    throw new Error("Package ID is required");
+  }
+
+  if (!eventId || eventId.trim() === "") {
+    throw new Error("Event ID is required");
+  }
+
   const tx = new Transaction();
 
   tx.moveCall({
-    target: `${packageId}::event::cancel_event`,
-    arguments: [tx.object(adminCapId), tx.object(eventId)],
+    target: `${packageId}::event::join_event`,
+    arguments: [tx.object(eventId)],
   });
 
   return tx;
 }
 
 /**
- * Build a transaction to uncancel an event (admin only)
+ * Build a transaction to leave an event
+ * User must be a participant to leave
  */
-export function buildUncancelEventTx(
+export function buildLeaveEventTx(
   packageId: string,
-  adminCapId: string,
   eventId: string
 ): Transaction {
+  if (!packageId) {
+    throw new Error("Package ID is required");
+  }
+
+  if (!eventId || eventId.trim() === "") {
+    throw new Error("Event ID is required");
+  }
+
   const tx = new Transaction();
 
   tx.moveCall({
-    target: `${packageId}::event::uncancel_event`,
-    arguments: [tx.object(adminCapId), tx.object(eventId)],
+    target: `${packageId}::event::leave_event`,
+    arguments: [tx.object(eventId)],
   });
 
   return tx;
 }
-

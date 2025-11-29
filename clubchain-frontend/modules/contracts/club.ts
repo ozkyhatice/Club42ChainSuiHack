@@ -5,39 +5,32 @@ import { Transaction } from "@mysten/sui/transactions";
  * Transaction builders for club-related operations
  */
 
-export interface ClubData {
-  name: string;
-}
-
 /**
  * Build a transaction to create a new club
  * The creator will receive a ClubAdminCap for the new club
  */
 export function buildCreateClubTx(
   packageId: string,
-  clubName: string
+  clubName: string,
+  description: string
 ): Transaction {
   if (!packageId) {
-    console.error("buildCreateClubTx: packageId is undefined");
     throw new Error("Package ID is required");
   }
 
   if (!clubName || clubName.trim() === "") {
-    console.error("buildCreateClubTx: clubName is empty");
     throw new Error("Club name is required");
+  }
+
+  if (!description || description.trim() === "") {
+    throw new Error("Club description is required");
   }
 
   const tx = new Transaction();
 
   tx.moveCall({
     target: `${packageId}::club::create_club`,
-    arguments: [tx.pure.string(clubName)],
-  });
-
-  console.log("✅ Transaction built:", {
-    function: "create_club",
-    packageId,
-    clubName,
+    arguments: [tx.pure.string(clubName), tx.pure.string(description)],
   });
 
   return tx;
@@ -53,12 +46,6 @@ export function buildUpdateClubNameTx(
   newName: string
 ): Transaction {
   if (!packageId || !adminCapId || !clubId || !newName) {
-    console.error("buildUpdateClubNameTx: missing required parameters", {
-      packageId,
-      adminCapId,
-      clubId,
-      newName,
-    });
     throw new Error("All parameters are required");
   }
 
@@ -73,14 +60,6 @@ export function buildUpdateClubNameTx(
     ],
   });
 
-  console.log("✅ Transaction built:", {
-    function: "update_club_name",
-    packageId,
-    adminCapId,
-    clubId,
-    newName,
-  });
-
   return tx;
 }
 
@@ -93,11 +72,6 @@ export function buildDeleteClubTx(
   clubId: string
 ): Transaction {
   if (!packageId || !adminCapId || !clubId) {
-    console.error("buildDeleteClubTx: missing required parameters", {
-      packageId,
-      adminCapId,
-      clubId,
-    });
     throw new Error("All parameters are required");
   }
 
@@ -106,13 +80,6 @@ export function buildDeleteClubTx(
   tx.moveCall({
     target: `${packageId}::club::delete_club`,
     arguments: [tx.object(adminCapId), tx.object(clubId)],
-  });
-
-  console.log("✅ Transaction built:", {
-    function: "delete_club",
-    packageId,
-    adminCapId,
-    clubId,
   });
 
   return tx;

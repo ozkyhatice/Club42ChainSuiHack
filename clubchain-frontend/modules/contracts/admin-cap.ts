@@ -33,7 +33,6 @@ export async function getUserAdminCaps(
 ): Promise<ClubAdminCap[]> {
   try {
     if (!PACKAGE_ID) {
-      console.error("PACKAGE_ID is not defined");
       return [];
     }
 
