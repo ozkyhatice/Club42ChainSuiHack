@@ -17,7 +17,6 @@ interface ModuleCardProps {
   actions?: {
     label: string;
     href: string;
-    variant?: "primary" | "secondary";
   }[];
   badge?: {
     label: string;
@@ -41,9 +40,6 @@ export default function ModuleCard({
       className="card-interactive hover-lift animate-bounceIn group relative overflow-hidden"
       onClick={onClick}
     >
-      {/* Shimmer effect on hover */}
-      <div className="absolute inset-0 shimmer-effect opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-      
       <CardHeader className="relative">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-4">
@@ -56,7 +52,7 @@ export default function ModuleCard({
             </div>
             
             <div>
-              <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
+              <h3 className="text-xl font-bold text-foreground">
                 {title}
               </h3>
               {badge && (
@@ -90,7 +86,7 @@ export default function ModuleCard({
             {stats.map((stat, index) => (
               <div 
                 key={index}
-                className="text-center p-3 bg-secondary rounded-lg group-hover:bg-primary/10 transition-colors"
+                className="text-center p-3 bg-secondary rounded-lg"
               >
                 <p className="text-2xl font-bold text-foreground">{stat.value}</p>
                 <p className="text-xs text-text-muted">{stat.label}</p>
@@ -106,11 +102,7 @@ export default function ModuleCard({
               <Link 
                 key={index}
                 href={action.href}
-                className={`flex-1 text-center px-4 py-2 rounded-lg font-medium transition-all ${
-                  action.variant === "primary"
-                    ? "bg-primary/20 text-primary border border-primary/30 shadow-sm hover:bg-primary/30 hover:scale-105 active:scale-95"
-                    : "bg-secondary text-foreground hover:bg-secondary-hover hover:scale-105"
-                }`}
+                className="flex-1 text-center px-4 py-2 rounded-lg font-medium transition-all bg-primary/20 text-primary border border-primary/30 shadow-sm hover:bg-primary/30 hover:scale-105 active:scale-95"
                 onClick={(e) => e.stopPropagation()}
               >
                 {action.label}

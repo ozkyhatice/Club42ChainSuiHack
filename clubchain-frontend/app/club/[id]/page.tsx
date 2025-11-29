@@ -8,9 +8,13 @@ import { EventList } from "@/src/modules/events/EventList";
 import { EventCreateModal } from "@/src/modules/events/EventCreateModal";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import OwnerBadge from "@/components/ui/OwnerBadge";
-import { Building2, ArrowLeft, Users, Sparkles, Copy, CheckCircle2 } from "lucide-react";
+import { Building2, ArrowLeft, Users, Sparkles, Copy, CheckCircle2, UserPlus, UserMinus } from "lucide-react";
 import Card, { CardBody } from "@/components/ui/Card";
 import StatCard from "@/components/ui/StatCard";
+import Button from "@/components/ui/Button";
+import { useSignAndExecuteTransaction } from "@mysten/dapp-kit";
+import { buildJoinEventTx, buildLeaveEventTx } from "@/modules/contracts/event";
+import { PACKAGE_ID } from "@/lib/constants";
 
 export default function ClubPage() {
   const params = useParams<{ id: string }>();
@@ -21,6 +25,8 @@ export default function ClubPage() {
     "loading"
   );
   const [copied, setCopied] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
+  const { mutate: signAndExecute } = useSignAndExecuteTransaction();
 
   useEffect(() => {
     const fetchClub = async () => {
@@ -92,6 +98,91 @@ export default function ClubPage() {
   const isOwner =
     !!account?.address &&
     account.address.toLowerCase() === club.owner.toLowerCase();
+
+  // Check if user is a member (participated in at least one event)
+  const isMember = !!account?.address && club.events.some(event => 
+    event.participants?.some(participant => 
+      participant.toLowerCase() === account.address.toLowerCase()
+    )
+  );
+
+  const userStatus = isOwner ? "Owner" : (isMember ? "Member" : "Not a Member");
+
+  // Get first available event for joining
+  const firstEvent = club.events.find(event => 
+    !event.participants?.some(p => p.toLowerCase() === account?.address?.toLowerCase())
+  );
+
+  const handleJoinClub = async () => {
+    if (!account?.address) {
+      alert("Please connect your wallet first");
+      return;
+    }
+
+    if (club.events.length === 0) {
+      alert("This club has no events yet. Please wait for the owner to create events.");
+      return;
+    }
+
+    // Scroll to events section
+    const eventsSection = document.getElementById("events-section");
+    if (eventsSection) {
+      eventsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  const handleLeaveClub = async () => {
+    if (!account?.address) {
+      alert("Please connect your wallet first");
+      return;
+    }
+
+    // Find all events user is participating in
+    const userEvents = club.events.filter(event =>
+      event.participants?.some(p => p.toLowerCase() === account.address.toLowerCase())
+    );
+
+    if (userEvents.length === 0) {
+      alert("You are not a member of this club.");
+      return;
+    }
+
+    if (!confirm(`Are you sure you want to leave this club? This will remove you from ${userEvents.length} event(s).`)) {
+      return;
+    }
+
+    try {
+      setActionLoading(true);
+      
+      // Leave from all events
+      for (const event of userEvents) {
+        try {
+          const tx = buildLeaveEventTx(PACKAGE_ID, event.id);
+          await new Promise((resolve, reject) => {
+            signAndExecute(
+              { transaction: tx },
+              {
+                onSuccess: resolve,
+                onError: reject,
+              }
+            );
+          });
+        } catch (error) {
+          console.error(`Failed to leave event ${event.id}:`, error);
+        }
+      }
+
+      // Refresh page after a delay
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+    } catch (error) {
+      console.error("Failed to leave club:", error);
+      alert("Failed to leave club. Please try again.");
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   return (
     <DashboardLayout>
@@ -165,15 +256,53 @@ export default function ClubPage() {
           />
           <StatCard
             label="Status"
-            value={isOwner ? "Owner" : "Member"}
+            value={userStatus}
             icon={Building2}
-            iconColor={isOwner ? "text-warning" : "text-success"}
-            iconBgColor={isOwner ? "bg-warning/10" : "bg-success/10"}
+            iconColor={isOwner ? "text-warning" : (isMember ? "text-success" : "text-gray-400")}
+            iconBgColor={isOwner ? "bg-warning/10" : (isMember ? "bg-success/10" : "bg-gray-100")}
           />
         </div>
 
+        {/* Join/Leave Club Button - Prominent */}
+        {!isOwner && account?.address && (
+          <div className="flex justify-center animate-slideUp animation-delay-300">
+            <Card className="w-full max-w-md">
+              <CardBody className="text-center p-6">
+                {isMember ? (
+                  <div className="space-y-4">
+                    <p className="text-text-muted mb-4">You are a member of this club</p>
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      onClick={handleLeaveClub}
+                      disabled={actionLoading}
+                      className="w-full group"
+                    >
+                      <UserMinus className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                      {actionLoading ? "Leaving..." : "Üyelikten Çık"}
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <p className="text-text-muted mb-4">Join this club to participate in events</p>
+                    <Button
+                      variant="primary"
+                      size="lg"
+                      onClick={handleJoinClub}
+                      className="w-full group"
+                    >
+                      <UserPlus className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                      Üye Ol
+                    </Button>
+                  </div>
+                )}
+              </CardBody>
+            </Card>
+          </div>
+        )}
+
         {/* Events Section */}
-        <div className="animate-slideUp animation-delay-300">
+        <div id="events-section" className="animate-slideUp animation-delay-300">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
               <Sparkles className="w-6 h-6 text-accent" />

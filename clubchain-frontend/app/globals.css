@@ -1,33 +1,49 @@
 @import "tailwindcss";
 
 :root {
-  /* Modern Soft Color Palette - Harmonious & Elegant */
-  --background: #0f1419;        /* Soft deep background */
-  --foreground: #f3f4f6;       /* Bright white-gray text - more visible */
-  --foreground-dark: #e5e7eb;  /* Slightly darker for headings */
-  --card: #1a1f2e;              /* Soft card background */
-  --card-hover: #222736;       /* Card hover state */
-  --primary: #6b5b95;           /* Muted cool purple */
-  --primary-hover: #7c6ba0;     /* Lighter muted cool purple */
-  --primary-light: #5b4b8a;     /* Darker muted cool purple for contrast */
-  --secondary: #2d3748;         /* Soft gray borders */
-  --secondary-hover: #374151;   /* Secondary hover */
-  --accent: #06b6d4;            /* Soft cyan */
-  --accent-hover: #22d3ee;      /* Lighter cyan */
-  --success: #10b981;           /* Soft emerald */
-  --success-light: #34d399;     /* Lighter emerald */
-  --warning: #f59e0b;           /* Soft amber */
-  --warning-light: #fbbf24;     /* Lighter amber */
-  --error: #ef4444;             /* Soft red */
-  --error-light: #f87171;       /* Lighter red */
-  --border: #374151;            /* Soft border color */
-  --border-light: #4b5563;      /* Lighter border */
-  --input-bg: #1f2937;          /* Input background */
-  --input-border: #4b5563;      /* Input border */
-  --input-focus: #6b5b95;       /* Input focus ring */
-  --text-muted: #d1d5db;        /* Muted text - brighter for readability */
-  --text-secondary: #9ca3af;    /* Secondary text - more visible */
-  /* Muted cool purple shades */
+  /* Professional Color Palette - Carefully Curated for Harmony & Sophistication */
+  /* Base Colors - Neutral Foundation */
+  --background: #0a0e14;        /* Deep, rich background - less blue, more neutral */
+  --foreground: #f1f5f9;       /* Soft white - optimal readability */
+  --foreground-dark: #e2e8f0;  /* Slightly muted for hierarchy */
+  --card: #151b24;              /* Card background - subtle contrast */
+  --card-hover: #1e2532;       /* Card hover - gentle lift */
+  
+  /* Primary Brand Color - Muted Purple (Main Identity) */
+  --primary: #7c6ba0;           /* Refined muted purple - balanced saturation */
+  --primary-hover: #8b7ba8;     /* Lighter for interactions */
+  --primary-light: #6b5b95;     /* Darker variant for depth */
+  
+  /* Secondary - Neutral Grays */
+  --secondary: #2a3441;         /* Sophisticated gray */
+  --secondary-hover: #364151;   /* Interactive gray */
+  
+  /* Accent - Soft Teal (Complementary to Purple) */
+  --accent: #14b8a6;            /* Muted teal - harmonious with purple */
+  --accent-hover: #2dd4bf;      /* Lighter teal for hover */
+  
+  /* Semantic Colors - Balanced & Professional */
+  --success: #059669;           /* Muted emerald - professional green */
+  --success-light: #10b981;     /* Lighter variant */
+  
+  --warning: #c084fc;           /* Soft violet - distinct from primary */
+  --warning-light: #d8b4fe;     /* Lighter violet */
+  
+  --error: #dc2626;             /* Muted red - professional alert color */
+  --error-light: #ef4444;       /* Lighter red */
+  
+  /* UI Elements */
+  --border: #334155;            /* Subtle borders */
+  --border-light: #475569;     /* Lighter borders */
+  --input-bg: #1e293b;          /* Input background */
+  --input-border: #475569;      /* Input border */
+  --input-focus: #7c6ba0;       /* Focus ring - matches primary */
+  
+  /* Typography */
+  --text-muted: #cbd5e1;        /* Muted text - good contrast */
+  --text-secondary: #94a3b8;   /* Secondary text */
+  
+  /* Extended Purple Palette - For Gradients & Variations */
   --muted-purple-400: #8b7ba8;   /* Light muted purple */
   --muted-purple-500: #7c6ba0;  /* Medium muted purple */
   --muted-purple-600: #6b5b95;   /* Dark muted purple */

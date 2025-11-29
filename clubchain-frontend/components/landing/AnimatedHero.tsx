@@ -16,17 +16,27 @@ export default function AnimatedHero() {
       {/* Main title with scale-up animation */}
       <div className="relative">
         <h1 className="text-6xl sm:text-8xl md:text-9xl font-bold mb-6 animate-bounceIn">
-          <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-gradient">
+          <span className="text-primary">
             42 Clubs
           </span>
         </h1>
-        <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-32 h-32 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full blur-3xl animate-pulse-glow"></div>
+        <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-32 h-32 bg-primary/10 rounded-full blur-3xl animate-pulse-glow"></div>
       </div>
       
-      {/* Subtitle with slide-up animation */}
-      <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-foreground mb-4 animate-slideUp animation-delay-200">
-        Connect. Organize. Thrive.
-      </p>
+      {/* Subtitle with modern design */}
+      <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 mb-4 animate-slideUp animation-delay-200">
+        <span className="text-xl sm:text-2xl md:text-3xl font-extrabold text-primary tracking-tight uppercase letter-spacing-wider">
+          Connect
+        </span>
+        <span className="hidden sm:inline-block w-1 h-8 bg-gradient-to-b from-primary/50 via-accent/50 to-warning/50 rounded-full"></span>
+        <span className="text-xl sm:text-2xl md:text-3xl font-extrabold text-accent tracking-tight uppercase letter-spacing-wider">
+          Organize
+        </span>
+        <span className="hidden sm:inline-block w-1 h-8 bg-gradient-to-b from-accent/50 via-warning/50 to-primary/50 rounded-full"></span>
+        <span className="text-xl sm:text-2xl md:text-3xl font-extrabold text-warning tracking-tight uppercase letter-spacing-wider">
+          Thrive
+        </span>
+      </div>
       
       {/* Description */}
       <p className="text-base sm:text-lg md:text-xl text-text-muted max-w-2xl mx-auto mb-10 px-4 animate-slideUp animation-delay-400">

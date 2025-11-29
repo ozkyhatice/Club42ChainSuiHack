@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ConnectButton } from "@mysten/dapp-kit";
 import Button from "@/components/ui/Button";
 import { GraduationCap, ArrowRight, Sparkles } from "lucide-react";
 
@@ -16,16 +15,14 @@ export default function CTASection() {
           variant="primary"
           size="lg"
           onClick={() => router.push("/auth/signin")}
-          className="w-full sm:min-w-[200px] group shadow-elevation-2 hover-lift bg-gradient-to-r from-primary to-accent hover:from-primary-hover hover:to-accent/80"
+          className="w-full sm:min-w-[200px] group shadow-elevation-2 hover-lift bg-primary hover:bg-primary-hover"
         >
           <GraduationCap className="w-5 h-5 group-hover:scale-110 transition-transform animate-icon-pulse" />
-          Sign In with 42
+          Connect with 42
           <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
         </Button>
         
-        <div className="flex items-center justify-center w-full sm:w-auto hover-lift">
-          <ConnectButton />
-        </div>
+        
       </div>
       
       {/* Secondary actions */}

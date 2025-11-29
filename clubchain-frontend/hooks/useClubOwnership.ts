@@ -108,4 +108,45 @@ export function useIsAnyClubOwner() {
   };
 }
 
+/**
+ * Hook to get all clubs where current user is a member
+ * A user is considered a member if they have participated in at least one event of that club
+ */
+export function useUserMemberClubs() {
+  const account = useCurrentAccount();
+  
+  return useQuery({
+    queryKey: ["user-member-clubs", account?.address],
+    queryFn: async () => {
+      if (!account?.address) return [];
+      
+      const allClubs = await getClubs();
+      const userAddress = account.address.toLowerCase();
+      
+      // Filter clubs where user has participated in at least one event
+      const memberClubs = allClubs.filter(club => {
+        // Check if user has participated in any event of this club
+        const hasParticipated = club.events.some(event => {
+          if (!event.participants || event.participants.length === 0) {
+            return false;
+          }
+          return event.participants.some(participant => {
+            // Participants should be strings (addresses)
+            const participantAddress = typeof participant === "string" 
+              ? participant 
+              : String(participant || "");
+            return participantAddress.toLowerCase() === userAddress;
+          });
+        });
+        
+        return hasParticipated;
+      });
+      
+      return memberClubs;
+    },
+    enabled: !!account?.address,
+    staleTime: 30000, // 30 seconds - shorter cache for more real-time updates
+  });
+}
+
 
