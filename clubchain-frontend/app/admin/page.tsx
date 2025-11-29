@@ -111,34 +111,34 @@ export default function AdminPage() {
             label="Total Clubs"
             value={clubs.length}
             icon={Building2}
-            iconColor="text-[#6b5b95]"
-            iconBgColor="bg-[#f5f3f8]"
+            iconColor="text-primary"
+            iconBgColor="bg-primary/10"
           />
           <StatCard
             label="Clubs You Own"
             value={ownedClubs.length}
             icon={Crown}
-            iconColor="text-yellow-600"
-            iconBgColor="bg-yellow-50"
+            iconColor="text-warning"
+            iconBgColor="bg-warning/10"
           />
           <StatCard
             label="Total Admins"
             value={adminCaps.length}
             icon={Users}
-            iconColor="text-[#6b5b95]"
-            iconBgColor="bg-[#f5f3f8]"
+            iconColor="text-primary"
+            iconBgColor="bg-primary/10"
           />
         </div>
 
         {/* Info Alert */}
-        <div className="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-4 animate-slideUp animation-delay-400">
+        <div className="bg-primary/10 border-l-4 border-primary rounded-lg p-4 animate-slideUp animation-delay-400">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+            <AlertTriangle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
             <div>
-              <h3 className="font-semibold text-blue-900 mb-1">
+              <h3 className="font-semibold text-foreground mb-1">
                 Owner Assignment Info
               </h3>
-              <p className="text-sm text-blue-800">
+              <p className="text-sm text-gray-400">
                 Currently, club ownership is managed through ClubAdminCap NFTs on the blockchain.
                 The club creator automatically receives the admin capability. To transfer ownership,
                 the current owner would need to transfer their ClubAdminCap NFT to the new owner.
@@ -148,10 +148,10 @@ export default function AdminPage() {
         </div>
 
         {/* Club List Section */}
-        <div className="bg-white rounded-xl shadow-elevation-2 p-6 animate-slideUp animation-delay-600">
+        <div className="bg-card border border-secondary rounded-xl shadow-elevation-2 p-6 animate-slideUp animation-delay-600">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <Building2 className="w-6 h-6 text-[#6b5b95]" />
+            <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
+              <Building2 className="w-6 h-6 text-primary" />
               All Clubs
             </h2>
             <div className="relative">
@@ -161,15 +161,15 @@ export default function AdminPage() {
                 placeholder="Search clubs..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                className="pl-10 pr-4 py-2 bg-input-bg border border-input-border rounded-lg text-foreground placeholder:text-text-muted focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
               />
             </div>
           </div>
 
           {filteredClubs.length === 0 ? (
             <div className="text-center py-12">
-              <Building2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-600">No clubs found</p>
+              <Building2 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-400">No clubs found</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -178,7 +178,7 @@ export default function AdminPage() {
                 return (
                   <div
                     key={club.id}
-                    className="border border-gray-200 rounded-lg p-4 hover-lift transition-all cursor-pointer"
+                    className="border border-secondary rounded-lg p-4 hover-lift transition-all cursor-pointer bg-card/50"
                     onClick={() =>
                       setSelectedClub(selectedClub === club.id ? null : club.id)
                     }
@@ -186,12 +186,12 @@ export default function AdminPage() {
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-1">
-                          <h3 className="text-lg font-bold text-gray-900">
+                          <h3 className="text-lg font-bold text-foreground">
                             {club.name}
                           </h3>
                           {isOwned && <OwnerBadge size="sm" />}
                         </div>
-                        <p className="text-sm text-gray-600 mb-2">
+                        <p className="text-sm text-gray-400 mb-2">
                           {club.description}
                         </p>
                         <div className="flex items-center gap-4 text-xs text-gray-500">
@@ -214,22 +214,22 @@ export default function AdminPage() {
 
                     {/* Expanded section */}
                     {selectedClub === club.id && (
-                      <div className="mt-4 pt-4 border-t border-gray-200 animate-slideUp">
-                        <h4 className="font-semibold text-gray-900 mb-3">
+                      <div className="mt-4 pt-4 border-t border-secondary animate-slideUp">
+                        <h4 className="font-semibold text-foreground mb-3">
                           Owner Management
                         </h4>
-                        <div className="bg-gray-50 rounded-lg p-4 mb-3">
-                          <p className="text-sm text-gray-700 mb-2">
+                        <div className="bg-secondary/50 rounded-lg p-4 mb-3">
+                          <p className="text-sm text-gray-400 mb-2">
                             <strong>Current Owner:</strong>
                           </p>
-                          <p className="text-xs font-mono text-gray-600 bg-white px-3 py-2 rounded border border-gray-200">
+                          <p className="text-xs font-mono text-gray-300 bg-card px-3 py-2 rounded border border-secondary">
                             {club.owner}
                           </p>
                         </div>
                         
                         {isOwned ? (
                           <div className="space-y-2">
-                            <p className="text-sm text-gray-700 mb-2">
+                            <p className="text-sm text-gray-400 mb-2">
                               You own this club. To transfer ownership, transfer your ClubAdminCap NFT to the new owner's address.
                             </p>
                             <GamifiedButton
@@ -257,20 +257,20 @@ export default function AdminPage() {
 
         {/* Your Owned Clubs */}
         {ownedClubs.length > 0 && (
-          <div className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-xl shadow-elevation-2 p-6 border border-yellow-200">
-            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2 mb-4">
-              <Crown className="w-6 h-6 text-yellow-600 fill-current" />
+          <div className="bg-gradient-to-br from-warning/10 to-warning/5 rounded-xl shadow-elevation-2 p-6 border border-warning/20">
+            <h2 className="text-2xl font-bold text-foreground flex items-center gap-2 mb-4">
+              <Crown className="w-6 h-6 text-warning fill-current" />
               Your Owned Clubs
             </h2>
             <div className="grid md:grid-cols-2 gap-4">
               {ownedClubs.map((club) => (
                 <div
                   key={club.id}
-                  className="bg-white rounded-lg p-4 border border-yellow-200 hover-lift transition-all cursor-pointer"
+                  className="bg-card rounded-lg p-4 border border-warning/20 hover-lift transition-all cursor-pointer"
                   onClick={() => router.push(`/clubs/${club.id}/manage`)}
                 >
-                  <h3 className="font-bold text-gray-900 mb-1">{club.name}</h3>
-                  <p className="text-sm text-gray-600 mb-2">{club.description}</p>
+                  <h3 className="font-bold text-foreground mb-1">{club.name}</h3>
+                  <p className="text-sm text-gray-400 mb-2">{club.description}</p>
                   <div className="flex items-center justify-between">
                     <Badge variant="success" size="sm">
                       {club.events.length} Events

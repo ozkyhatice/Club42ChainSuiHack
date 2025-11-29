@@ -5,8 +5,10 @@ import Card, { CardBody, CardHeader } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Link from "next/link";
 import { Calendar, Sparkles, CheckCircle, Clock, Plus, Search } from "lucide-react";
+import { useCanCreateEvent } from "@/hooks/useBadgeAuth";
 
 export default function MyEventsPage() {
+  const canCreateEvent = useCanCreateEvent();
   
   return (
     <DashboardLayout>
@@ -17,12 +19,14 @@ export default function MyEventsPage() {
             <h1 className="text-3xl font-bold text-foreground mb-2">My Events</h1>
             <p className="text-gray-400">Events you've created or joined</p>
           </div>
-          <Link href="/events/create">
-            <Button variant="primary" className="gap-2">
-              <Plus className="w-4 h-4" />
-              Create Event
-            </Button>
-          </Link>
+          {canCreateEvent && (
+            <Link href="/events/create">
+              <Button variant="primary" className="gap-2">
+                <Plus className="w-4 h-4" />
+                Create Event
+              </Button>
+            </Link>
+          )}
         </div>
         
         {/* Tabs */}
@@ -47,7 +51,12 @@ export default function MyEventsPage() {
                 <Calendar className="w-16 h-16 text-primary animate-icon-pulse" />
               </div>
               <h3 className="text-xl font-bold text-foreground mb-2">No events yet</h3>
-              <p className="text-gray-400 mb-6">Register for events or create your own</p>
+              <p className="text-gray-400 mb-6">
+                {canCreateEvent 
+                  ? "Register for events or create your own"
+                  : "Register for events to get started"
+                }
+              </p>
               <div className="flex gap-4 justify-center">
                 <Link href="/events">
                   <Button variant="outline" className="gap-2">
@@ -55,12 +64,14 @@ export default function MyEventsPage() {
                     Browse Events
                   </Button>
                 </Link>
-                <Link href="/events/create">
-                  <Button variant="primary" className="gap-2">
-                    <Plus className="w-4 h-4" />
-                    Create Event
-                  </Button>
-                </Link>
+                {canCreateEvent && (
+                  <Link href="/events/create">
+                    <Button variant="primary" className="gap-2">
+                      <Plus className="w-4 h-4" />
+                      Create Event
+                    </Button>
+                  </Link>
+                )}
               </div>
             </CardBody>
           </Card>

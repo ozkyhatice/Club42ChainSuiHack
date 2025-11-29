@@ -37,12 +37,12 @@ export default function CreateEventPage() {
     return (
       <DashboardLayout>
         <div className="max-w-2xl mx-auto">
-          <div className="bg-white rounded-xl shadow-elevation-2 p-8 text-center">
-            <div className="inline-flex p-6 bg-orange-50 rounded-2xl mb-6">
-              <AlertTriangle className="w-16 h-16 text-orange-600" />
+          <div className="bg-card border border-secondary rounded-xl shadow-elevation-2 p-8 text-center">
+            <div className="inline-flex p-6 bg-warning/20 rounded-2xl mb-6 border border-warning/30">
+              <AlertTriangle className="w-16 h-16 text-warning" />
             </div>
-            <h1 className="text-3xl font-bold mb-4 text-gray-900">Connect Your Wallet</h1>
-            <p className="text-gray-600 mb-8">
+            <h1 className="text-3xl font-bold mb-4 text-foreground">Connect Your Wallet</h1>
+            <p className="text-gray-400 mb-8">
               Please connect your Sui wallet to create events on the blockchain.
             </p>
             <GamifiedButton
