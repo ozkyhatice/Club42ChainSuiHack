@@ -466,18 +466,35 @@ div[class*="WalletKit"] > div:first-child {
   color: var(--foreground) !important;
 }
 
-/* All white/light backgrounds in modals to dark */
-[data-radix-dialog-content] *,
-[role="dialog"] *,
-div[class*="wallet"] *,
-div[class*="Wallet"] * {
-  background-color: transparent !important;
+/* All white/light backgrounds in modals to dark - More aggressive */
+[data-radix-dialog-content],
+[data-radix-dialog-content] > div,
+[role="dialog"],
+[role="dialog"] > div {
+  background: var(--card) !important;
+  color: var(--foreground) !important;
 }
 
-[data-radix-dialog-content] div,
-[role="dialog"] div,
-div[class*="wallet"] div,
-div[class*="Wallet"] div {
+/* Override any white/light backgrounds */
+[data-radix-dialog-content] [style*="background: white"],
+[data-radix-dialog-content] [style*="background: #fff"],
+[data-radix-dialog-content] [style*="background: #ffffff"],
+[data-radix-dialog-content] [style*="background-color: white"],
+[data-radix-dialog-content] [style*="background-color: #fff"],
+[data-radix-dialog-content] [style*="background-color: #ffffff"],
+[role="dialog"] [style*="background: white"],
+[role="dialog"] [style*="background: #fff"],
+[role="dialog"] [style*="background: #ffffff"],
+[role="dialog"] [style*="background-color: white"],
+[role="dialog"] [style*="background-color: #fff"],
+[role="dialog"] [style*="background-color: #ffffff"] {
+  background: var(--card) !important;
+  background-color: var(--card) !important;
+}
+
+/* Force all divs in modal to use dark theme */
+[data-radix-dialog-content] div:not([class*="icon"]):not([class*="Icon"]),
+[role="dialog"] div:not([class*="icon"]):not([class*="Icon"]) {
   background: var(--card) !important;
   color: var(--foreground) !important;
 }
