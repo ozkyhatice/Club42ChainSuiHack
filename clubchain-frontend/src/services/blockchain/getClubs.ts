@@ -188,15 +188,7 @@ export async function fetchClubsFromChain(): Promise<Club[]> {
 
     // Method 2: Query all shared Club objects by type
     try {
-      const clubType = `${PACKAGE_ID}::club::Club`;
-      
-      // Query objects by type filter - this finds ALL shared Club objects
-      const multiGetResponse = await suiClient.multiGetObjects({
-        ids: [], // We'll get IDs from queryEvents or queryTransactionBlocks
-        options: { showContent: true, showType: true },
-      });
-
-      // Alternative: Use queryTransactionBlocks to find created Club objects
+      // Use queryTransactionBlocks to find created Club objects
       const queryResponse = await suiClient.queryTransactionBlocks({
         filter: {
           MoveFunction: {
