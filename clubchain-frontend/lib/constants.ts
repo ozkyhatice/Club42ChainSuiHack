@@ -1,14 +1,24 @@
-// Deployed package ID from Sui Devnet
-export const PACKAGE_ID = process.env.NEXT_PUBLIC_PACKAGE_ID || "0xcc94bce00d6c602317ccfa3e5089c2bae6300e8b6df0809f4d510725c0736c70";
+// Deployed package ID from Sui Testnet (Updated with participants functionality)
+export const PACKAGE_ID =
+  process.env.NEXT_PUBLIC_PACKAGE_ID ||
+  "0x26df297777639fb60efaa865462e4fa82d221afca84852e99e7391818676eafa";
 
-// Devnet configuration
-export const NETWORK = "devnet";
+// Testnet configuration
+export const NETWORK =
+  (process.env.NEXT_PUBLIC_SUI_NETWORK as "testnet" | "devnet" | undefined) ||
+  "testnet";
 
 // Sui Clock object ID (shared object on all Sui networks)
 export const CLOCK_OBJECT_ID = "0x6";
 
 // UserRegistry shared object ID (from deployment)
-export const REGISTRY_OBJECT_ID = process.env.NEXT_PUBLIC_REGISTRY_OBJECT_ID || "0x96dc4d0ba61f3dd744047853ec573fac03c913b381017ce531557650439ed738";
+export const REGISTRY_OBJECT_ID =
+  process.env.NEXT_PUBLIC_REGISTRY_OBJECT_ID ||
+  "0x2847eb19d6076339070a5d2b6b7d1a0e681d5c9d6b31460a13a1d2061a5e2d20";
+
+// Optional ClubRegistry shared object ID (used to list clubs)
+export const CLUB_REGISTRY_OBJECT_ID =
+  process.env.NEXT_PUBLIC_CLUB_REGISTRY_ID || "";
 
 // Module names
 export const MODULES = {
