@@ -3,6 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useCurrentAccount } from "@mysten/dapp-kit";
+import { useEffect } from "react";
 import Link from "next/link";
 import RegistrationFlow from "./RegistrationFlow";
 import RegistrationSteps from "./RegistrationSteps";
@@ -11,6 +12,12 @@ export default function RegisterPage() {
   const { data: session, status } = useSession();
   const account = useCurrentAccount();
   const router = useRouter();
+
+  useEffect(() => {
+    if (status !== "loading" && !session) {
+      router.push("/auth/signin");
+    }
+  }, [session, status, router]);
 
   if (status === "loading") {
     return (
@@ -21,8 +28,11 @@ export default function RegisterPage() {
   }
 
   if (!session) {
-    router.push("/auth/signin");
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-600">Redirecting to sign in...</p>
+      </div>
+    );
   }
 
   // Calculate current step for progress indicator

@@ -11,10 +11,18 @@ interface RegistrationFlowProps {
 export default function RegistrationFlow({ onSuccess }: RegistrationFlowProps) {
   const { data: session } = useSession();
   const account = useCurrentAccount();
-  const { isRegistering, error, success, register } = useUserRegistration();
+  const { isRegistering, error, success, register, isConfigured } = useUserRegistration();
 
   const handleRegister = () => {
-    if (!session?.user) return;
+    if (!session?.user) {
+      console.error("No session found. Please sign in first.");
+      return;
+    }
+
+    if (!session.user.intraId || !session.user.login || !session.user.email) {
+      console.error("Missing required user data in session");
+      return;
+    }
     
     register({
       intraId: session.user.intraId,
@@ -46,15 +54,21 @@ export default function RegistrationFlow({ onSuccess }: RegistrationFlowProps) {
         </h3>
         {session?.user && (
           <>
-            <p className="text-sm text-green-800">
-              Logged in as: <strong>{session.user.login}</strong>
-            </p>
-            <p className="text-sm text-green-800">
-              Intra ID: <strong>{session.user.intraId}</strong>
-            </p>
-            <p className="text-sm text-green-800">
-              Email: <strong>{session.user.email}</strong>
-            </p>
+            {session.user.login && (
+              <p className="text-sm text-green-800">
+                Logged in as: <strong>{session.user.login}</strong>
+              </p>
+            )}
+            {session.user.intraId && (
+              <p className="text-sm text-green-800">
+                Intra ID: <strong>{session.user.intraId}</strong>
+              </p>
+            )}
+            {session.user.email && (
+              <p className="text-sm text-green-800">
+                Email: <strong>{session.user.email}</strong>
+              </p>
+            )}
           </>
         )}
       </div>
@@ -95,9 +109,18 @@ export default function RegistrationFlow({ onSuccess }: RegistrationFlowProps) {
               wallet on the blockchain.
             </p>
 
+            {!isConfigured && (
+              <div className="bg-yellow-50 p-3 rounded-lg mb-4 border border-yellow-200">
+                <p className="text-xs text-yellow-800">
+                  ⚠️ <strong>Note:</strong> The registry contract needs to be deployed
+                  first. Update REGISTRY_OBJECT_ID in the code.
+                </p>
+              </div>
+            )}
+
             <button
               onClick={handleRegister}
-              disabled={isRegistering}
+              disabled={isRegistering || !isConfigured}
               className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
             >
               {isRegistering ? "Registering on blockchain..." : "Complete Registration"}

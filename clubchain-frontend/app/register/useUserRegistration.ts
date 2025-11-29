@@ -3,9 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCurrentAccount, useSignAndExecuteTransaction } from "@mysten/dapp-kit";
-import { buildRegisterUserTx } from "@/modules/contracts/member";
-import { PACKAGE_ID, CLOCK_OBJECT_ID, REGISTRY_OBJECT_ID } from "@/lib/constants";
+import { Transaction } from "@mysten/sui/transactions";
+// USER_REGISTRY_ID'yi import ediyoruz
+import { PACKAGE_ID, USER_REGISTRY_ID } from "@/lib/constants"; 
 import type { RegistrationState, UserRegistrationData } from "./types";
+
+// Buradaki satırı siliyoruz veya constants'tan gelen ile değiştiriyoruz
+const REGISTRY_OBJECT_ID = USER_REGISTRY_ID;
 
 export function useUserRegistration() {
   const account = useCurrentAccount();
@@ -27,32 +31,31 @@ export function useUserRegistration() {
     setState({ isRegistering: true, error: "", success: false });
 
     try {
-      if (!PACKAGE_ID || !CLOCK_OBJECT_ID || !REGISTRY_OBJECT_ID) {
-        setState({
-          isRegistering: false,
-          error: "Configuration error: Required IDs not set",
-          success: false,
-        });
-        return;
-      }
+      const tx = new Transaction();
 
-      const tx = buildRegisterUserTx(
-        PACKAGE_ID,
-        CLOCK_OBJECT_ID,
-        REGISTRY_OBJECT_ID,
-        userData
-      );
+      // Call register_user on the member module (renamed from user_registry)
+      tx.moveCall({
+        target: `${PACKAGE_ID}::member::register_user`,
+        arguments: [
+          tx.object(REGISTRY_OBJECT_ID),
+          tx.pure.u64(userData.intraId),
+          tx.pure.string(userData.username),
+          tx.pure.string(userData.email),
+        ],
+      });
 
       signAndExecute(
         { transaction: tx },
         {
-          onSuccess: () => {
+          onSuccess: (result) => {
+            console.log("Registration successful:", result);
             setState({ isRegistering: false, error: "", success: true });
             setTimeout(() => {
               router.push("/");
             }, 2000);
           },
           onError: (err) => {
+            console.error("Registration error:", err);
             setState({
               isRegistering: false,
               error: err.message,
@@ -62,6 +65,7 @@ export function useUserRegistration() {
         }
       );
     } catch (err) {
+      console.error("Transaction error:", err);
       setState({
         isRegistering: false,
         error: String(err),
@@ -73,6 +77,7 @@ export function useUserRegistration() {
   return {
     ...state,
     register,
+    isConfigured: true, // Artık ID'miz var, her zaman true dönebiliriz
   };
 }
 

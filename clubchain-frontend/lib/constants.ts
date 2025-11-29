@@ -16,6 +16,10 @@ export const REGISTRY_OBJECT_ID =
   process.env.NEXT_PUBLIC_REGISTRY_OBJECT_ID ||
   "0x2847eb19d6076339070a5d2b6b7d1a0e681d5c9d6b31460a13a1d2061a5e2d20";
 
+// UserRegistry ID (alias for REGISTRY_OBJECT_ID, used in registration flow)
+export const USER_REGISTRY_ID =
+  process.env.NEXT_PUBLIC_USER_REGISTRY_ID || REGISTRY_OBJECT_ID;
+
 // Optional ClubRegistry shared object ID (used to list clubs)
 export const CLUB_REGISTRY_OBJECT_ID =
   process.env.NEXT_PUBLIC_CLUB_REGISTRY_ID || "";
