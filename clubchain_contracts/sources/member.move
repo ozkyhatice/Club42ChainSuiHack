@@ -6,6 +6,7 @@ module clubchain::member {
     use sui::table::{Self, Table};
     use sui::clock::{Self, Clock};
     use clubchain::member_sbt;
+    use clubchain::super_admin::{Self, SuperAdminCap};
 
     /// Member profile linked to 42 intra ID
     /// Represents a verified member of the 42 campus community
@@ -109,6 +110,50 @@ module clubchain::member {
     /// Get intra_id associated with a wallet address
     public fun get_intra_by_wallet(registry: &UserRegistry, wallet: address): u64 {
         *table::borrow(&registry.wallet_to_intra, wallet)
+    }
+
+    /// Register a user manually (SUPER ADMIN ONLY)
+    /// Allows super admin to register users without 42 Intra verification
+    /// This is useful for manual badge assignment
+    public entry fun register_user_manual(
+        super_admin: &SuperAdminCap,
+        registry: &mut UserRegistry,
+        wallet_address: address,
+        intra_id: u64,
+        username: String,
+        email: String,
+        clock: &Clock,
+        ctx: &mut TxContext
+    ) {
+        // Verify super admin
+        super_admin::assert_super_admin(super_admin);
+        // Enforce single registration per intra_id
+        assert!(!table::contains(&registry.intra_to_wallet, intra_id), 1);
+        
+        // Enforce single registration per wallet
+        assert!(!table::contains(&registry.wallet_to_intra, wallet_address), 2);
+
+        // Create member profile
+        let profile = UserProfile {
+            id: object::new(ctx),
+            intra_id,
+            wallet_address,
+            username,
+            email,
+            is_registered: true,
+        };
+
+        // Update registry mappings
+        table::add(&mut registry.intra_to_wallet, intra_id, wallet_address);
+        table::add(&mut registry.wallet_to_intra, wallet_address, intra_id);
+
+        // Mint ClubMemberSBT (Soul-Bound Token)
+        let current_time = clock::timestamp_ms(clock);
+        let sbt = member_sbt::mint_member_sbt(intra_id, username, current_time, ctx);
+
+        // Transfer both profile and SBT to member
+        transfer::transfer(profile, wallet_address);
+        member_sbt::transfer_to(sbt, wallet_address);
     }
 
     #[test_only]

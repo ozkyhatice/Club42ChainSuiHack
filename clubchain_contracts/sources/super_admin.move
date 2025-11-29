@@ -7,7 +7,7 @@ module clubchain::super_admin {
     const E_NOT_SUPER_ADMIN: u64 = 1;
 
     /// Predefined Super Admin address
-    const SUPER_ADMIN_ADDRESS: address = @0x958654efa5cbdfecd7e93a1882742cefebfb0234f4fd5d62bda69e6b4b86543e;
+    const SUPER_ADMIN_ADDRESS: address = @0xaea47050b39c3fa5705da86e7afccd1129b63ea514e7bbd5472c50087148d079;
 
     /// Global super admin capability - only one exists
     /// The holder of this can create clubs and assign ownership
@@ -36,6 +36,20 @@ module clubchain::super_admin {
     /// Assert that someone has super admin privileges
     public fun assert_super_admin(cap: &SuperAdminCap) {
         assert!(verify_super_admin(cap), E_NOT_SUPER_ADMIN);
+    }
+
+    /// Transfer SuperAdminCap to a new address (SUPER ADMIN ONLY)
+    /// This allows the current super admin to transfer their capability to another address
+    public entry fun transfer_super_admin_cap(
+        current_admin: SuperAdminCap,
+        new_admin_address: address,
+        ctx: &mut TxContext
+    ) {
+        // Verify the caller owns the SuperAdminCap
+        // (The fact that they can pass it as an owned object proves ownership)
+        
+        // Transfer to the new address
+        transfer::public_transfer(current_admin, new_admin_address);
     }
 }
 

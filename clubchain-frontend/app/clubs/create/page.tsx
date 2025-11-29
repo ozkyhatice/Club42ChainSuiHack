@@ -8,7 +8,7 @@ import GamifiedButton from "@/components/ui/GamifiedButton";
 import { Building2, ArrowLeft, Sparkles, Shield, AlertTriangle } from "lucide-react";
 import { buildCreateClubTx, verifyPackageFunctions } from "@/modules/contracts/club";
 import { PACKAGE_ID } from "@/lib/constants";
-import { useIsSuperAdmin } from "@/hooks/useSuperAdmin";
+import { useIsSuperAdmin, useSuperAdminCapId } from "@/hooks/useSuperAdmin";
 
 export default function CreateClubPage() {
   const router = useRouter();
@@ -16,11 +16,20 @@ export default function CreateClubPage() {
   const suiClient = useSuiClient();
   const { mutate: signAndExecute } = useSignAndExecuteTransaction();
   const { data: isSuperAdmin, isLoading: isCheckingAdmin } = useIsSuperAdmin();
+  const { data: superAdminCapId, isLoading: isLoadingCapId } = useSuperAdminCapId();
   
   const [clubName, setClubName] = useState("");
   const [description, setDescription] = useState("");
+  const [ownerAddress, setOwnerAddress] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Set owner address to current account by default
+  useEffect(() => {
+    if (account?.address) {
+      setOwnerAddress(account.address);
+    }
+  }, [account]);
 
   // Redirect if not super admin
   useEffect(() => {
@@ -53,13 +62,25 @@ export default function CreateClubPage() {
       return;
     }
 
+    if (!superAdminCapId) {
+      setError("SuperAdminCap not found. Please ensure you have the SuperAdminCap NFT.");
+      return;
+    }
+
+    if (!ownerAddress || ownerAddress.trim() === "") {
+      setError("Owner address is required");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
       console.log("Building transaction with PACKAGE_ID:", PACKAGE_ID);
       console.log("Club creation parameters:", {
+        superAdminCapId,
         clubName: clubName.trim(),
         description: description.trim(),
+        ownerAddress: ownerAddress.trim(),
       });
 
       // Verify package functions on first attempt (for debugging)
@@ -71,7 +92,13 @@ export default function CreateClubPage() {
         }
       }
 
-      const tx = buildCreateClubTx(PACKAGE_ID, clubName, description);
+      const tx = buildCreateClubTx(
+        PACKAGE_ID,
+        superAdminCapId,
+        clubName,
+        description,
+        ownerAddress.trim()
+      );
 
       // Validate transaction before signing
       if (!tx) {
@@ -124,8 +151,10 @@ export default function CreateClubPage() {
         packageId: PACKAGE_ID,
         function: `${PACKAGE_ID}::club::create_club`,
         arguments: {
+          superAdminCapId,
           name: clubName.trim(),
           description: description.trim(),
+          ownerAddress: ownerAddress.trim(),
         },
       });
 
@@ -201,7 +230,7 @@ export default function CreateClubPage() {
   };
 
   // Loading state
-  if (isCheckingAdmin) {
+  if (isCheckingAdmin || isLoadingCapId) {
     return (
       <DashboardLayout>
         <div className="min-h-[400px] flex items-center justify-center">
@@ -339,6 +368,26 @@ export default function CreateClubPage() {
                 disabled={isSubmitting}
                 required
               />
+            </div>
+
+            {/* Owner Address */}
+            <div>
+              <label htmlFor="ownerAddress" className="block text-sm font-semibold text-foreground mb-2">
+                Owner Address *
+              </label>
+              <input
+                id="ownerAddress"
+                type="text"
+                value={ownerAddress}
+                onChange={(e) => setOwnerAddress(e.target.value)}
+                placeholder="Enter owner wallet address (will receive ClubAdminCap)"
+                className="w-full px-4 py-3 bg-input-bg border border-input-border rounded-lg text-foreground placeholder:text-text-muted focus:ring-2 focus:ring-input-focus focus:border-input-focus outline-none transition-all"
+                disabled={isSubmitting}
+                required
+              />
+              <p className="mt-1 text-xs text-gray-400">
+                The owner will receive the ClubAdminCap NFT for this club
+              </p>
             </div>
 
             {/* Info Box */}

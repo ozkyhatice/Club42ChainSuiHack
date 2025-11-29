@@ -85,7 +85,15 @@ export default function AdminPage() {
 
         {/* Create Club Button - Only visible to SuperAdmin */}
         {isSuperAdmin && (
-          <div className="flex justify-end animate-slideUp animation-delay-200">
+          <div className="flex justify-end gap-3 animate-slideUp animation-delay-200">
+            <GamifiedButton
+              variant="secondary"
+              size="lg"
+              icon={Shield}
+              onClick={() => router.push("/admin/manual-badges")}
+            >
+              Manual Badge Assignment
+            </GamifiedButton>
             <GamifiedButton
               variant="primary"
               size="lg"

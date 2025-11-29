@@ -37,8 +37,9 @@ export function useHasValidClubOwnerBadge(clubId: string | undefined) {
         for (const obj of objects.data) {
           const content = obj.data?.content;
           if (content && "fields" in content) {
-            const badgeClubId = content.fields.club_id;
-            const expirationMs = content.fields.expiration_ms;
+            const fields = content.fields as any;
+            const badgeClubId = fields.club_id;
+            const expirationMs = fields.expiration_ms;
             
             // Check if badge matches club and is not expired
             if (badgeClubId === clubId && Number(expirationMs) > currentTime) {
@@ -91,7 +92,8 @@ export function useHasAnyValidClubOwnerBadge() {
         for (const obj of objects.data) {
           const content = obj.data?.content;
           if (content && "fields" in content) {
-            const expirationMs = content.fields.expiration_ms;
+            const fields = content.fields as any;
+            const expirationMs = fields.expiration_ms;
             
             // Check if badge is not expired
             if (Number(expirationMs) > currentTime) {
@@ -145,13 +147,14 @@ export function useUserClubOwnerBadges() {
         for (const obj of objects.data) {
           const content = obj.data?.content;
           if (content && "fields" in content) {
-            const expirationMs = Number(content.fields.expiration_ms);
+            const fields = content.fields as any;
+            const expirationMs = Number(fields.expiration_ms);
             
             // Only include non-expired badges
             if (expirationMs > currentTime) {
               validBadges.push({
                 objectId: obj.data?.objectId || "",
-                clubId: content.fields.club_id,
+                clubId: fields.club_id,
                 expirationMs,
               });
             }

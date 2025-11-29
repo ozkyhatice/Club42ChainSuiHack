@@ -7,6 +7,7 @@ import OwnerBadge from "@/components/ui/OwnerBadge";
 import GamifiedButton from "@/components/ui/GamifiedButton";
 import { getClubs } from "@/src/services/blockchain/getClubs";
 import { useIsAnyClubOwner } from "@/hooks/useClubOwnership";
+import { useCanCreateEvent } from "@/hooks/useBadgeAuth";
 import { 
   Building2, 
   Sparkles, 
@@ -28,6 +29,7 @@ export default function DashboardHome() {
   
   // Get user's owned clubs
   const { isOwner, clubCount } = useIsAnyClubOwner();
+  const canCreateEvent = useCanCreateEvent();
   
   // Calculate stats
   const totalEvents = allClubs.reduce((sum, club) => sum + club.events.length, 0);
@@ -46,15 +48,17 @@ export default function DashboardHome() {
             You own {clubCount} club{clubCount !== 1 ? 's' : ''}. Manage your clubs and create events.
           </p>
           <div className="grid sm:grid-cols-3 gap-3">
-            <GamifiedButton
-              variant="gradient"
-              size="md"
-              icon={PlusCircle}
-              onClick={() => router.push("/events/create")}
-              fullWidth
-            >
-              Create Event
-            </GamifiedButton>
+            {canCreateEvent && (
+              <GamifiedButton
+                variant="gradient"
+                size="md"
+                icon={PlusCircle}
+                onClick={() => router.push("/events/create")}
+                fullWidth
+              >
+                Create Event
+              </GamifiedButton>
+            )}
             <GamifiedButton
               variant="primary"
               size="md"

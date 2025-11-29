@@ -2,9 +2,11 @@
 
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import Link from "next/link";
+import { useCanCreateEvent } from "@/hooks/useBadgeAuth";
 
 export default function Hero() {
   const account = useCurrentAccount();
+  const canCreateEvent = useCanCreateEvent();
 
   return (
     <div className="text-center py-20">
@@ -33,12 +35,14 @@ export default function Hero() {
             >
               View Events
             </Link>
-            <Link
-              href="/events/create"
-              className="bg-success/20 text-success border border-success/30 shadow-sm hover:bg-success/30 hover:scale-105 active:scale-95 px-8 py-3 rounded-lg font-medium transition-all group"
-            >
-              Create Event
-            </Link>
+            {canCreateEvent && (
+              <Link
+                href="/events/create"
+                className="bg-success/20 text-success border border-success/30 shadow-sm hover:bg-success/30 hover:scale-105 active:scale-95 px-8 py-3 rounded-lg font-medium transition-all group"
+              >
+                Create Event
+              </Link>
+            )}
           </div>
         </div>
       ) : (

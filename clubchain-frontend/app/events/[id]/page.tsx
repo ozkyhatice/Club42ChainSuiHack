@@ -4,6 +4,7 @@ import { use } from "react";
 import { ConnectButton } from "@mysten/dapp-kit";
 import Link from "next/link";
 import { useEventDetail } from "./useEventDetail";
+import { useCanJoinEvent } from "@/hooks/useBadgeAuth";
 
 export default function EventDetailPage({
   params,
@@ -21,6 +22,7 @@ export default function EventDetailPage({
     handleLeave,
     isConnected,
   } = useEventDetail(id);
+  const canJoinEvent = useCanJoinEvent();
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-8">
@@ -111,6 +113,10 @@ export default function EventDetailPage({
               {!isConnected ? (
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-yellow-800">
                   Please connect your wallet to join this event
+                </div>
+              ) : !canJoinEvent ? (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-yellow-800">
+                  You must be a verified member (have UserProfile) to join events
                 </div>
               ) : isParticipant ? (
                 <button

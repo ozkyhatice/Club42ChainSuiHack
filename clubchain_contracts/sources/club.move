@@ -5,6 +5,7 @@ module clubchain::club {
     use std::string::String;
     use std::vector;
     use clubchain::admin_cap::{Self, ClubAdminCap};
+    use clubchain::super_admin::{Self, SuperAdminCap};
 
     /// Error codes
     const E_NOT_CLUB_ADMIN: u64 = 1;
@@ -22,20 +23,25 @@ module clubchain::club {
         events: vector<address>,
     }
 
-    /// Create a new club and mint admin capability for the creator
-    /// The creator receives a ClubAdminCap proving their admin status
+    /// Create a new club (SUPER ADMIN ONLY)
+    /// Only the holder of SuperAdminCap can call this
+    /// The owner_address parameter specifies who will receive the ClubAdminCap
     public entry fun create_club(
+        super_admin: &SuperAdminCap,
         name: String,
         description: String,
+        owner_address: address,
         ctx: &mut TxContext
     ) {
+        // Verify super admin
+        super_admin::assert_super_admin(super_admin);
+        
         assert!(std::string::length(&name) > 0, E_EMPTY_NAME);
         assert!(std::string::length(&description) > 0, E_EMPTY_DESCRIPTION);
         
-        let sender = tx_context::sender(ctx);
         let club = Club {
             id: object::new(ctx),
-            owner: sender,
+            owner: owner_address,
             name,
             description,
             events: vector::empty(),
@@ -46,9 +52,9 @@ module clubchain::club {
         // Share the club object so anyone can read it
         transfer::share_object(club);
         
-        // Mint and transfer admin capability to creator
+        // Mint and transfer admin capability to the specified owner
         let admin_cap = admin_cap::mint_admin_cap(club_id, ctx);
-        transfer::public_transfer(admin_cap, sender);
+        transfer::public_transfer(admin_cap, owner_address);
     }
 
     /// Update club name (admin only)
@@ -115,19 +121,22 @@ module clubchain::club {
         expiration_ms: u64,
     }
 
-    /// Issue a ClubOwnerBadge to a user (admin only)
+    /// Issue a ClubOwnerBadge to a user (SUPER ADMIN ONLY)
     /// The badge expires after the specified duration in milliseconds
     /// Default duration: 90 days = 90 * 24 * 60 * 60 * 1000 = 7,776,000,000 ms
+    /// Super Admin can issue badges for any club
     public entry fun issue_owner_badge(
-        cap: &ClubAdminCap,
+        super_admin: &SuperAdminCap,
         club: &Club,
         recipient: address,
         duration_ms: u64,
         clock: &sui::clock::Clock,
         ctx: &mut TxContext
     ) {
+        // Verify super admin
+        super_admin::assert_super_admin(super_admin);
+        
         let club_id = object::id_address(club);
-        admin_cap::assert_admin(cap, club_id);
         
         // Validate duration (must be positive and reasonable, e.g., max 1 year)
         assert!(duration_ms > 0, E_INVALID_DURATION);
@@ -145,16 +154,16 @@ module clubchain::club {
         transfer::transfer(badge, recipient);
     }
 
-    /// Issue a ClubOwnerBadge with default 90-day expiration
+    /// Issue a ClubOwnerBadge with default 90-day expiration (SUPER ADMIN ONLY)
     public entry fun issue_owner_badge_default(
-        cap: &ClubAdminCap,
+        super_admin: &SuperAdminCap,
         club: &Club,
         recipient: address,
         clock: &sui::clock::Clock,
         ctx: &mut TxContext
     ) {
         let duration_90_days = 7776000000; // 90 days in milliseconds
-        issue_owner_badge(cap, club, recipient, duration_90_days, clock, ctx);
+        issue_owner_badge(super_admin, club, recipient, duration_90_days, clock, ctx);
     }
 
     /// Check if a ClubOwnerBadge is valid (not expired)

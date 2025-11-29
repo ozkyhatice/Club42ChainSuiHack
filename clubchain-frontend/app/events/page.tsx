@@ -10,12 +10,12 @@ import StatCard from "@/components/ui/StatCard";
 import { Sparkles, Search, Calendar, Users, Plus, ArrowRight } from "lucide-react";
 import type { EventInfo } from "@/src/services/blockchain/getClubs";
 import Link from "next/link";
-import { useIsAnyClubOwner } from "@/hooks/useClubOwnership";
+import { useCanCreateEvent } from "@/hooks/useBadgeAuth";
 
 export default function EventsPage() {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
-  const { isOwner } = useIsAnyClubOwner();
+  const canCreateEvent = useCanCreateEvent();
 
   // Fetch all clubs to get events
   const { data: clubs = [], isLoading: clubsLoading } = useQuery({
@@ -94,7 +94,7 @@ export default function EventsPage() {
                 className="w-full pl-10 pr-4 py-3 bg-input-bg border border-input-border rounded-lg text-foreground placeholder:text-text-muted focus:ring-2 focus:ring-input-focus focus:border-input-focus outline-none transition-all"
               />
             </div>
-            {isOwner && (
+            {canCreateEvent && (
               <GamifiedButton
                 variant="gradient"
                 size="md"
@@ -127,7 +127,7 @@ export default function EventsPage() {
                   ? "Try a different search term"
                   : "Be the first to create an event!"}
               </p>
-              {isOwner && !searchTerm && (
+              {canCreateEvent && !searchTerm && (
                 <GamifiedButton
                   variant="primary"
                   icon={Plus}

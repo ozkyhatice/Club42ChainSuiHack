@@ -96,11 +96,11 @@ export async function verifyPackageFunctions(
 }
 
 /**
- * Build a transaction to create a new club
- * The creator will receive a ClubAdminCap for the new club
+ * Build a transaction to create a new club (SUPER ADMIN ONLY)
+ * Requires SuperAdminCap and owner_address parameter
+ * The owner_address will receive a ClubAdminCap for the new club
  * 
- * Function signature: create_club(name: String, description: String, ctx: &mut TxContext)
- * Note: ctx is automatically provided by Sui runtime, so we only pass name and description
+ * Function signature: create_club(super_admin: &SuperAdminCap, name: String, description: String, owner_address: address, ctx: &mut TxContext)
  * 
  * If you encounter ArityMismatch errors:
  * 1. Verify the package ID is correct
@@ -109,12 +109,19 @@ export async function verifyPackageFunctions(
  */
 export function buildCreateClubTx(
   packageId: string,
+  superAdminCapId: string,
   clubName: string,
-  description: string
+  description: string,
+  ownerAddress: string
 ): Transaction {
   if (!packageId) {
     console.error("buildCreateClubTx: packageId is undefined");
     throw new Error("Package ID is required");
+  }
+
+  if (!superAdminCapId) {
+    console.error("buildCreateClubTx: superAdminCapId is undefined");
+    throw new Error("SuperAdminCap ID is required");
   }
 
   if (!clubName || clubName.trim() === "") {
@@ -127,6 +134,11 @@ export function buildCreateClubTx(
     throw new Error("Club description is required");
   }
 
+  if (!ownerAddress) {
+    console.error("buildCreateClubTx: ownerAddress is undefined");
+    throw new Error("Owner address is required");
+  }
+
   const tx = new Transaction();
   const functionTarget = `${packageId}::club::create_club`;
   
@@ -134,24 +146,19 @@ export function buildCreateClubTx(
   const trimmedName = clubName.trim();
   const trimmedDesc = description.trim();
   
-  // Create pure string arguments using the standard Sui SDK method
-  // Note: ctx parameter is automatically provided by Sui runtime, so we only pass name and description
-  // The function signature is: create_club(name: String, description: String, ctx: &mut TxContext)
-  const nameArg = tx.pure.string(trimmedName);
-  const descArg = tx.pure.string(trimmedDesc);
-
-  // Build the moveCall
-  // IMPORTANT: If you get ArityMismatch, verify:
-  // 1. The package ID is correct
-  // 2. The deployed contract has create_club with signature: (name: String, description: String, ctx: &mut TxContext)
-  // 3. Check browser console for verifyPackageFunctions() output to see actual deployed signature
-    tx.moveCall({
-      target: functionTarget,
-      arguments: [nameArg, descArg],
-    });
+  // Build the moveCall with SuperAdminCap, name, description, and owner_address
+  // The function signature is: create_club(super_admin: &SuperAdminCap, name: String, description: String, owner_address: address, ctx: &mut TxContext)
+  tx.moveCall({
+    target: functionTarget,
+    arguments: [
+      tx.object(superAdminCapId), // super_admin: &SuperAdminCap
+      tx.pure.string(trimmedName), // name: String
+      tx.pure.string(trimmedDesc), // description: String
+      tx.pure.address(ownerAddress), // owner_address: address
+    ],
+  });
   
-  // Set gas budget to get more detailed error messages
-  // This helps with debugging ArityMismatch errors
+  // Set gas budget
   tx.setGasBudget(100_000_000); // 100 MIST
 
   // Verify transaction has commands
@@ -166,24 +173,23 @@ export function buildCreateClubTx(
     console.warn("Could not verify transaction commands:", verifyError);
   }
 
-  // Detailed logging for debugging ArityMismatch errors
-  // If you see ArityMismatch, verify the deployed contract signature matches:
-  // Expected: create_club(name: String, description: String, ctx: &mut TxContext)
+  // Detailed logging for debugging
   console.log("✅ Transaction built for create_club:", {
     function: "create_club",
     packageId,
     target: functionTarget,
     arguments: {
-      count: 2,
-      types: ["String", "String"],
+      count: 4,
+      types: ["&SuperAdminCap", "String", "String", "address"],
       values: {
+        superAdminCapId,
         name: trimmedName,
         description: trimmedDesc,
+        ownerAddress,
       },
     },
-    expectedSignature: "create_club(name: String, description: String, ctx: &mut TxContext)",
+    expectedSignature: "create_club(super_admin: &SuperAdminCap, name: String, description: String, owner_address: address, ctx: &mut TxContext)",
     note: "ctx is automatically provided by Sui runtime - not passed as argument",
-    troubleshooting: "If ArityMismatch occurs, verify deployed contract signature matches expected signature",
   });
 
   return tx;
