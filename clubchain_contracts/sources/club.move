@@ -3,32 +3,40 @@ module clubchain::club {
     use sui::tx_context::{Self, TxContext};
     use sui::transfer;
     use std::string::String;
+    use std::vector;
     use clubchain::admin_cap::{Self, ClubAdminCap};
 
     /// Error codes
     const E_NOT_CLUB_ADMIN: u64 = 1;
     const E_EMPTY_NAME: u64 = 2;
+    const E_EMPTY_DESCRIPTION: u64 = 3;
 
     /// Club identity on-chain
     public struct Club has key {
         id: UID,
+        owner: address,
         name: String,
-        admin: address,
+        description: String,
+        events: vector<address>,
     }
 
     /// Create a new club and mint admin capability for the creator
     /// The creator receives a ClubAdminCap proving their admin status
     public entry fun create_club(
         name: String,
+        description: String,
         ctx: &mut TxContext
     ) {
         assert!(std::string::length(&name) > 0, E_EMPTY_NAME);
+        assert!(std::string::length(&description) > 0, E_EMPTY_DESCRIPTION);
         
         let sender = tx_context::sender(ctx);
         let club = Club {
             id: object::new(ctx),
+            owner: sender,
             name,
-            admin: sender,
+            description,
+            events: vector::empty(),
         };
         
         let club_id = object::id_address(&club);
@@ -63,7 +71,7 @@ module clubchain::club {
         let club_id = object::id_address(&club);
         admin_cap::assert_admin(cap, club_id);
         
-        let Club { id, name: _, admin: _ } = club;
+        let Club { id, owner: _, name: _, description: _, events: _ } = club;
         object::delete(id);
     }
 
@@ -74,9 +82,25 @@ module clubchain::club {
         club.name
     }
 
-    /// Get club admin address
+    /// Get club owner (backwards compat)
     public fun get_admin(club: &Club): address {
-        club.admin
+        club.owner
+    }
+
+    public fun get_owner(club: &Club): address {
+        club.owner
+    }
+
+    public fun get_description(club: &Club): String {
+        club.description
+    }
+
+    public fun get_events(club: &Club): &vector<address> {
+        &club.events
+    }
+
+    public(package) fun push_event(club: &mut Club, event_id: address) {
+        vector::push_back(&mut club.events, event_id);
     }
 }
 
