@@ -32,47 +32,33 @@ export function useBadgeAuth(): BadgeAuthState {
   const { data: isSuperAdmin = false, isLoading: superAdminLoading } = useIsSuperAdmin();
   
   // Check ClubOwner badges
+  // useUserClubOwnerBadges already filters out expired badges
   const { data: clubOwnerBadges = [], isLoading: badgesLoading } = useUserClubOwnerBadges();
   
   // Check Member status (UserProfile)
   const { data: isMember = false, isLoading: memberLoading } = useIsRegistered();
   
-  // Validate badges against clock (on-chain check)
-  const { data: validatedClubIds = [], isLoading: validationLoading } = useQuery({
-    queryKey: ["validated-club-ids", clubOwnerBadges, CLOCK_OBJECT_ID],
-    queryFn: async () => {
-      if (!CLOCK_OBJECT_ID || clubOwnerBadges.length === 0) return [];
-      
-      const validClubIds: string[] = [];
-      const currentTime = Date.now();
-      
-      // Filter badges that are not expired (client-side check first)
-      const nonExpiredBadges = clubOwnerBadges.filter(
-        (badge) => badge.expirationMs > currentTime
-      );
-      
-      // For each non-expired badge, verify on-chain if possible
-      // Note: We do client-side validation first for performance
-      // On-chain validation would require devInspect which is expensive
-      for (const badge of nonExpiredBadges) {
-        // Client-side validation: check expiration
-        if (badge.expirationMs > currentTime) {
-          validClubIds.push(badge.clubId);
-        }
-      }
-      
-      return [...new Set(validClubIds)]; // Remove duplicates
-    },
-    enabled: clubOwnerBadges.length > 0 && !!CLOCK_OBJECT_ID,
-    staleTime: 10000, // 10 seconds
-  });
+  // Extract club IDs from valid badges (useUserClubOwnerBadges already validates expiration)
+  const ownedClubIds = clubOwnerBadges.map(badge => badge.clubId);
   
-  const isLoading = superAdminLoading || badgesLoading || memberLoading || validationLoading;
+  const isLoading = superAdminLoading || badgesLoading || memberLoading;
+  
+  // Debug logging
+  if (!isLoading && account) {
+    console.log("useBadgeAuth state:", {
+      isSuperAdmin,
+      clubOwnerBadgesCount: clubOwnerBadges.length,
+      clubOwnerBadges,
+      ownedClubIds,
+      isClubOwner: clubOwnerBadges.length > 0,
+      isMember,
+    });
+  }
   
   return {
     isSuperAdmin,
-    isClubOwner: validatedClubIds.length > 0,
-    ownedClubIds: validatedClubIds,
+    isClubOwner: clubOwnerBadges.length > 0, // If there are any valid badges, user is a club owner
+    ownedClubIds: [...new Set(ownedClubIds)], // Remove duplicates
     isMember,
     isLoading,
   };
@@ -87,11 +73,14 @@ export function useCanCreateClub(): boolean {
 }
 
 /**
- * Hook to check if user can create events (has valid ClubOwnerBadge)
+ * Hook to check if user can create events (has valid ClubOwnerBadge OR is SuperAdmin)
+ * Returns false while loading to prevent premature access, true when user has permission
  */
 export function useCanCreateEvent(): boolean {
-  const { isClubOwner } = useBadgeAuth();
-  return isClubOwner;
+  const { isSuperAdmin, isClubOwner, isLoading } = useBadgeAuth();
+  // While loading, return false to be safe (will update once loaded)
+  if (isLoading) return false;
+  return isSuperAdmin || isClubOwner;
 }
 
 /**

@@ -119,7 +119,10 @@ export default function CreateEventForm({ ownedClubs = [] }: CreateEventFormProp
           </select>
           <p className="text-xs text-text-muted mt-2 flex items-center gap-1">
             <OwnerBadge size="sm" showLabel={false} animate={false} />
-            You can only create events for clubs where you are the owner
+            {ownedClubs.length > 0 
+              ? "You can only create events for clubs where you are the owner"
+              : "Select a club to create an event"
+            }
           </p>
         </div>
 

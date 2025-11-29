@@ -42,12 +42,15 @@ export default function ManualBadgesPage() {
   const predefinedAddresses = {
     superAdmin: "0xaea47050b39c3fa5705da86e7afccd1129b63ea514e7bbd5472c50087148d079",
     clubOwner: "0xe74c730a48b19d558d62c2a99d1fc1e7c885616efbabe423994089f8178929cd",
+    clubOwner2: "0x850b5df765ee4672c59ad62fc007df7f0f1263a0744a14ab219daaba87815b65", // New club owner
     normalMember: "0x958654efa5cbdfecd7e93a1882742cefebfb0234f4fd5d62bda69e6b4b86543e",
   };
 
   // State for manual inputs
   const [selectedClubId, setSelectedClubId] = useState<string>("");
+  const [selectedClubId2, setSelectedClubId2] = useState<string>(""); // For second club owner
   const [badgeDuration, setBadgeDuration] = useState<number>(7776000000); // 90 days default
+  const [badgeDuration2, setBadgeDuration2] = useState<number>(7776000000); // 90 days default for second club owner
 
   const handleAssignSuperAdmin = async () => {
     if (!superAdminCapId) {
@@ -399,6 +402,160 @@ export default function ManualBadgesPage() {
               : "Issue ClubOwnerBadge"}
           </GamifiedButton>
           {operationStatus.type === "clubOwner" && (
+            <div className={`mt-4 p-4 rounded-lg ${
+              operationStatus.status === "success"
+                ? "bg-success/10 border border-success/20 text-success"
+                : "bg-error/10 border border-error/20 text-error"
+            }`}>
+              {operationStatus.status === "success" ? (
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5" />
+                  <p>{operationStatus.message}</p>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5" />
+                  <p>{operationStatus.message}</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Club Owner Badge Assignment - Second Address */}
+        <div className="bg-card border border-secondary rounded-xl shadow-elevation-2 p-6 animate-slideUp animation-delay-350">
+          <div className="flex items-center gap-3 mb-4">
+            <Building2 className="w-6 h-6 text-warning" />
+            <h2 className="text-2xl font-bold text-foreground">2b. Club Owner (Level 2) - Second Address</h2>
+          </div>
+          <p className="text-gray-400 mb-4">
+            Address: <code className="bg-secondary px-2 py-1 rounded text-sm">{predefinedAddresses.clubOwner2}</code>
+          </p>
+
+          <div className="space-y-4 mb-4">
+            <div>
+              <label className="block text-sm font-semibold text-foreground mb-2">Select Club</label>
+              {clubsLoading ? (
+                <p className="text-gray-400">Loading clubs...</p>
+              ) : clubs.length === 0 ? (
+                <p className="text-gray-400">No clubs available. Create a club first.</p>
+              ) : (
+                <select
+                  value={selectedClubId2}
+                  onChange={(e) => setSelectedClubId2(e.target.value)}
+                  className="w-full px-4 py-3 bg-input-bg border border-input-border rounded-lg text-foreground focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+                >
+                  <option value="">Select a club...</option>
+                  {clubs.map((club) => (
+                    <option key={club.id} value={club.id}>
+                      {club.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-foreground mb-2">
+                Badge Duration (milliseconds)
+              </label>
+              <input
+                type="number"
+                value={badgeDuration2}
+                onChange={(e) => setBadgeDuration2(Number(e.target.value))}
+                placeholder="7776000000 (90 days)"
+                className="w-full px-4 py-3 bg-input-bg border border-input-border rounded-lg text-foreground focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+              />
+              <p className="text-xs text-gray-400 mt-1">
+                Default: 7,776,000,000 ms (90 days). Max: 31,536,000,000 ms (1 year)
+              </p>
+            </div>
+          </div>
+
+          <GamifiedButton
+            variant="primary"
+            icon={Building2}
+            onClick={async () => {
+              if (!superAdminCapId) {
+                setOperationStatus({
+                  type: "clubOwner2",
+                  status: "error",
+                  message: "SuperAdminCap not found.",
+                });
+                return;
+              }
+
+              if (!selectedClubId2) {
+                setOperationStatus({
+                  type: "clubOwner2",
+                  status: "error",
+                  message: "Please select a club first.",
+                });
+                return;
+              }
+
+              if (!CLOCK_OBJECT_ID) {
+                setOperationStatus({
+                  type: "clubOwner2",
+                  status: "error",
+                  message: "Clock object ID not configured.",
+                });
+                return;
+              }
+
+              setOperationStatus({ type: "clubOwner2", status: "loading", message: "Issuing ClubOwnerBadge..." });
+
+              try {
+                const tx = new Transaction();
+                tx.moveCall({
+                  target: `${PACKAGE_ID}::club::issue_owner_badge`,
+                  arguments: [
+                    tx.object(superAdminCapId),
+                    tx.object(selectedClubId2),
+                    tx.pure.address(predefinedAddresses.clubOwner2),
+                    tx.pure.u64(badgeDuration2),
+                    tx.object(CLOCK_OBJECT_ID),
+                  ],
+                });
+
+                signAndExecute(
+                  { transaction: tx },
+                  {
+                    onSuccess: () => {
+                      setOperationStatus({
+                        type: "clubOwner2",
+                        status: "success",
+                        message: `ClubOwnerBadge successfully issued to ${predefinedAddresses.clubOwner2.slice(0, 10)}...`,
+                      });
+                    },
+                    onError: (error) => {
+                      setOperationStatus({
+                        type: "clubOwner2",
+                        status: "error",
+                        message: error.message || "Failed to issue ClubOwnerBadge",
+                      });
+                    },
+                  }
+                );
+              } catch (error: any) {
+                setOperationStatus({
+                  type: "clubOwner2",
+                  status: "error",
+                  message: error.message || "Failed to build transaction",
+                });
+              }
+            }}
+            disabled={
+              !selectedClubId2 ||
+              clubsLoading ||
+              (operationStatus.type === "clubOwner2" && operationStatus.status === "loading")
+            }
+          >
+            {operationStatus.type === "clubOwner2" && operationStatus.status === "loading"
+              ? "Issuing Badge..."
+              : "Issue ClubOwnerBadge"}
+          </GamifiedButton>
+          {operationStatus.type === "clubOwner2" && (
             <div className={`mt-4 p-4 rounded-lg ${
               operationStatus.status === "success"
                 ? "bg-success/10 border border-success/20 text-success"

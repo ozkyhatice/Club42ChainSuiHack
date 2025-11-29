@@ -9,6 +9,10 @@ import GamifiedButton from '@/components/ui/GamifiedButton';
 import OwnerBadge from '@/components/ui/OwnerBadge';
 import { useUserOwnedClubs, useIsAnyClubOwner } from '@/hooks/useClubOwnership';
 import { useHasAnyValidClubOwnerBadge } from '@/hooks/useClubOwnerBadge';
+import { useIsSuperAdmin } from '@/hooks/useSuperAdmin';
+import { useCanCreateEvent, useBadgeAuth } from '@/hooks/useBadgeAuth';
+import { getClubs } from '@/src/services/blockchain/getClubs';
+import { useQuery } from '@tanstack/react-query';
 import { Crown, AlertTriangle, ArrowLeft, Building2, Sparkles, Shield } from 'lucide-react';
 
 export default function CreateEventPage() {
@@ -17,9 +21,23 @@ export default function CreateEventPage() {
   const { data: ownedClubs = [], isLoading: ownedLoading } = useUserOwnedClubs();
   const { isOwner, clubCount } = useIsAnyClubOwner();
   const { data: hasValidBadge, isLoading: isCheckingBadge } = useHasAnyValidClubOwnerBadge();
+  const { data: isSuperAdmin, isLoading: isCheckingSuperAdmin } = useIsSuperAdmin();
+  const badgeAuth = useBadgeAuth();
+  const canCreateEvent = badgeAuth.isSuperAdmin || badgeAuth.isClubOwner;
+  
+  // Fetch all clubs if SuperAdmin (to show all clubs in dropdown)
+  const { data: allClubs = [], isLoading: allClubsLoading } = useQuery({
+    queryKey: ["all-clubs-for-event-creation"],
+    queryFn: getClubs,
+    enabled: !!isSuperAdmin, // Only fetch if SuperAdmin
+    staleTime: 60000,
+  });
+  
+  // Determine which clubs to show: SuperAdmin sees all clubs, others see only owned clubs
+  const availableClubs = isSuperAdmin ? allClubs : ownedClubs;
 
   // Loading state
-  if (ownedLoading || isCheckingBadge) {
+  if (ownedLoading || isCheckingBadge || isCheckingSuperAdmin || badgeAuth.isLoading || (isSuperAdmin && allClubsLoading)) {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-[400px]">
@@ -58,8 +76,9 @@ export default function CreateEventPage() {
     );
   }
 
-  // Check if user has valid ClubOwnerBadge
-  if (!hasValidBadge) {
+  // Check if user can create events (SuperAdmin OR has valid ClubOwnerBadge)
+  // Wait for badge auth to finish loading before checking
+  if (!badgeAuth.isLoading && !canCreateEvent) {
     return (
       <DashboardLayout>
         <div className="max-w-2xl mx-auto">
@@ -67,9 +86,9 @@ export default function CreateEventPage() {
             <div className="inline-flex p-6 bg-error/20 rounded-2xl mb-6 border border-error/30">
               <Shield className="w-16 h-16 text-error" />
             </div>
-            <h1 className="text-3xl font-bold mb-4 text-foreground">Club Owner Badge Required</h1>
+            <h1 className="text-3xl font-bold mb-4 text-foreground">Event Creation Access Required</h1>
             <p className="text-gray-400 mb-6">
-              You need a valid ClubOwnerBadge to create events. This badge proves your club ownership and has an expiration date.
+              You need either a valid ClubOwnerBadge or SuperAdmin privileges to create events. ClubOwnerBadge proves your club ownership and has an expiration date.
             </p>
             <div className="bg-primary/10 border-l-4 border-primary rounded-lg p-4 mb-8 text-left">
               <div className="flex items-start gap-3">
@@ -98,8 +117,8 @@ export default function CreateEventPage() {
     );
   }
 
-  // Not a club owner (fallback check)
-  if (!isOwner || clubCount === 0) {
+  // Not a club owner and not SuperAdmin (fallback check)
+  if (!isSuperAdmin && (!isOwner || clubCount === 0)) {
     return (
       <DashboardLayout>
         <div className="max-w-2xl mx-auto">
@@ -164,12 +183,15 @@ export default function CreateEventPage() {
             <h1 className="text-3xl md:text-4xl font-bold">Create New Event</h1>
           </div>
           <p className="text-white/90">
-            Create an event for one of your {clubCount} club{clubCount !== 1 ? 's' : ''}
+            {isSuperAdmin 
+              ? "Create an event for any club (Super Admin privilege)"
+              : `Create an event for one of your ${clubCount} club${clubCount !== 1 ? 's' : ''}`
+            }
           </p>
         </div>
 
         {/* Form */}
-        <CreateEventForm ownedClubs={ownedClubs} />
+        <CreateEventForm ownedClubs={availableClubs} />
       </div>
     </DashboardLayout>
   );

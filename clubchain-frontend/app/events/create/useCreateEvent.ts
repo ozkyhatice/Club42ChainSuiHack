@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { useCurrentAccount, useSignAndExecuteTransaction, useSuiClient } from "@mysten/dapp-kit";
-import { buildCreateEventTx } from "@/modules/contracts/event";
+import { buildCreateEventTx, buildCreateEventAsAdminTx } from "@/modules/contracts/event";
 import { PACKAGE_ID, CLOCK_OBJECT_ID } from "@/lib/constants";
 import { useUserClubOwnerBadges } from "@/hooks/useClubOwnerBadge";
+import { useIsSuperAdmin, useSuperAdminCapId } from "@/hooks/useSuperAdmin";
 import type { EventFormData } from "../types";
 
 interface CreateEventState {
@@ -17,6 +18,8 @@ export function useCreateEvent() {
   const suiClient = useSuiClient();
   const { mutate: signAndExecute } = useSignAndExecuteTransaction();
   const { data: userBadges = [] } = useUserClubOwnerBadges();
+  const { data: isSuperAdmin } = useIsSuperAdmin();
+  const { data: superAdminCapId } = useSuperAdminCapId();
   const [state, setState] = useState<CreateEventState>({
     isSubmitting: false,
     txStatus: "",
@@ -30,17 +33,6 @@ export function useCreateEvent() {
 
     if (!clubId) {
       setState({ isSubmitting: false, txStatus: "Club ID not found" });
-      return;
-    }
-
-    // Find valid ClubOwnerBadge for this club
-    const validBadge = userBadges.find(badge => badge.clubId === clubId);
-    
-    if (!validBadge) {
-      setState({ 
-        isSubmitting: false, 
-        txStatus: "No valid ClubOwnerBadge found for this club. Please contact a Super Admin to issue a badge." 
-      });
       return;
     }
 
@@ -62,14 +54,38 @@ export function useCreateEvent() {
         date: new Date(formData.date),
       };
 
-      const tx = buildCreateEventTx(
-        PACKAGE_ID,
-        validBadge.objectId,  // Use ClubOwnerBadge instead of AdminCap
-        clubId,
-        eventData,
-        "", // encrypted_content_blob_id - can be added later
-        CLOCK_OBJECT_ID
-      );
+      let tx;
+      
+      // If SuperAdmin, use create_event_as_admin (no badge needed)
+      if (isSuperAdmin && superAdminCapId) {
+        tx = buildCreateEventAsAdminTx(
+          PACKAGE_ID,
+          superAdminCapId,
+          clubId,
+          eventData,
+          "" // encrypted_content_blob_id - can be added later
+        );
+      } else {
+        // If ClubOwner, use create_event with ClubOwnerBadge
+        const validBadge = userBadges.find(badge => badge.clubId === clubId);
+        
+        if (!validBadge) {
+          setState({ 
+            isSubmitting: false, 
+            txStatus: "No valid ClubOwnerBadge found for this club. Please contact a Super Admin to issue a badge." 
+          });
+          return;
+        }
+
+        tx = buildCreateEventTx(
+          PACKAGE_ID,
+          validBadge.objectId,  // Use ClubOwnerBadge
+          clubId,
+          eventData,
+          "", // encrypted_content_blob_id - can be added later
+          CLOCK_OBJECT_ID
+        );
+      }
       
       signAndExecute(
         { transaction: tx },

@@ -61,6 +61,52 @@ export function buildCreateEventTx(
 }
 
 /**
+ * Build a transaction to create a new event (SUPER ADMIN ONLY)
+ * Super Admin can create events for any club without needing a ClubOwnerBadge
+ * 
+ * Smart contract signature:
+ * create_event_as_admin(super_admin: &SuperAdminCap, club: &mut Club, title: String, description: String, date: u64, encrypted_content_blob_id: String, ctx: &mut TxContext)
+ */
+export function buildCreateEventAsAdminTx(
+  packageId: string,
+  superAdminCapId: string,
+  clubId: string,
+  eventData: EventData,
+  encryptedContentBlobId: string = ""
+): Transaction {
+  if (!packageId || !superAdminCapId || !clubId) {
+    throw new Error("Package ID, SuperAdminCap ID, and Club ID are required");
+  }
+
+  if (!eventData.title || !eventData.description || !eventData.date) {
+    throw new Error("Complete event data is required");
+  }
+
+  const tx = new Transaction();
+
+  // Convert date to milliseconds
+  const dateMs = eventData.date.getTime();
+
+  if (isNaN(dateMs)) {
+    throw new Error("Invalid date value");
+  }
+
+  tx.moveCall({
+    target: `${packageId}::event::create_event_as_admin`,
+    arguments: [
+      tx.object(superAdminCapId),              // super_admin: &SuperAdminCap
+      tx.object(clubId),                       // club: &mut Club
+      tx.pure.string(eventData.title),         // title: String
+      tx.pure.string(eventData.description),   // description: String
+      tx.pure.u64(dateMs),                     // date: u64
+      tx.pure.string(encryptedContentBlobId),  // encrypted_content_blob_id: String
+    ],
+  });
+
+  return tx;
+}
+
+/**
  * Build a transaction to join an event
  * Any user can join an event
  */

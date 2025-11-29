@@ -149,18 +149,38 @@ export function useUserClubOwnerBadges() {
           if (content && "fields" in content) {
             const fields = content.fields as any;
             const expirationMs = Number(fields.expiration_ms);
+            const clubId = fields.club_id;
+            
+            // Debug logging
+            console.log("ClubOwnerBadge found:", {
+              objectId: obj.data?.objectId,
+              clubId,
+              expirationMs,
+              currentTime,
+              isExpired: expirationMs <= currentTime,
+              timeUntilExpiration: expirationMs - currentTime,
+            });
             
             // Only include non-expired badges
             if (expirationMs > currentTime) {
               validBadges.push({
                 objectId: obj.data?.objectId || "",
-                clubId: fields.club_id,
+                clubId: clubId,
                 expirationMs,
+              });
+            } else {
+              console.warn("Badge expired:", {
+                objectId: obj.data?.objectId,
+                clubId,
+                expirationMs,
+                currentTime,
+                expiredBy: currentTime - expirationMs,
               });
             }
           }
         }
 
+        console.log("Total valid ClubOwnerBadges:", validBadges.length, validBadges);
         return validBadges;
       } catch (error) {
         console.error("Error getting club owner badges:", error);

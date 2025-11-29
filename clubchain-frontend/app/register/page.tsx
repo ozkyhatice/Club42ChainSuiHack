@@ -8,12 +8,14 @@ import Link from "next/link";
 import RegistrationFlow from "./RegistrationFlow";
 import RegistrationSteps from "./RegistrationSteps";
 import { useIsRegistered } from "@/hooks/useRegistrationStatus";
+import { useBadgeAuth } from "@/hooks/useBadgeAuth";
 
 export default function RegisterPage() {
   const { data: session, status } = useSession();
   const account = useCurrentAccount();
   const router = useRouter();
   const { data: isRegistered, isLoading: isCheckingRegistration } = useIsRegistered();
+  const { isSuperAdmin, isClubOwner, isLoading: isCheckingBadges } = useBadgeAuth();
 
   useEffect(() => {
     if (status !== "loading" && !session) {
@@ -21,15 +23,22 @@ export default function RegisterPage() {
     }
   }, [session, status, router]);
 
-  // Redirect to dashboard if user is already registered
+  // Redirect to dashboard if user is already registered OR has badges
   useEffect(() => {
-    if (account && !isCheckingRegistration && isRegistered) {
-      console.log("User is already registered, redirecting to dashboard...");
-      router.push("/dashboard");
+    if (account && !isCheckingRegistration && !isCheckingBadges) {
+      // If user has badges (SuperAdmin or ClubOwner), go to dashboard even without UserProfile
+      if (isSuperAdmin || isClubOwner) {
+        console.log("User has badges (SuperAdmin or ClubOwner), redirecting to dashboard...");
+        router.push("/dashboard");
+      } else if (isRegistered) {
+        // User is already registered (has UserProfile), go to dashboard
+        console.log("User is already registered, redirecting to dashboard...");
+        router.push("/dashboard");
+      }
     }
-  }, [account, isRegistered, isCheckingRegistration, router]);
+  }, [account, isRegistered, isCheckingRegistration, isCheckingBadges, isSuperAdmin, isClubOwner, router]);
 
-  if (status === "loading" || isCheckingRegistration) {
+  if (status === "loading" || isCheckingRegistration || isCheckingBadges) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
@@ -51,8 +60,8 @@ export default function RegisterPage() {
     );
   }
 
-  // Show loading while checking registration status
-  if (account && isCheckingRegistration) {
+  // Show loading while checking registration status or badges
+  if (account && (isCheckingRegistration || isCheckingBadges)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
@@ -63,8 +72,8 @@ export default function RegisterPage() {
     );
   }
 
-  // Redirect if already registered (this is a fallback, useEffect should handle it)
-  if (account && isRegistered) {
+  // Redirect if already registered OR has badges (this is a fallback, useEffect should handle it)
+  if (account && (isRegistered || isSuperAdmin || isClubOwner)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">

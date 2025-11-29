@@ -5,6 +5,7 @@ module clubchain::event {
     use std::string::String;
     use clubchain::admin_cap::{Self, ClubAdminCap};
     use clubchain::club::{Self, Club, ClubOwnerBadge};
+    use clubchain::super_admin::{Self, SuperAdminCap};
 
     /// Error codes
     const E_NOT_CLUB_ADMIN: u64 = 1;
@@ -97,6 +98,43 @@ module clubchain::event {
         // Validate inputs
         assert!(std::string::length(&title) > 0, E_EMPTY_TITLE);
         assert!(std::string::length(&description) > 0, E_EMPTY_DESCRIPTION);
+        
+        let event = Event {
+            id: object::new(ctx),
+            club_id,
+            created_by: sender,
+            title,
+            description,
+            date,
+            participants: std::vector::empty(),
+            encrypted_content_blob_id,
+        };
+        let event_id = object::id_address(&event);
+        transfer::share_object(event);
+        club::push_event(club, event_id);
+    }
+
+    /// Create a new event (SUPER ADMIN ONLY)
+    /// Super Admin can create events for any club without needing a ClubOwnerBadge
+    public entry fun create_event_as_admin(
+        super_admin: &SuperAdminCap,
+        club: &mut Club,
+        title: String,
+        description: String,
+        date: u64,
+        encrypted_content_blob_id: String,
+        ctx: &mut TxContext
+    ) {
+        // Verify super admin
+        super_admin::assert_super_admin(super_admin);
+        
+        let sender = tx_context::sender(ctx);
+        
+        // Validate inputs
+        assert!(std::string::length(&title) > 0, E_EMPTY_TITLE);
+        assert!(std::string::length(&description) > 0, E_EMPTY_DESCRIPTION);
+        
+        let club_id = object::id_address(club);
         
         let event = Event {
             id: object::new(ctx),

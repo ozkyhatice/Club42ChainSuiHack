@@ -9,6 +9,7 @@ import Card, { CardBody } from "@/components/ui/Card";
 import FloatingElements from "@/components/landing/FloatingElements";
 import { GraduationCap, Rocket, AlertTriangle, Info, ArrowRight } from "lucide-react";
 import { useIsRegistered } from "@/hooks/useRegistrationStatus";
+import { useBadgeAuth } from "@/hooks/useBadgeAuth";
 
 export default function SignInPage() {
   const { data: session, status } = useSession();
@@ -20,6 +21,7 @@ export default function SignInPage() {
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { data: isRegistered, isLoading: isCheckingRegistration } = useIsRegistered();
+  const { isSuperAdmin, isClubOwner, isLoading: isCheckingBadges } = useBadgeAuth();
 
   useEffect(() => {
     const errorParam = searchParams.get("error");
@@ -45,13 +47,16 @@ export default function SignInPage() {
 
   useEffect(() => {
     if (session && account) {
-      // If user has session and wallet connected, check registration status
-      if (!isCheckingRegistration) {
-        if (isRegistered) {
-          // User is already registered, go to dashboard
+      // If user has session and wallet connected, check registration status and badges
+      if (!isCheckingRegistration && !isCheckingBadges) {
+        // If user has badges (SuperAdmin or ClubOwner), go to dashboard even without UserProfile
+        if (isSuperAdmin || isClubOwner) {
+          router.push("/dashboard");
+        } else if (isRegistered) {
+          // User is already registered (has UserProfile), go to dashboard
           router.push("/dashboard");
         } else {
-          // User is not registered, go to registration page
+          // User is not registered and has no badges, go to registration page
           router.push("/register");
         }
       }
@@ -59,7 +64,7 @@ export default function SignInPage() {
       // User has session but no wallet, go to registration to connect wallet
       router.push("/register");
     }
-  }, [session, account, isRegistered, isCheckingRegistration, router]);
+  }, [session, account, isRegistered, isCheckingRegistration, isCheckingBadges, isSuperAdmin, isClubOwner, router]);
 
   const handleSignIn = async () => {
     try {

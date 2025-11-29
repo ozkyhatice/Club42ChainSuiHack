@@ -3,6 +3,7 @@
 import { ConnectButton, useCurrentAccount } from "@mysten/dapp-kit";
 import { useSession } from "next-auth/react";
 import { useUserRegistration } from "./useUserRegistration";
+import { useBadgeAuth } from "@/hooks/useBadgeAuth";
 
 interface RegistrationFlowProps {
   onSuccess?: () => void;
@@ -12,6 +13,7 @@ export default function RegistrationFlow({ onSuccess }: RegistrationFlowProps) {
   const { data: session } = useSession();
   const account = useCurrentAccount();
   const { isRegistering, error, success, register, isConfigured } = useUserRegistration();
+  const { isSuperAdmin, isClubOwner, isLoading: isCheckingBadges } = useBadgeAuth();
 
   const handleRegister = () => {
     if (!session?.user) {
@@ -157,9 +159,17 @@ export default function RegistrationFlow({ onSuccess }: RegistrationFlowProps) {
               </div>
             )}
 
+            {(isSuperAdmin || isClubOwner) && (
+              <div className="bg-warning/20 border border-warning/40 p-4 rounded-lg mb-4">
+                <p className="text-sm text-warning-light">
+                  ⚠️ You already have badges (SuperAdmin or ClubOwner). Registration is not required. You will be redirected to the dashboard.
+                </p>
+              </div>
+            )}
+
             <button
               onClick={handleRegister}
-              disabled={isRegistering || !isConfigured}
+              disabled={isRegistering || !isConfigured || isCheckingBadges || isSuperAdmin || isClubOwner}
               className="w-full bg-gradient-to-r from-primary/30 to-primary/20 hover:from-primary/40 hover:to-primary/30 text-primary border-2 border-primary/40 shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] py-4 rounded-xl font-semibold transition-all duration-300 group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none disabled:hover:shadow-lg"
             >
               {isRegistering ? (
