@@ -33,7 +33,6 @@ export function useAdminCaps() {
         const userCaps = await getUserAdminCaps(client, account.address);
         setCaps(userCaps);
       } catch (err) {
-        console.error("Error fetching admin caps:", err);
         setError("Failed to fetch admin capabilities");
         setCaps([]);
       } finally {
@@ -86,7 +85,6 @@ export function useIsClubAdmin(clubId: string | null | undefined) {
           setAdminCapId(null);
         }
       } catch (err) {
-        console.error("Error checking admin status:", err);
         setIsAdmin(false);
         setAdminCapId(null);
       } finally {
@@ -124,7 +122,6 @@ export function useAdminCapForClub(clubId: string | null | undefined) {
         const id = await getAdminCapForClub(client, account.address, clubId);
         setCapId(id);
       } catch (err) {
-        console.error("Error fetching admin cap ID:", err);
         setError("Failed to fetch admin capability");
         setCapId(null);
       } finally {
