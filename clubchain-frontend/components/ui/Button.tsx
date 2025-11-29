@@ -19,10 +19,10 @@ export default function Button({
   const baseStyles = "font-semibold rounded-lg transition-all duration-200 inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed";
   
   const variantStyles = {
-    primary: "bg-primary text-gray-100 hover:bg-primary-hover hover:scale-105 active:scale-95 shadow-md hover:shadow-lg",
-    secondary: "bg-secondary text-foreground hover:bg-secondary/80 hover:scale-105 active:scale-95 shadow-md hover:shadow-lg border border-secondary",
-    outline: "border-2 border-primary text-primary hover:bg-primary/10 hover:scale-105 active:scale-95",
-    ghost: "text-foreground hover:bg-secondary hover:scale-105 active:scale-95",
+    primary: "bg-primary text-white hover:bg-primary-hover hover:scale-105 active:scale-95 shadow-elevation-1 hover:shadow-elevation-2 transition-all",
+    secondary: "bg-secondary text-foreground hover:bg-secondary-hover hover:scale-105 active:scale-95 shadow-elevation-1 hover:shadow-elevation-2 border border-border transition-all",
+    outline: "border-2 border-primary text-primary hover:bg-primary/10 hover:scale-105 active:scale-95 transition-all",
+    ghost: "text-foreground hover:bg-secondary hover:scale-105 active:scale-95 transition-all",
   };
   
   const sizeStyles = {

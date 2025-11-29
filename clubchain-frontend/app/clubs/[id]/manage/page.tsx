@@ -171,12 +171,12 @@ export default function ManageClubPage({ params }: PageProps) {
           </div>
 
           {/* Update Name Section */}
-          <div className="bg-white rounded-xl shadow-elevation-2 p-8 mb-6 animate-slideUp animation-delay-200">
+          <div className="bg-card border border-border rounded-xl shadow-elevation-2 p-8 mb-6 animate-slideUp animation-delay-200">
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-3 bg-blue-50 rounded-xl">
-                <Edit3 className="w-6 h-6 text-blue-600" />
+              <div className="p-3 bg-primary/10 rounded-xl">
+                <Edit3 className="w-6 h-6 text-primary" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2 className="text-2xl font-bold text-foreground">
                 Update Club Name
               </h2>
             </div>
@@ -185,7 +185,7 @@ export default function ManageClubPage({ params }: PageProps) {
               <div>
                 <label
                   htmlFor="newName"
-                  className="block text-sm font-semibold text-gray-900 mb-3"
+                  className="block text-sm font-semibold text-foreground mb-3"
                 >
                   New Club Name
                 </label>
@@ -194,7 +194,7 @@ export default function ManageClubPage({ params }: PageProps) {
                   id="newName"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                  className="w-full px-4 py-3 bg-input-bg border border-input-border rounded-lg text-foreground placeholder:text-text-muted focus:ring-2 focus:ring-input-focus focus:border-input-focus outline-none transition-all"
                   placeholder="Enter new club name"
                   disabled={isUpdating}
                   required
@@ -202,10 +202,10 @@ export default function ManageClubPage({ params }: PageProps) {
               </div>
 
               {success && (
-                <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4 animate-slideUp">
+                <div className="bg-success/10 border-2 border-success rounded-lg p-4 animate-slideUp">
                   <div className="flex items-start gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                    <p className="text-green-800 text-sm font-medium">{success}</p>
+                    <CheckCircle className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
+                    <p className="text-success-light text-sm font-medium">{success}</p>
                   </div>
                 </div>
               )}

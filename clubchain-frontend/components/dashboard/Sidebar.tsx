@@ -126,11 +126,11 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                       ${isActive(item.href)
                         ? "bg-primary/20 text-primary border border-primary/30 shadow-sm"
                         : item.highlight
-                        ? "bg-gradient-to-r from-success to-green-500 text-white hover:from-green-500 hover:to-success shadow-md hover-lift"
+                        ? "text-foreground bg-primary/10 hover:bg-primary/20 hover:scale-105"
                         : (item as any).ownerOnly
-                        ? "bg-gradient-to-r from-warning to-amber-500 text-white hover:from-amber-500 hover:to-warning shadow-md hover-lift"
+                        ? "bg-gradient-to-r from-warning to-warning-light text-white hover:from-warning-light hover:to-warning shadow-md hover-lift"
                         : (item as any).superAdmin
-                        ? "bg-gradient-to-r from-error to-orange-600 text-white hover:from-orange-600 hover:to-error shadow-md hover-lift animate-pulse-glow"
+                        ? "bg-gradient-to-r from-error to-error-light text-white hover:from-error-light hover:to-error shadow-md hover-lift animate-pulse-glow"
                         : "text-foreground hover:bg-secondary hover:scale-105"
                       }
                     `}
@@ -152,7 +152,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         <div className="px-4 py-4 border-t border-secondary">
           <Link
             href="/"
-            className="flex items-center gap-2 text-sm text-gray-400 hover:text-foreground transition-all group hover:scale-105"
+            className="flex items-center gap-2 text-sm text-text-muted hover:text-foreground transition-all group hover:scale-105"
           >
             <Home className="w-4 h-4 group-hover:scale-110 transition-transform" />
             <span>Back to Landing</span>

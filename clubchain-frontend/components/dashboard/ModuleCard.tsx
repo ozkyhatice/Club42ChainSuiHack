@@ -30,7 +30,7 @@ export default function ModuleCard({
   title,
   description,
   icon: Icon,
-  iconColor = "text-blue-600",
+  iconColor = "text-primary",
   stats,
   actions,
   badge,
@@ -48,7 +48,7 @@ export default function ModuleCard({
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-4">
             {/* Animated icon */}
-            <div className={`p-3 rounded-xl bg-gradient-to-br from-blue-50 to-purple-50 shadow-elevation-1 group-hover:shadow-elevation-2 transition-all duration-300`}>
+            <div className={`p-3 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 shadow-elevation-1 group-hover:shadow-elevation-2 transition-all duration-300`}>
               <Icon 
                 className={`w-8 h-8 ${iconColor} group-hover:scale-110 transition-transform duration-300`} 
                 strokeWidth={2}
@@ -56,7 +56,7 @@ export default function ModuleCard({
             </div>
             
             <div>
-              <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+              <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
                 {title}
               </h3>
               {badge && (
@@ -70,7 +70,7 @@ export default function ModuleCard({
           {/* Hover indicator */}
           <div className="opacity-0 group-hover:opacity-100 transition-opacity">
             <svg 
-              className="w-5 h-5 text-blue-600" 
+              className="w-5 h-5 text-primary" 
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"
@@ -80,7 +80,7 @@ export default function ModuleCard({
           </div>
         </div>
         
-        <p className="text-gray-600 mt-3">{description}</p>
+        <p className="text-text-muted mt-3">{description}</p>
       </CardHeader>
       
       <CardBody>
@@ -90,10 +90,10 @@ export default function ModuleCard({
             {stats.map((stat, index) => (
               <div 
                 key={index}
-                className="text-center p-3 bg-gray-50 rounded-lg group-hover:bg-blue-50 transition-colors"
+                className="text-center p-3 bg-secondary rounded-lg group-hover:bg-primary/10 transition-colors"
               >
-                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                <p className="text-xs text-gray-600">{stat.label}</p>
+                <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                <p className="text-xs text-text-muted">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -108,8 +108,8 @@ export default function ModuleCard({
                 href={action.href}
                 className={`flex-1 text-center px-4 py-2 rounded-lg font-medium transition-all ${
                   action.variant === "primary"
-                    ? "bg-blue-600 text-white hover:bg-blue-700 hover:scale-105"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-105"
+                    ? "bg-primary text-white hover:bg-primary-hover hover:scale-105"
+                    : "bg-secondary text-foreground hover:bg-secondary-hover hover:scale-105"
                 }`}
                 onClick={(e) => e.stopPropagation()}
               >

@@ -254,7 +254,7 @@ export default function SuperAdminPage() {
               {showCreateForm && (
                 <form onSubmit={handleCreateClub} className="space-y-4 animate-slideUp">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    <label className="block text-sm font-semibold text-foreground mb-2">
                       Club Name
                     </label>
                     <input
@@ -262,27 +262,27 @@ export default function SuperAdminPage() {
                       required
                       value={clubName}
                       onChange={(e) => setClubName(e.target.value)}
-                      className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                      className="w-full px-4 py-2 bg-input-bg border border-input-border rounded-lg text-foreground placeholder:text-text-muted focus:ring-2 focus:ring-input-focus focus:border-input-focus outline-none"
                       placeholder="e.g., Web3 Developers Club"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    <label className="block text-sm font-semibold text-foreground mb-2">
                       Description
                     </label>
                     <textarea
                       required
                       value={clubDescription}
                       onChange={(e) => setClubDescription(e.target.value)}
-                      className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none"
+                      className="w-full px-4 py-2 bg-input-bg border border-input-border rounded-lg text-foreground placeholder:text-text-muted focus:ring-2 focus:ring-input-focus focus:border-input-focus outline-none resize-none"
                       rows={3}
                       placeholder="Describe the club..."
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    <label className="block text-sm font-semibold text-foreground mb-2">
                       Owner Address (Sui Wallet Address)
                     </label>
                     <input
@@ -290,10 +290,10 @@ export default function SuperAdminPage() {
                       required
                       value={ownerAddress}
                       onChange={(e) => setOwnerAddress(e.target.value)}
-                      className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none font-mono text-sm"
+                      className="w-full px-4 py-2 bg-input-bg border border-input-border rounded-lg text-foreground placeholder:text-text-muted focus:ring-2 focus:ring-input-focus focus:border-input-focus outline-none font-mono text-sm"
                       placeholder="0x..."
                     />
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-text-muted mt-1">
                       This address will receive the ClubAdminCap and become the club owner
                     </p>
                   </div>

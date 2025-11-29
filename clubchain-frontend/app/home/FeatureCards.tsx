@@ -47,7 +47,7 @@ const FeatureCards = memo(function FeatureCards() {
                 <h3 className="text-xl font-semibold mb-3 text-foreground group-hover:text-primary transition-colors">
                   {feature.title}
                 </h3>
-                <p className="text-gray-400">{feature.description}</p>
+                <p className="text-text-muted">{feature.description}</p>
               </CardBody>
             </Card>
           </div>

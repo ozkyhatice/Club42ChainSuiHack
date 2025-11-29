@@ -8,9 +8,9 @@ interface CardProps {
 }
 
 export default function Card({ children, className = "", hover = false, onClick }: CardProps) {
-  const baseStyles = "bg-card border border-secondary rounded-lg shadow-md overflow-hidden";
-  const hoverStyles = hover ? "hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer" : "";
-  const clickableStyles = onClick ? "cursor-pointer" : "";
+  const baseStyles = "bg-card border border-border rounded-xl shadow-elevation-1 overflow-hidden transition-all duration-300";
+  const hoverStyles = hover ? "hover:shadow-elevation-2 hover:scale-[1.02] hover:border-border-light cursor-pointer" : "";
+  const clickableStyles = onClick ? "cursor-pointer hover:bg-card-hover" : "";
   
   return (
     <div 
@@ -29,7 +29,7 @@ interface CardHeaderProps {
 
 export function CardHeader({ children, className = "" }: CardHeaderProps) {
   return (
-    <div className={`px-6 py-4 border-b border-secondary ${className}`}>
+    <div className={`px-6 py-4 border-b border-border ${className}`}>
       {children}
     </div>
   );
@@ -55,7 +55,7 @@ interface CardFooterProps {
 
 export function CardFooter({ children, className = "" }: CardFooterProps) {
   return (
-    <div className={`px-6 py-4 border-t border-secondary bg-card ${className}`}>
+    <div className={`px-6 py-4 border-t border-border bg-card ${className}`}>
       {children}
     </div>
   );

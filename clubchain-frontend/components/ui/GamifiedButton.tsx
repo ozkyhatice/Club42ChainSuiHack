@@ -33,11 +33,11 @@ export default function GamifiedButton({
   const baseStyles = "inline-flex items-center justify-center gap-2 font-semibold rounded-lg transition-all group hover-lift disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none";
   
   const variantStyles = {
-    primary: "bg-blue-600 text-white hover:bg-blue-700 shadow-elevation-2 hover-glow",
-    secondary: "bg-gray-100 text-gray-900 hover:bg-gray-200 border border-gray-300",
-    success: "bg-green-600 text-white hover:bg-green-700 shadow-elevation-2",
-    danger: "bg-red-600 text-white hover:bg-red-700 shadow-elevation-2",
-    gradient: "bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 shadow-elevation-3 animate-gradient",
+    primary: "bg-primary text-white hover:bg-primary-hover shadow-elevation-2 hover-glow",
+    secondary: "bg-secondary text-foreground hover:bg-secondary-hover border border-border",
+    success: "bg-success text-white hover:bg-success-light shadow-elevation-2",
+    danger: "bg-error text-white hover:bg-error-light shadow-elevation-2",
+    gradient: "bg-gradient-to-r from-primary via-accent to-primary-light text-white hover:from-primary-hover hover:via-accent-hover hover:to-primary shadow-elevation-3 animate-gradient",
   };
   
   const sizeStyles = {

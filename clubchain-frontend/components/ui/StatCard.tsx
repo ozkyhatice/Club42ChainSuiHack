@@ -21,8 +21,8 @@ export default function StatCard({
   label,
   value,
   icon: Icon,
-  iconColor = "text-blue-600",
-  iconBgColor = "bg-blue-50",
+  iconColor = "text-primary",
+  iconBgColor = "bg-primary/10",
   trend,
   onClick,
   className = "",
@@ -33,17 +33,17 @@ export default function StatCard({
     <div
       onClick={onClick}
       className={`
-        bg-white rounded-xl p-6 shadow-elevation-2 border border-gray-100
+        bg-card rounded-xl p-6 shadow-elevation-2 border border-border
         ${isClickable ? "hover-lift cursor-pointer card-interactive" : ""}
         ${className}
       `}
     >
       <div className="flex items-center justify-between">
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-600 mb-1">{label}</p>
-          <p className="text-3xl font-bold text-gray-900">{value}</p>
+          <p className="text-sm font-medium text-text-muted mb-1">{label}</p>
+          <p className="text-3xl font-bold text-foreground">{value}</p>
           {trend && (
-            <p className={`text-sm font-medium mt-2 flex items-center gap-1 ${trend.isPositive ? "text-green-600" : "text-red-600"}`}>
+            <p className={`text-sm font-medium mt-2 flex items-center gap-1 ${trend.isPositive ? "text-success" : "text-error"}`}>
               <span>{trend.isPositive ? "↑" : "↓"}</span>
               {trend.value}
             </p>

@@ -24,12 +24,12 @@ export default function AnimatedHero() {
       </div>
       
       {/* Subtitle with slide-up animation */}
-      <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-gray-300 mb-4 animate-slideUp animation-delay-200">
+      <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-foreground mb-4 animate-slideUp animation-delay-200">
         Connect. Organize. Thrive.
       </p>
       
       {/* Description */}
-      <p className="text-base sm:text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-10 px-4 animate-slideUp animation-delay-400">
+      <p className="text-base sm:text-lg md:text-xl text-text-muted max-w-2xl mx-auto mb-10 px-4 animate-slideUp animation-delay-400">
         The decentralized platform for 42 campus clubs and events, powered by blockchain technology
       </p>
       

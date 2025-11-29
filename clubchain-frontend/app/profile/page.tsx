@@ -67,22 +67,22 @@ export default function ProfilePage() {
               
               {/* User Info */}
               <div className="flex-1 text-center sm:text-left">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                <h1 className="text-3xl font-bold text-foreground mb-2">
                   {session.user?.login || "Student"}
                 </h1>
-                <div className="flex flex-col sm:flex-row items-center gap-3 text-gray-600">
+                <div className="flex flex-col sm:flex-row items-center gap-3 text-text-muted">
                   <span className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <CheckCircle className="w-4 h-4 text-success" />
                     42 Student
                   </span>
                   <span className="hidden sm:inline">•</span>
                   <span className="flex items-center gap-2">
-                    <Award className="w-4 h-4 text-yellow-600" />
+                    <Award className="w-4 h-4 text-warning" />
                     Active Member
                   </span>
                 </div>
                 {session.user?.email && (
-                  <p className="text-sm text-gray-500 mt-2 flex items-center justify-center sm:justify-start gap-2">
+                  <p className="text-sm text-text-secondary mt-2 flex items-center justify-center sm:justify-start gap-2">
                     <Mail className="w-4 h-4" />
                     {session.user.email}
                   </p>
@@ -98,7 +98,7 @@ export default function ProfilePage() {
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="gap-2 text-red-600 hover:bg-red-50"
+                  className="gap-2 text-error hover:bg-error/10"
                   onClick={() => handleSignOut("/")}
                 >
                   <LogOut className="w-4 h-4" />
@@ -113,41 +113,41 @@ export default function ProfilePage() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-slideUp animation-delay-200">
           <Card className="hover-lift">
             <CardBody className="text-center">
-              <div className="p-3 bg-blue-50 rounded-lg inline-flex mb-3">
-                <Shield className="w-6 h-6 text-blue-600" />
+              <div className="p-3 bg-primary/10 rounded-lg inline-flex mb-3">
+                <Shield className="w-6 h-6 text-primary" />
               </div>
-              <p className="text-2xl font-bold text-gray-900">--</p>
-              <p className="text-sm text-gray-600">Clubs Joined</p>
+              <p className="text-2xl font-bold text-foreground">--</p>
+              <p className="text-sm text-text-muted">Clubs Joined</p>
             </CardBody>
           </Card>
           
           <Card className="hover-lift">
             <CardBody className="text-center">
-              <div className="p-3 bg-purple-50 rounded-lg inline-flex mb-3">
-                <Calendar className="w-6 h-6 text-purple-600" />
+              <div className="p-3 bg-accent/10 rounded-lg inline-flex mb-3">
+                <Calendar className="w-6 h-6 text-accent" />
               </div>
-              <p className="text-2xl font-bold text-gray-900">--</p>
-              <p className="text-sm text-gray-600">Events Attended</p>
+              <p className="text-2xl font-bold text-foreground">--</p>
+              <p className="text-sm text-text-muted">Events Attended</p>
             </CardBody>
           </Card>
           
           <Card className="hover-lift">
             <CardBody className="text-center">
-              <div className="p-3 bg-green-50 rounded-lg inline-flex mb-3">
-                <TrendingUp className="w-6 h-6 text-green-600" />
+              <div className="p-3 bg-success/10 rounded-lg inline-flex mb-3">
+                <TrendingUp className="w-6 h-6 text-success" />
               </div>
-              <p className="text-2xl font-bold text-gray-900">--</p>
-              <p className="text-sm text-gray-600">Events Created</p>
+              <p className="text-2xl font-bold text-foreground">--</p>
+              <p className="text-sm text-text-muted">Events Created</p>
             </CardBody>
           </Card>
           
           <Card className="hover-lift">
             <CardBody className="text-center">
-              <div className="p-3 bg-yellow-50 rounded-lg inline-flex mb-3">
-                <Award className="w-6 h-6 text-yellow-600" />
+              <div className="p-3 bg-warning/10 rounded-lg inline-flex mb-3">
+                <Award className="w-6 h-6 text-warning" />
               </div>
-              <p className="text-2xl font-bold text-gray-900">--</p>
-              <p className="text-sm text-gray-600">Achievements</p>
+              <p className="text-2xl font-bold text-foreground">--</p>
+              <p className="text-sm text-text-muted">Achievements</p>
             </CardBody>
           </Card>
         </div>
@@ -156,29 +156,29 @@ export default function ProfilePage() {
         <div className="grid sm:grid-cols-2 gap-6 animate-slideUp animation-delay-400">
           <Card>
             <CardHeader>
-              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <Shield className="w-5 h-5 text-blue-600" />
+              <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                <Shield className="w-5 h-5 text-primary" />
                 Authentication
               </h2>
             </CardHeader>
             <CardBody>
               <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                  <span className="text-sm font-medium text-gray-700">42 OAuth</span>
-                  <span className="flex items-center gap-2 text-green-600 font-semibold">
+                <div className="flex items-center justify-between p-3 bg-success/10 border border-success/20 rounded-lg">
+                  <span className="text-sm font-medium text-foreground">42 OAuth</span>
+                  <span className="flex items-center gap-2 text-success font-semibold">
                     <CheckCircle className="w-4 h-4" />
                     Connected
                   </span>
                 </div>
-                <div className={`flex items-center justify-between p-3 rounded-lg ${account ? 'bg-green-50' : 'bg-orange-50'}`}>
-                  <span className="text-sm font-medium text-gray-700">Sui Wallet</span>
+                <div className={`flex items-center justify-between p-3 rounded-lg border ${account ? 'bg-success/10 border-success/20' : 'bg-warning/10 border-warning/20'}`}>
+                  <span className="text-sm font-medium text-foreground">Sui Wallet</span>
                   {account ? (
-                    <span className="flex items-center gap-2 text-green-600 font-semibold">
+                    <span className="flex items-center gap-2 text-success font-semibold">
                       <CheckCircle className="w-4 h-4" />
                       Connected
                     </span>
                   ) : (
-                    <span className="flex items-center gap-2 text-orange-600 font-semibold">
+                    <span className="flex items-center gap-2 text-warning font-semibold">
                       <AlertCircle className="w-4 h-4" />
                       Not Connected
                     </span>
@@ -190,36 +190,36 @@ export default function ProfilePage() {
           
           <Card>
             <CardHeader>
-              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <User className="w-5 h-5 text-purple-600" />
+              <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                <User className="w-5 h-5 text-accent" />
                 Account Details
               </h2>
             </CardHeader>
             <CardBody>
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
-                  <User className="w-5 h-5 text-gray-400 mt-0.5" />
+                  <User className="w-5 h-5 text-text-muted mt-0.5" />
                   <div>
-                    <p className="text-xs text-gray-500">Username</p>
-                    <p className="text-sm font-medium text-gray-900">{session.user?.login || "N/A"}</p>
+                    <p className="text-xs text-text-secondary">Username</p>
+                    <p className="text-sm font-medium text-foreground">{session.user?.login || "N/A"}</p>
                   </div>
                 </div>
                 {account && (
                   <div className="flex items-start gap-3">
-                    <Shield className="w-5 h-5 text-gray-400 mt-0.5" />
+                    <Shield className="w-5 h-5 text-text-muted mt-0.5" />
                     <div>
-                      <p className="text-xs text-gray-500">Wallet Address</p>
-                      <p className="text-sm font-medium text-gray-900 font-mono break-all">
+                      <p className="text-xs text-text-secondary">Wallet Address</p>
+                      <p className="text-sm font-medium text-foreground font-mono break-all">
                         {account.address}
                       </p>
                     </div>
                   </div>
                 )}
                 <div className="flex items-start gap-3">
-                  <Calendar className="w-5 h-5 text-gray-400 mt-0.5" />
+                  <Calendar className="w-5 h-5 text-text-muted mt-0.5" />
                   <div>
-                    <p className="text-xs text-gray-500">Member Since</p>
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-xs text-text-secondary">Member Since</p>
+                    <p className="text-sm font-medium text-foreground">
                       {new Date().toLocaleDateString()}
                     </p>
                   </div>

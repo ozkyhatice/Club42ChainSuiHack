@@ -48,7 +48,7 @@ export default function UserProfile() {
         
         {/* Dropdown arrow */}
         <svg
-          className={`w-4 h-4 text-gray-400 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
+          className={`w-4 h-4 text-text-muted transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"

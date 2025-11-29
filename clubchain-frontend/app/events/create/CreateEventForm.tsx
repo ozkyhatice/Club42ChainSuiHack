@@ -61,10 +61,10 @@ export default function CreateEventForm({ ownedClubs = [] }: CreateEventFormProp
 
   if (capsLoading) {
     return (
-      <div className="bg-white rounded-xl shadow-elevation-2 p-8">
+      <div className="bg-card border border-border rounded-xl shadow-elevation-2 p-8">
         <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mx-auto mb-4"></div>
-          <p className="text-gray-600 text-lg">Loading your clubs...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mx-auto mb-4"></div>
+          <p className="text-text-muted text-lg">Loading your clubs...</p>
         </div>
       </div>
     );
@@ -72,9 +72,9 @@ export default function CreateEventForm({ ownedClubs = [] }: CreateEventFormProp
 
   if (caps.length === 0 && ownedClubs.length === 0) {
     return (
-      <div className="bg-white rounded-xl shadow-elevation-2 p-8">
-        <h2 className="text-2xl font-bold mb-4 text-gray-900">No Clubs Found</h2>
-        <p className="text-gray-600 mb-6">
+      <div className="bg-card border border-border rounded-xl shadow-elevation-2 p-8">
+        <h2 className="text-2xl font-bold mb-4 text-foreground">No Clubs Found</h2>
+        <p className="text-text-muted mb-6">
           You need to be a club owner to create events. Create a club first to get started.
         </p>
         <GamifiedButton
@@ -92,19 +92,19 @@ export default function CreateEventForm({ ownedClubs = [] }: CreateEventFormProp
   const availableClubs = ownedClubs.length > 0 ? ownedClubs : caps;
 
   return (
-    <div className="bg-white rounded-xl shadow-elevation-2 p-8 animate-slideUp animation-delay-200">
+    <div className="bg-card border border-border rounded-xl shadow-elevation-2 p-8 animate-slideUp animation-delay-200">
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Club Selection */}
         <div>
-          <label className="block text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-            <Building2 className="w-5 h-5 text-blue-600" />
+          <label className="block text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+            <Building2 className="w-5 h-5 text-primary" />
             Select Your Club
           </label>
           <select
             required
             value={selectedClubId}
             onChange={(e) => setSelectedClubId(e.target.value)}
-            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-gray-900 font-medium"
+            className="w-full px-4 py-3 bg-input-bg border border-input-border rounded-lg focus:ring-2 focus:ring-input-focus focus:border-input-focus outline-none transition-all text-foreground font-medium"
           >
             <option value="">-- Choose a club to host this event --</option>
             {ownedClubs.length > 0 ? (
@@ -121,7 +121,7 @@ export default function CreateEventForm({ ownedClubs = [] }: CreateEventFormProp
               ))
             )}
           </select>
-          <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+          <p className="text-xs text-text-muted mt-2 flex items-center gap-1">
             <OwnerBadge size="sm" showLabel={false} animate={false} />
             You can only create events for clubs where you are the owner
           </p>
@@ -129,8 +129,8 @@ export default function CreateEventForm({ ownedClubs = [] }: CreateEventFormProp
 
         {/* Event Title */}
         <div>
-          <label className="block text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-purple-600" />
+          <label className="block text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-accent" />
             Event Title
           </label>
           <input
@@ -138,22 +138,22 @@ export default function CreateEventForm({ ownedClubs = [] }: CreateEventFormProp
             required
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+            className="w-full px-4 py-3 bg-input-bg border border-input-border rounded-lg text-foreground placeholder:text-text-muted focus:ring-2 focus:ring-input-focus focus:border-input-focus outline-none transition-all"
             placeholder="e.g., Workshop: Web3 Development Bootcamp"
           />
         </div>
 
         {/* Description */}
         <div>
-          <label className="block text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-            <FileText className="w-5 h-5 text-green-600" />
+          <label className="block text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+            <FileText className="w-5 h-5 text-success" />
             Event Description
           </label>
           <textarea
             required
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none"
+            className="w-full px-4 py-3 bg-input-bg border border-input-border rounded-lg text-foreground placeholder:text-text-muted focus:ring-2 focus:ring-input-focus focus:border-input-focus outline-none transition-all resize-none"
             rows={4}
             placeholder="Describe what participants will learn and experience..."
           />
@@ -161,8 +161,8 @@ export default function CreateEventForm({ ownedClubs = [] }: CreateEventFormProp
 
         {/* Date & Time */}
         <div>
-          <label className="block text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-            <Clock className="w-5 h-5 text-orange-600" />
+          <label className="block text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+            <Clock className="w-5 h-5 text-warning" />
             Date & Time
           </label>
           <input
@@ -170,7 +170,7 @@ export default function CreateEventForm({ ownedClubs = [] }: CreateEventFormProp
             required
             value={formData.date}
             onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+            className="w-full px-4 py-3 bg-input-bg border border-input-border rounded-lg text-foreground focus:ring-2 focus:ring-input-focus focus:border-input-focus outline-none transition-all"
           />
         </div>
 
@@ -190,17 +190,17 @@ export default function CreateEventForm({ ownedClubs = [] }: CreateEventFormProp
         {txStatus && (
           <div className={`p-4 rounded-lg border-2 animate-slideUp ${
             txStatus.includes('Success') 
-              ? 'bg-green-50 border-green-200' 
-              : 'bg-red-50 border-red-200'
+              ? 'bg-success/10 border-success' 
+              : 'bg-error/10 border-error'
           }`}>
             <div className="flex items-start gap-3">
               {txStatus.includes('Success') ? (
-                <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                <CheckCircle className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
               ) : (
-                <XCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+                <XCircle className="w-5 h-5 text-error mt-0.5 flex-shrink-0" />
               )}
               <p className={`text-sm font-medium ${
-                txStatus.includes('Success') ? 'text-green-800' : 'text-red-800'
+                txStatus.includes('Success') ? 'text-success-light' : 'text-error-light'
               }`}>
                 {txStatus}
               </p>

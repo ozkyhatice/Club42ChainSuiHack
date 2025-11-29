@@ -1,30 +1,60 @@
 @import "tailwindcss";
 
 :root {
-  /* Sui Dark Theme - Color Palette (Sakin, muted tonlar) */
-  --background: #0a0e17;        /* Deep Ocean */
-  --foreground: #cbd5e1;        /* Grimsi text (daha yumuşak) */
-  --card: #111827;              /* Card Background (Slightly lighter) */
-  --primary: #3b82f6;           /* Sakin Blue (daha az neon) */
-  --primary-hover: #60a5fa;     /* Primary Hover (yumuşak) */
-  --secondary: #1e293b;         /* Muted/Borders */
-  --accent: #14b8a6;            /* Sakin Teal (neon değil) */
-  --success: #059669;          /* Sakin Yeşil */
-  --warning: #d97706;          /* Sakin Turuncu */
-  --error: #dc2626;            /* Sakin Kırmızı */
+  /* Modern Soft Color Palette - Harmonious & Elegant */
+  --background: #0f1419;        /* Soft deep background */
+  --foreground: #f3f4f6;       /* Bright white-gray text - more visible */
+  --foreground-dark: #e5e7eb;  /* Slightly darker for headings */
+  --card: #1a1f2e;              /* Soft card background */
+  --card-hover: #222736;       /* Card hover state */
+  --primary: #6366f1;           /* Soft indigo */
+  --primary-hover: #818cf8;     /* Lighter indigo */
+  --primary-light: #4f46e5;     /* Darker indigo for contrast */
+  --secondary: #2d3748;         /* Soft gray borders */
+  --secondary-hover: #374151;   /* Secondary hover */
+  --accent: #06b6d4;            /* Soft cyan */
+  --accent-hover: #22d3ee;      /* Lighter cyan */
+  --success: #10b981;           /* Soft emerald */
+  --success-light: #34d399;     /* Lighter emerald */
+  --warning: #f59e0b;           /* Soft amber */
+  --warning-light: #fbbf24;     /* Lighter amber */
+  --error: #ef4444;             /* Soft red */
+  --error-light: #f87171;       /* Lighter red */
+  --border: #374151;            /* Soft border color */
+  --border-light: #4b5563;      /* Lighter border */
+  --input-bg: #1f2937;          /* Input background */
+  --input-border: #4b5563;      /* Input border */
+  --input-focus: #6366f1;       /* Input focus ring */
+  --text-muted: #d1d5db;        /* Muted text - brighter for readability */
+  --text-secondary: #9ca3af;    /* Secondary text - more visible */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-foreground-dark: var(--foreground-dark);
   --color-card: var(--card);
+  --color-card-hover: var(--card-hover);
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
+  --color-primary-light: var(--primary-light);
   --color-secondary: var(--secondary);
+  --color-secondary-hover: var(--secondary-hover);
   --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
   --color-success: var(--success);
+  --color-success-light: var(--success-light);
   --color-warning: var(--warning);
+  --color-warning-light: var(--warning-light);
   --color-error: var(--error);
+  --color-error-light: var(--error-light);
+  --color-border: var(--border);
+  --color-border-light: var(--border-light);
+  --color-input-bg: var(--input-bg);
+  --color-input-border: var(--input-border);
+  --color-input-focus: var(--input-focus);
+  --color-text-muted: var(--text-muted);
+  --color-text-secondary: var(--text-secondary);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -137,10 +167,10 @@ body {
 /* Gamification Animations */
 @keyframes pulseGlow {
   0%, 100% {
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.25);
   }
   50% {
-    box-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
+    box-shadow: 0 0 30px rgba(99, 102, 241, 0.4);
   }
 }
 
@@ -234,7 +264,7 @@ body {
 }
 
 .hover-glow:hover {
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
 }
 
 .icon-spin-hover {

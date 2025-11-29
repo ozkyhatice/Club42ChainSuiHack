@@ -11,7 +11,7 @@ export default function Hero() {
       <h2 className="text-5xl font-bold mb-4 text-foreground">
         42 Campus Event Management
       </h2>
-      <p className="text-xl text-gray-400 mb-8">
+      <p className="text-xl text-text-muted mb-8">
         On-chain scheduling and fundraising for campus clubs
       </p>
       
@@ -21,7 +21,7 @@ export default function Hero() {
             <p className="text-success font-medium">
               ✓ Wallet Connected
             </p>
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-text-muted">
               {account.address.slice(0, 8)}...{account.address.slice(-6)}
             </p>
           </div>
@@ -35,14 +35,14 @@ export default function Hero() {
             </Link>
             <Link
               href="/events/create"
-              className="bg-success text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-500 transition"
+              className="bg-success text-white px-8 py-3 rounded-lg font-semibold hover:bg-success-light transition"
             >
               Create Event
             </Link>
           </div>
         </div>
       ) : (
-        <p className="text-gray-400">Connect your wallet to get started</p>
+        <p className="text-text-muted">Connect your wallet to get started</p>
       )}
     </div>
   );

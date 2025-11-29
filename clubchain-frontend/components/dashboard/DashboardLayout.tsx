@@ -36,7 +36,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         
         {/* Footer */}
         <footer className="bg-card border-t border-secondary px-6 py-4">
-          <div className="text-center text-sm text-gray-400">
+          <div className="text-center text-sm text-text-muted">
             <p>Built with ❤️ for the 42 community • Powered by Sui Blockchain</p>
           </div>
         </footer>

@@ -33,14 +33,14 @@ export default function RegistrationFlow({ onSuccess }: RegistrationFlowProps) {
 
   if (success) {
     return (
-      <div className="bg-green-50 p-6 rounded-lg text-center">
-        <h2 className="text-2xl font-semibold text-green-900 mb-2">
+      <div className="bg-success/10 border border-success p-6 rounded-lg text-center">
+        <h2 className="text-2xl font-semibold text-success-light mb-2">
           ✓ Registration Complete!
         </h2>
-        <p className="text-green-800">
+        <p className="text-success-light">
           Your 42 account is now linked to your Sui wallet.
         </p>
-        <p className="text-sm text-green-600 mt-2">Redirecting to homepage...</p>
+        <p className="text-sm text-success mt-2">Redirecting to homepage...</p>
       </div>
     );
   }
@@ -48,24 +48,24 @@ export default function RegistrationFlow({ onSuccess }: RegistrationFlowProps) {
   return (
     <div className="space-y-6">
       {/* Step 1: 42 Account */}
-      <div className="bg-green-50 p-4 rounded-lg">
-        <h3 className="font-semibold text-green-900 mb-2">
+      <div className="bg-success/10 border border-success/20 p-4 rounded-lg">
+        <h3 className="font-semibold text-success-light mb-2">
           ✓ Step 1: 42 Account Connected
         </h3>
         {session?.user && (
           <>
             {session.user.login && (
-              <p className="text-sm text-green-800">
+              <p className="text-sm text-success-light">
                 Logged in as: <strong>{session.user.login}</strong>
               </p>
             )}
             {session.user.intraId && (
-              <p className="text-sm text-green-800">
+              <p className="text-sm text-success-light">
                 Intra ID: <strong>{session.user.intraId}</strong>
               </p>
             )}
             {session.user.email && (
-              <p className="text-sm text-green-800">
+              <p className="text-sm text-success-light">
                 Email: <strong>{session.user.email}</strong>
               </p>
             )}
@@ -74,25 +74,25 @@ export default function RegistrationFlow({ onSuccess }: RegistrationFlowProps) {
       </div>
 
       {/* Step 2: Sui Wallet */}
-      <div className={`p-4 rounded-lg ${account ? "bg-green-50" : "bg-blue-50"}`}>
+      <div className={`p-4 rounded-lg border ${account ? "bg-success/10 border-success/20" : "bg-primary/10 border-primary/20"}`}>
         <h3
           className={`font-semibold mb-2 ${
-            account ? "text-green-900" : "text-blue-900"
+            account ? "text-success-light" : "text-primary"
           }`}
         >
           {account ? "✓ Step 2: Sui Wallet Connected" : "Step 2: Connect Sui Wallet"}
         </h3>
         {!account ? (
           <>
-            <p className="text-sm text-blue-800 mb-3">
+            <p className="text-sm text-primary mb-3">
               Connect your Sui wallet to link it with your 42 account
             </p>
             <ConnectButton />
           </>
         ) : (
           <div>
-            <p className="text-sm text-green-800 mb-2">Wallet Address:</p>
-            <p className="text-xs text-green-600 font-mono bg-green-100 p-2 rounded break-all">
+            <p className="text-sm text-success-light mb-2">Wallet Address:</p>
+            <p className="text-xs text-success font-mono bg-success/10 p-2 rounded break-all">
               {account.address}
             </p>
           </div>

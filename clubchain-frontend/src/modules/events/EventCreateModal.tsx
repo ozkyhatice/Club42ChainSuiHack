@@ -102,33 +102,33 @@ export function EventCreateModal({ clubId, isOwner }: Props) {
     <div className="mt-6">
       <button
         onClick={() => setOpen(true)}
-        className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+        className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-hover"
       >
         Create Event
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-blue-900/30 p-4">
-          <div className="w-full max-w-lg rounded-3xl bg-white p-8 shadow-2xl">
-            <h3 className="text-2xl font-semibold text-blue-900">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="w-full max-w-lg rounded-3xl bg-card border border-border p-8 shadow-elevation-3">
+            <h3 className="text-2xl font-semibold text-foreground">
               Yeni Etkinlik
             </h3>
 
             {error && (
-              <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-600">
+              <div className="mt-4 rounded-xl border border-error bg-error/10 p-3 text-sm text-error-light">
                 {error}
               </div>
             )}
 
             {success && (
-              <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
+              <div className="mt-4 rounded-xl border border-success bg-success/10 p-3 text-sm text-success-light">
                 {success}
               </div>
             )}
 
             <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
               <div>
-                <label className="text-sm font-semibold text-blue-800">
+                <label className="text-sm font-semibold text-foreground">
                   Başlık
                 </label>
                 <input
@@ -137,13 +137,13 @@ export function EventCreateModal({ clubId, isOwner }: Props) {
                   onChange={(e) =>
                     setForm((prev) => ({ ...prev, title: e.target.value }))
                   }
-                  className="mt-1 w-full rounded-2xl border border-blue-100 px-4 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                  className="mt-1 w-full rounded-2xl bg-input-bg border border-input-border px-4 py-2 text-sm text-foreground placeholder:text-text-muted focus:border-input-focus focus:outline-none focus:ring-2 focus:ring-input-focus"
                   required
                 />
               </div>
 
               <div>
-                <label className="text-sm font-semibold text-blue-800">
+                <label className="text-sm font-semibold text-foreground">
                   Tarih
                 </label>
                 <input
@@ -152,13 +152,13 @@ export function EventCreateModal({ clubId, isOwner }: Props) {
                   onChange={(e) =>
                     setForm((prev) => ({ ...prev, date: e.target.value }))
                   }
-                  className="mt-1 w-full rounded-2xl border border-blue-100 px-4 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                  className="mt-1 w-full rounded-2xl bg-input-bg border border-input-border px-4 py-2 text-sm text-foreground focus:border-input-focus focus:outline-none focus:ring-2 focus:ring-input-focus"
                   required
                 />
               </div>
 
               <div>
-                <label className="text-sm font-semibold text-blue-800">
+                <label className="text-sm font-semibold text-foreground">
                   Açıklama
                 </label>
                 <textarea
@@ -170,7 +170,7 @@ export function EventCreateModal({ clubId, isOwner }: Props) {
                     }))
                   }
                   rows={4}
-                  className="mt-1 w-full rounded-2xl border border-blue-100 px-4 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                  className="mt-1 w-full rounded-2xl bg-input-bg border border-input-border px-4 py-2 text-sm text-foreground placeholder:text-text-muted focus:border-input-focus focus:outline-none focus:ring-2 focus:ring-input-focus resize-none"
                   required
                 />
               </div>
@@ -179,7 +179,7 @@ export function EventCreateModal({ clubId, isOwner }: Props) {
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
-                  className="rounded-full border border-blue-100 px-4 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50"
+                  className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-secondary transition-colors"
                   disabled={isPending}
                 >
                   İptal
@@ -187,7 +187,7 @@ export function EventCreateModal({ clubId, isOwner }: Props) {
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition enabled:hover:bg-blue-700 disabled:opacity-50"
+                  className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition enabled:hover:bg-primary-hover disabled:opacity-50"
                 >
                   {isPending ? "Gönderiliyor..." : "Gönder"}
                 </button>
