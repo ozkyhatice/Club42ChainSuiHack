@@ -2,16 +2,17 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useSignAndExecuteTransaction, useCurrentAccount } from "@mysten/dapp-kit";
+import { useSignAndExecuteTransaction, useCurrentAccount, useSuiClient } from "@mysten/dapp-kit";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import GamifiedButton from "@/components/ui/GamifiedButton";
 import { Building2, ArrowLeft, Sparkles } from "lucide-react";
-import { buildCreateClubTx } from "@/modules/contracts/club";
+import { buildCreateClubTx, verifyPackageFunctions } from "@/modules/contracts/club";
 import { PACKAGE_ID } from "@/lib/constants";
 
 export default function CreateClubPage() {
   const router = useRouter();
   const account = useCurrentAccount();
+  const suiClient = useSuiClient();
   const { mutate: signAndExecute } = useSignAndExecuteTransaction();
   
   const [clubName, setClubName] = useState("");
@@ -46,27 +47,146 @@ export default function CreateClubPage() {
     setIsSubmitting(true);
 
     try {
+      console.log("Building transaction with PACKAGE_ID:", PACKAGE_ID);
+      console.log("Club creation parameters:", {
+        clubName: clubName.trim(),
+        description: description.trim(),
+      });
+
+      // Verify package functions on first attempt (for debugging)
+      if (PACKAGE_ID) {
+        try {
+          await verifyPackageFunctions(PACKAGE_ID, suiClient);
+        } catch (verifyError) {
+          console.warn("Could not verify package functions:", verifyError);
+        }
+      }
+
       const tx = buildCreateClubTx(PACKAGE_ID, clubName, description);
+
+      // Validate transaction before signing
+      if (!tx) {
+        throw new Error("Transaction object is null or undefined");
+      }
+
+      // Try to inspect transaction structure to ensure it's valid
+      try {
+        // Check if transaction has any commands
+        const txData = (tx as any).blockData;
+        if (txData) {
+          const commandCount = txData.transactions?.length || 0;
+          console.log("Transaction block data:", {
+            kind: txData.kind,
+            sender: txData.sender,
+            gasData: txData.gasData,
+            transactions: commandCount,
+          });
+          
+          if (commandCount === 0) {
+            const errorMsg = "Transaction has no commands - transaction block is empty. This will cause 'dApp.signTransactionBlock {}' error.";
+            console.error("❌", errorMsg);
+            throw new Error(errorMsg);
+          }
+          
+          // Log first command details
+          const firstCmd = txData.transactions[0];
+          if (firstCmd?.MoveCall) {
+            console.log("✅ First command (MoveCall):", {
+              package: firstCmd.MoveCall.package,
+              module: firstCmd.MoveCall.module,
+              function: firstCmd.MoveCall.function,
+              arguments: firstCmd.MoveCall.arguments?.length || 0,
+            });
+          } else {
+            console.warn("⚠️ First command is not a MoveCall:", firstCmd);
+          }
+        } else {
+          console.warn("⚠️ Could not access transaction blockData - transaction might still be valid");
+        }
+      } catch (inspectError) {
+        // If inspection fails, it might be a serialization issue
+        console.error("❌ Transaction inspection failed:", inspectError);
+        // Don't throw here - let the wallet try to sign it and see what error we get
+      }
+
+      // Log transaction details before signing
+      console.log("Transaction object created successfully");
+      console.log("Ready to sign transaction with:", {
+        packageId: PACKAGE_ID,
+        function: `${PACKAGE_ID}::club::create_club`,
+        arguments: {
+          name: clubName.trim(),
+          description: description.trim(),
+        },
+      });
+
+      // Ensure transaction is properly formatted
+      const transactionToSign = tx;
 
       signAndExecute(
         {
-          transaction: tx,
+          transaction: transactionToSign,
         },
         {
           onSuccess: (result) => {
-            console.log("Club created successfully:", result);
+            console.log("✅ Club created successfully:", result);
             router.push("/dashboard/my-clubs");
           },
           onError: (error) => {
-            console.error("Failed to create club:", error);
-            setError(error.message || "Failed to create club");
+            console.error("❌ Failed to create club:", error);
+            
+            // Extract detailed error information
+            let errorMessage = "Failed to create club";
+            
+            if (error) {
+              // Handle different error formats
+              if (typeof error === "string") {
+                errorMessage = error;
+              } else if (error.message) {
+                errorMessage = error.message;
+              } else if (error.cause) {
+                errorMessage = String(error.cause);
+              } else if ((error as any).error) {
+                errorMessage = String((error as any).error);
+              }
+              
+              // Check for ArityMismatch specifically
+              if (errorMessage.includes("ArityMismatch") || errorMessage.includes("arity") || errorMessage.includes("Dry run failed")) {
+                errorMessage = `Transaction failed: ${errorMessage}\n\nThis usually means the function signature doesn't match the deployed contract.\n\nExpected signature: create_club(name: String, description: String)\n\nPlease check:\n1. The package ID is correct (current: ${PACKAGE_ID})\n2. The deployed contract has the create_club function in the club module\n3. The function signature matches (should accept 2 String parameters)\n4. Check the browser console for detailed package verification logs`;
+                
+                // Try to provide more diagnostic info
+                console.error("🔍 ArityMismatch Diagnostic Info:", {
+                  packageId: PACKAGE_ID,
+                  functionTarget: `${PACKAGE_ID}::club::create_club`,
+                  argumentsPassed: 2,
+                  argumentTypes: ["String", "String"],
+                  expectedSignature: "create_club(name: String, description: String, ctx: &mut TxContext)",
+                  note: "ctx is automatically provided by Sui runtime",
+                  suggestion: "Check the browser console for package verification logs above to see the actual deployed signature",
+                  troubleshooting: "If the package ID is incorrect, update NEXT_PUBLIC_PACKAGE_ID in your .env file or constants.ts",
+                });
+              }
+              
+              // Log full error object for debugging
+              console.error("Full error object:", JSON.stringify(error, null, 2));
+            }
+            
+            setError(errorMessage);
             setIsSubmitting(false);
           },
         }
       );
     } catch (err: any) {
-      console.error("Error building transaction:", err);
-      setError(err.message || "Failed to build transaction");
+      console.error("❌ Error building transaction:", err);
+      let errorMessage = "Failed to build transaction";
+      
+      if (err?.message) {
+        errorMessage = err.message;
+      } else if (typeof err === "string") {
+        errorMessage = err;
+      }
+      
+      setError(errorMessage);
       setIsSubmitting(false);
     }
   };
