@@ -31,16 +31,22 @@ export default function RegisterPage() {
 
   if (status === "loading" || isCheckingRegistration) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Loading...</p>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-text-muted">Loading...</p>
+        </div>
       </div>
     );
   }
 
   if (!session) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Redirecting to sign in...</p>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-text-muted">Redirecting to sign in...</p>
+        </div>
       </div>
     );
   }
@@ -48,8 +54,11 @@ export default function RegisterPage() {
   // Show loading while checking registration status
   if (account && isCheckingRegistration) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Checking registration status...</p>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-text-muted">Checking registration status...</p>
+        </div>
       </div>
     );
   }
@@ -57,8 +66,11 @@ export default function RegisterPage() {
   // Redirect if already registered (this is a fallback, useEffect should handle it)
   if (account && isRegistered) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Redirecting to dashboard...</p>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-text-muted">Redirecting to dashboard...</p>
+        </div>
       </div>
     );
   }
@@ -67,29 +79,71 @@ export default function RegisterPage() {
   const currentStep = !session ? 1 : !account ? 2 : 3;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-2xl mx-auto">
+    <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8">
+      <div className="max-w-4xl mx-auto">
+        {/* Header with back link */}
         <div className="mb-6">
-          <Link href="/" className="text-[#6b5b95] hover:underline">
-            ← Back to Home
+          <Link 
+            href="/" 
+            className="inline-flex items-center gap-2 text-primary hover:text-primary-hover transition-colors group"
+          >
+            <span className="group-hover:-translate-x-1 transition-transform">←</span>
+            <span>Back to Home</span>
           </Link>
         </div>
 
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <h1 className="text-3xl font-bold mb-6">Complete Registration</h1>
+        {/* Main Card */}
+        <div className="bg-card rounded-2xl shadow-elevation-3 border border-border-light p-6 sm:p-8 lg:p-10">
+          {/* Title Section */}
+          <div className="mb-8 text-center sm:text-left">
+            <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-2 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              Complete Registration
+            </h1>
+            <p className="text-text-muted text-sm sm:text-base">
+              Link your 42 account with your Sui wallet to access all features
+            </p>
+          </div>
 
+          {/* Progress Steps */}
           <RegistrationSteps currentStep={currentStep} />
 
-          <RegistrationFlow />
+          {/* Registration Flow */}
+          <div className="mt-8">
+            <RegistrationFlow />
+          </div>
 
-          <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-            <h4 className="font-semibold text-sm mb-2">Why register?</h4>
-            <ul className="text-xs text-gray-600 space-y-1">
-              <li>✓ Create and manage campus events</li>
-              <li>✓ Join club fundraising pools</li>
-              <li>✓ Verify your identity on-chain</li>
-              <li>✓ Access exclusive club features</li>
-            </ul>
+          {/* Benefits Section */}
+          <div className="mt-8 p-6 bg-gradient-to-br from-primary/10 via-primary/5 to-accent/10 rounded-xl border border-primary/20">
+            <h4 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+              Why register?
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="flex items-start gap-3">
+                <div className="w-5 h-5 rounded-full bg-success/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-success text-xs">✓</span>
+                </div>
+                <p className="text-sm text-text-muted">Create and manage campus events</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="w-5 h-5 rounded-full bg-success/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-success text-xs">✓</span>
+                </div>
+                <p className="text-sm text-text-muted">Join club fundraising pools</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="w-5 h-5 rounded-full bg-success/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-success text-xs">✓</span>
+                </div>
+                <p className="text-sm text-text-muted">Verify your identity on-chain</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="w-5 h-5 rounded-full bg-success/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-success text-xs">✓</span>
+                </div>
+                <p className="text-sm text-text-muted">Access exclusive club features</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

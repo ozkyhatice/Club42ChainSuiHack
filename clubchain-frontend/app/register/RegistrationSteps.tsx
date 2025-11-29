@@ -39,31 +39,52 @@ export default function RegistrationSteps({ currentStep }: RegistrationStepsProp
 
   return (
     <div className="mb-8">
-      <h2 className="text-xl font-semibold mb-4">Registration Progress</h2>
-      <div className="flex items-center justify-between">
+      <h2 className="text-xl font-semibold mb-6 text-foreground">Registration Progress</h2>
+      <div className="flex items-center justify-between gap-2 sm:gap-4">
         {steps.map((step, index) => (
           <div key={step.number} className="flex items-center flex-1">
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center w-full">
+              {/* Step Circle */}
               <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
+                className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center font-semibold text-sm sm:text-base transition-all duration-300 ${
                   step.isComplete
-                    ? "bg-green-500 text-white"
+                    ? "bg-gradient-to-br from-success to-success-light text-white shadow-lg shadow-success/30 scale-110"
                     : step.isActive
-                    ? "bg-primary/20 text-primary border border-primary/30 shadow-sm"
-                    : "bg-gray-200 text-gray-500"
+                    ? "bg-gradient-to-br from-primary/30 to-primary/20 text-primary border-2 border-primary/50 shadow-lg shadow-primary/20 scale-105"
+                    : "bg-secondary text-text-muted border border-border"
                 }`}
               >
-                {step.isComplete ? "✓" : step.number}
+                {step.isComplete ? (
+                  <span className="text-lg sm:text-xl">✓</span>
+                ) : (
+                  <span>{step.number}</span>
+                )}
               </div>
-              <div className="mt-2 text-center">
-                <p className="text-sm font-medium">{step.title}</p>
-                <p className="text-xs text-gray-500">{step.description}</p>
+              
+              {/* Step Info */}
+              <div className="mt-3 text-center w-full">
+                <p className={`text-xs sm:text-sm font-semibold mb-1 ${
+                  step.isComplete 
+                    ? "text-success" 
+                    : step.isActive 
+                    ? "text-primary" 
+                    : "text-text-muted"
+                }`}>
+                  {step.title}
+                </p>
+                <p className="text-xs text-text-secondary leading-tight">
+                  {step.description}
+                </p>
               </div>
             </div>
+            
+            {/* Connector Line */}
             {index < steps.length - 1 && (
               <div
-                className={`flex-1 h-1 mx-2 ${
-                  step.isComplete ? "bg-green-500" : "bg-gray-200"
+                className={`flex-1 h-0.5 sm:h-1 mx-1 sm:mx-2 transition-all duration-300 ${
+                  step.isComplete 
+                    ? "bg-gradient-to-r from-success to-success-light" 
+                    : "bg-border"
                 }`}
               />
             )}

@@ -434,3 +434,191 @@ select:focus {
   height: auto !important;
   width: auto !important;
 }
+
+/* Sui Wallet Modal/Overlay Dark Theme Styling */
+[data-radix-dialog-overlay],
+[data-radix-portal] > div:first-child,
+[role="dialog"],
+div[class*="modal"],
+div[class*="Modal"],
+div[class*="overlay"],
+div[class*="Overlay"] {
+  background: rgba(10, 14, 20, 0.85) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+/* Sui Wallet Modal Content - More Specific */
+[data-radix-portal] > div:last-child,
+[data-radix-dialog-content],
+div[class*="wallet-kit"] > div:first-child,
+div[class*="WalletKit"] > div:first-child {
+  background: var(--card) !important;
+  color: var(--foreground) !important;
+  border: 1px solid var(--border-light) !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* General Modal/Dialog Content - Force Dark Theme */
+[data-radix-dialog-content] > *,
+[role="dialog"] > * {
+  background: var(--card) !important;
+  color: var(--foreground) !important;
+}
+
+/* All white/light backgrounds in modals to dark */
+[data-radix-dialog-content] *,
+[role="dialog"] *,
+div[class*="wallet"] *,
+div[class*="Wallet"] * {
+  background-color: transparent !important;
+}
+
+[data-radix-dialog-content] div,
+[role="dialog"] div,
+div[class*="wallet"] div,
+div[class*="Wallet"] div {
+  background: var(--card) !important;
+  color: var(--foreground) !important;
+}
+
+/* Force text colors */
+[data-radix-dialog-content] p,
+[data-radix-dialog-content] span,
+[data-radix-dialog-content] h1,
+[data-radix-dialog-content] h2,
+[data-radix-dialog-content] h3,
+[data-radix-dialog-content] h4,
+[data-radix-dialog-content] h5,
+[data-radix-dialog-content] h6,
+[role="dialog"] p,
+[role="dialog"] span,
+[role="dialog"] h1,
+[role="dialog"] h2,
+[role="dialog"] h3,
+[role="dialog"] h4,
+[role="dialog"] h5,
+[role="dialog"] h6 {
+  color: var(--foreground) !important;
+}
+
+/* Sui Wallet "Get Started with Sui" Modal Content */
+div[class*="wallet-kit"],
+div[class*="WalletKit"],
+div[class*="sui-wallet"],
+div[class*="SuiWallet"],
+[data-testid*="wallet"],
+[data-testid*="Wallet"] {
+  background: var(--card) !important;
+  color: var(--foreground) !important;
+  border: 1px solid var(--border-light) !important;
+  border-radius: 1rem !important;
+}
+
+/* Modal Content Container */
+div[class*="wallet-kit"] > div,
+div[class*="WalletKit"] > div,
+[role="dialog"] > div {
+  background: var(--card) !important;
+  color: var(--foreground) !important;
+}
+
+/* Modal Header */
+div[class*="wallet-kit"] h1,
+div[class*="wallet-kit"] h2,
+div[class*="wallet-kit"] h3,
+div[class*="WalletKit"] h1,
+div[class*="WalletKit"] h2,
+div[class*="WalletKit"] h3,
+[role="dialog"] h1,
+[role="dialog"] h2,
+[role="dialog"] h3 {
+  color: var(--foreground) !important;
+}
+
+/* Modal Text */
+div[class*="wallet-kit"] p,
+div[class*="wallet-kit"] span,
+div[class*="WalletKit"] p,
+div[class*="WalletKit"] span,
+[role="dialog"] p,
+[role="dialog"] span {
+  color: var(--text-muted) !important;
+}
+
+/* Modal Buttons */
+div[class*="wallet-kit"] button,
+div[class*="WalletKit"] button,
+[role="dialog"] button {
+  background: var(--secondary) !important;
+  color: var(--foreground) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 0.5rem !important;
+}
+
+div[class*="wallet-kit"] button:hover,
+div[class*="WalletKit"] button:hover,
+[role="dialog"] button:hover {
+  background: var(--secondary-hover) !important;
+  border-color: var(--primary) !important;
+}
+
+/* Wallet Selection Cards */
+div[class*="wallet-kit"] [role="button"],
+div[class*="WalletKit"] [role="button"],
+[role="dialog"] [role="button"] {
+  background: var(--secondary) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--foreground) !important;
+}
+
+div[class*="wallet-kit"] [role="button"]:hover,
+div[class*="WalletKit"] [role="button"]:hover,
+[role="dialog"] [role="button"]:hover {
+  background: var(--secondary-hover) !important;
+  border-color: var(--primary) !important;
+}
+
+/* Close Button */
+button[aria-label*="close" i],
+button[aria-label*="Close" i],
+[data-testid*="close"],
+svg[class*="close"] {
+  color: var(--text-muted) !important;
+}
+
+button[aria-label*="close" i]:hover,
+button[aria-label*="Close" i]:hover,
+[data-testid*="close"]:hover {
+  color: var(--foreground) !important;
+}
+
+/* Input Fields in Modal */
+div[class*="wallet-kit"] input,
+div[class*="WalletKit"] input,
+[role="dialog"] input {
+  background: var(--input-bg) !important;
+  border: 1px solid var(--input-border) !important;
+  color: var(--foreground) !important;
+  border-radius: 0.5rem !important;
+}
+
+div[class*="wallet-kit"] input:focus,
+div[class*="WalletKit"] input:focus,
+[role="dialog"] input:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px rgba(124, 107, 160, 0.1) !important;
+}
+
+/* Links in Modal */
+div[class*="wallet-kit"] a,
+div[class*="WalletKit"] a,
+[role="dialog"] a {
+  color: var(--primary) !important;
+}
+
+div[class*="wallet-kit"] a:hover,
+div[class*="WalletKit"] a:hover,
+[role="dialog"] a:hover {
+  color: var(--primary-hover) !important;
+}
