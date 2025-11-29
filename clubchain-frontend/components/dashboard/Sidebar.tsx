@@ -126,7 +126,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                       ${isActive(item.href)
                         ? "bg-primary/20 text-primary border border-primary/30 shadow-sm"
                         : item.highlight
-                        ? "text-foreground bg-primary/10 hover:bg-primary/20 hover:scale-105"
+                        ? "text-foreground hover:bg-secondary hover:scale-105"
                         : (item as any).ownerOnly
                         ? "bg-gradient-to-r from-warning to-warning-light text-white hover:from-warning-light hover:to-warning shadow-md hover-lift"
                         : (item as any).superAdmin

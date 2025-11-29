@@ -8,6 +8,8 @@ import {
 import { buildCreateEventTx } from "@/modules/contracts/event";
 import { PACKAGE_ID } from "@/lib/constants";
 import { useAdminCapForClub } from "@/modules/admin/useAdminCap";
+import GamifiedButton from "@/components/ui/GamifiedButton";
+import { Sparkles } from "lucide-react";
 
 type EventForm = {
   title: string;
@@ -99,20 +101,25 @@ export function EventCreateModal({ clubId, isOwner }: Props) {
   };
 
   return (
-    <div className="mt-6">
-      <button
+    <div>
+      <GamifiedButton
         onClick={() => setOpen(true)}
-        className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-hover"
+        variant="primary"
+        size="md"
+        icon={Sparkles}
       >
         Create Event
-      </button>
+      </GamifiedButton>
 
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="w-full max-w-lg rounded-3xl bg-card border border-border p-8 shadow-elevation-3">
-            <h3 className="text-2xl font-semibold text-foreground">
-              Yeni Etkinlik
-            </h3>
+            <div className="flex items-center gap-3 mb-2">
+              <Sparkles className="w-6 h-6 text-primary" />
+              <h3 className="text-2xl font-bold text-foreground">
+                Create New Event
+              </h3>
+            </div>
 
             {error && (
               <div className="mt-4 rounded-xl border border-error bg-error/10 p-3 text-sm text-error-light">
@@ -128,8 +135,8 @@ export function EventCreateModal({ clubId, isOwner }: Props) {
 
             <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
               <div>
-                <label className="text-sm font-semibold text-foreground">
-                  Başlık
+                <label className="text-sm font-semibold text-foreground mb-1 block">
+                  Title
                 </label>
                 <input
                   type="text"
@@ -143,8 +150,8 @@ export function EventCreateModal({ clubId, isOwner }: Props) {
               </div>
 
               <div>
-                <label className="text-sm font-semibold text-foreground">
-                  Tarih
+                <label className="text-sm font-semibold text-foreground mb-1 block">
+                  Date & Time
                 </label>
                 <input
                   type="datetime-local"
@@ -158,8 +165,8 @@ export function EventCreateModal({ clubId, isOwner }: Props) {
               </div>
 
               <div>
-                <label className="text-sm font-semibold text-foreground">
-                  Açıklama
+                <label className="text-sm font-semibold text-foreground mb-1 block">
+                  Description
                 </label>
                 <textarea
                   value={form.description}
@@ -176,21 +183,24 @@ export function EventCreateModal({ clubId, isOwner }: Props) {
               </div>
 
               <div className="flex justify-end gap-3 pt-4">
-                <button
+                <GamifiedButton
                   type="button"
                   onClick={() => setOpen(false)}
-                  className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-secondary transition-colors"
+                  variant="secondary"
+                  size="md"
                   disabled={isPending}
                 >
-                  İptal
-                </button>
-                <button
+                  Cancel
+                </GamifiedButton>
+                <GamifiedButton
                   type="submit"
+                  variant="primary"
+                  size="md"
+                  loading={isPending}
                   disabled={isPending}
-                  className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition enabled:hover:bg-primary-hover disabled:opacity-50"
                 >
-                  {isPending ? "Gönderiliyor..." : "Gönder"}
-                </button>
+                  {isPending ? "Creating..." : "Create Event"}
+                </GamifiedButton>
               </div>
             </form>
           </div>

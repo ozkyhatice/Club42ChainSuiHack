@@ -48,8 +48,8 @@ export default function DashboardHome() {
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-primary via-accent to-primary rounded-xl p-6 sm:p-8 text-gray-100 shadow-lg animate-slideUp relative overflow-hidden">
-        <div className="absolute inset-0 bg-gray-100/5 backdrop-blur-sm"></div>
+      <div className="bg-gradient-to-r from-primary via-accent to-primary rounded-xl p-6 sm:p-8 text-white shadow-lg animate-slideUp relative overflow-hidden">
+        <div className="absolute inset-0 bg-white/5 backdrop-blur-sm"></div>
         <div className="relative z-10">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
@@ -60,7 +60,7 @@ export default function DashboardHome() {
                 </h1>
                 {isOwner && <OwnerBadge size="md" />}
               </div>
-              <p className="text-blue-100 text-base sm:text-lg">
+              <p className="text-white/90 text-base sm:text-lg font-medium">
                 {isOwner 
                   ? `Managing ${clubCount} club${clubCount !== 1 ? 's' : ''}. Keep up the great work! 👑`
                   : "Ready to explore clubs and events on campus? Let's make it happen! 🚀"
@@ -118,14 +118,14 @@ export default function DashboardHome() {
           <CardBody>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">42 Authentication</p>
-                <p className="text-lg font-bold text-green-600 flex items-center gap-2">
+                <p className="text-sm font-semibold text-text-muted mb-2">42 Authentication</p>
+                <p className="text-lg font-bold text-success flex items-center gap-2">
                   <CheckCircle className="w-5 h-5" />
                   Connected
                 </p>
               </div>
-              <div className="p-3 bg-green-50 rounded-lg">
-                <Target className="w-8 h-8 text-green-600" />
+              <div className="p-3 bg-success/10 rounded-lg">
+                <Target className="w-8 h-8 text-success" />
               </div>
             </div>
           </CardBody>
@@ -136,26 +136,26 @@ export default function DashboardHome() {
           <CardBody>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Sui Wallet</p>
+                <p className="text-sm font-semibold text-text-muted mb-2">Sui Wallet</p>
                 {account ? (
                   <>
-                    <p className="text-lg font-bold text-green-600 flex items-center gap-2">
+                    <p className="text-lg font-bold text-success flex items-center gap-2">
                       <CheckCircle className="w-5 h-5" />
                       Connected
                     </p>
-                    <p className="text-xs text-gray-500 mt-1 font-mono">
+                    <p className="text-xs text-text-secondary mt-1 font-mono">
                       {account.address.slice(0, 6)}...{account.address.slice(-4)}
                     </p>
                   </>
                 ) : (
-                  <p className="text-lg font-bold text-orange-600 flex items-center gap-2">
+                  <p className="text-lg font-bold text-warning flex items-center gap-2">
                     <AlertCircle className="w-5 h-5" />
                     Not Connected
                   </p>
                 )}
               </div>
-              <div className={`p-3 rounded-lg ${account ? 'bg-green-50' : 'bg-orange-50'}`}>
-                <TrendingUp className={`w-8 h-8 ${account ? 'text-green-600' : 'text-orange-600'}`} />
+              <div className={`p-3 rounded-lg ${account ? 'bg-success/10' : 'bg-warning/10'}`}>
+                <TrendingUp className={`w-8 h-8 ${account ? 'text-success' : 'text-warning'}`} />
               </div>
             </div>
           </CardBody>
@@ -166,12 +166,10 @@ export default function DashboardHome() {
       {!isOwner && (
         <div className="bg-gradient-to-br from-primary/10 to-accent/10 rounded-xl shadow-elevation-2 p-6 border-2 border-primary/20 animate-slideUp animation-delay-400">
           <div className="flex items-center gap-2 mb-4">
-            <Building2 className="w-6 h-6 text-blue-600 animate-icon-pulse" />
-            <h2 className="text-2xl font-bold text-gray-900">Club Membership</h2>
+            <Building2 className="w-6 h-6 text-primary animate-icon-pulse" />
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground">Club Membership</h2>
           </div>
-          <p className="text-gray-700 mb-4">
-            Browse available clubs and join communities! Club ownership is managed by the Super Admin.
-          </p>
+          
           <GamifiedButton
             variant="primary"
             size="lg"
@@ -186,13 +184,13 @@ export default function DashboardHome() {
 
       {/* Owner-Only Quick Actions */}
       {isOwner && (
-        <div className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-xl shadow-elevation-2 p-6 border-2 border-yellow-200 animate-slideUp animation-delay-400">
+        <div className="bg-gradient-to-br from-warning/10 to-warning/5 rounded-xl shadow-elevation-2 p-6 border-2 border-warning/20 animate-slideUp animation-delay-400">
           <div className="flex items-center gap-2 mb-4">
-            <Crown className="w-6 h-6 text-yellow-600 fill-current animate-icon-pulse" />
-            <h2 className="text-2xl font-bold text-gray-900">Owner Dashboard</h2>
+            <Crown className="w-6 h-6 text-warning fill-current animate-icon-pulse" />
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground">Owner Dashboard</h2>
             <OwnerBadge size="sm" />
           </div>
-          <p className="text-gray-700 mb-4">
+          <p className="text-base sm:text-lg text-foreground mb-4 font-medium">
             You own {clubCount} club{clubCount !== 1 ? 's' : ''}. Manage your clubs and create events.
           </p>
           <div className="grid sm:grid-cols-3 gap-3">

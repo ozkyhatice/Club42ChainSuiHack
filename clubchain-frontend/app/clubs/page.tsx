@@ -51,8 +51,8 @@ export default function ClubsPage() {
             label="Total Clubs"
             value={clubsLoading ? "..." : clubs.length}
             icon={Building2}
-            iconColor="text-blue-600"
-            iconBgColor="bg-blue-50"
+            iconColor="text-primary"
+            iconBgColor="bg-primary/10"
           />
           <StatCard
             label="Total Events"
@@ -62,29 +62,29 @@ export default function ClubsPage() {
                 : clubs.reduce((sum, club) => sum + club.events.length, 0)
             }
             icon={Sparkles}
-            iconColor="text-purple-600"
-            iconBgColor="bg-purple-50"
+            iconColor="text-accent"
+            iconBgColor="bg-accent/10"
           />
           <StatCard
             label="Active Clubs"
             value={clubsLoading ? "..." : clubs.length}
             icon={Building2}
-            iconColor="text-green-600"
-            iconBgColor="bg-green-50"
+            iconColor="text-success"
+            iconBgColor="bg-success/10"
           />
         </div>
 
         {/* Search Bar */}
-        <div className="bg-white rounded-xl shadow-elevation-2 p-6 animate-slideUp animation-delay-300">
+        <div className="bg-card rounded-xl shadow-elevation-2 p-6 border border-border animate-slideUp animation-delay-300">
           <div className="flex items-center gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
               <input
                 type="text"
                 placeholder="Search clubs by name or description..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                className="w-full pl-10 pr-4 py-3 bg-input-bg border border-input-border rounded-lg text-foreground placeholder:text-text-secondary focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
               />
             </div>
             {searchTerm && (
@@ -102,19 +102,19 @@ export default function ClubsPage() {
         {/* Clubs List */}
         <div className="animate-slideUp animation-delay-400">
           {clubsLoading ? (
-            <div className="bg-white rounded-xl shadow-elevation-2 p-12 text-center">
-              <div className="animate-spin h-12 w-12 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading clubs...</p>
+            <div className="bg-card rounded-xl shadow-elevation-2 border border-border p-12 text-center">
+              <div className="animate-spin h-12 w-12 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+              <p className="text-text-muted">Loading clubs...</p>
             </div>
           ) : filteredClubs.length === 0 ? (
-            <div className="bg-white rounded-xl shadow-elevation-2 p-12 text-center">
-              <div className="inline-flex p-6 bg-gray-50 rounded-2xl mb-6">
-                <Building2 className="w-16 h-16 text-gray-400" />
+            <div className="bg-card rounded-xl shadow-elevation-2 border border-border p-12 text-center">
+              <div className="inline-flex p-6 bg-secondary/50 rounded-2xl mb-6">
+                <Building2 className="w-16 h-16 text-text-muted" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+              <h3 className="text-2xl font-bold text-foreground mb-2">
                 {searchTerm ? "No clubs found" : "No clubs yet"}
               </h3>
-              <p className="text-gray-600 mb-6">
+              <p className="text-text-muted mb-6">
                 {searchTerm
                   ? "Try a different search term"
                   : "Be the first to create a club!"}

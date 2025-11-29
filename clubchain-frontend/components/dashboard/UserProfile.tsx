@@ -3,6 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useState, useRef, useEffect } from "react";
 import { useSynchronizedSignOut } from "@/hooks/useSynchronizedSignOut";
+import { User, LogOut, CheckCircle2, ChevronUp } from "lucide-react";
 
 export default function UserProfile() {
   const { data: session } = useSession();
@@ -42,65 +43,61 @@ export default function UserProfile() {
         
         {/* User info (hidden on mobile) */}
         <div className="hidden md:block text-left">
-          <p className="text-sm font-bold text-foreground">{session.user.login}</p>
-          <p className="text-xs text-success">✓ Verified Student</p>
+          <p className="text-sm font-semibold text-foreground">{session.user.login}</p>
+          <div className="flex items-center gap-1 mt-0.5">
+            <CheckCircle2 className="w-3 h-3 text-success" />
+            <p className="text-xs text-success font-medium">Verified Student</p>
+          </div>
         </div>
         
         {/* Dropdown arrow */}
-        <svg
-          className={`w-4 h-4 text-text-muted transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
+        <ChevronUp
+          className={`w-4 h-4 text-text-muted transition-transform duration-200 ${isDropdownOpen ? "rotate-0" : "rotate-180"}`}
+        />
       </button>
 
       {/* Dropdown menu */}
       {isDropdownOpen && (
-        <div className="absolute right-0 mt-2 w-56 bg-card rounded-lg shadow-lg border border-secondary py-2 animate-scaleUp z-50">
+        <div className="absolute right-0 mt-2 w-64 bg-card rounded-xl shadow-elevation-3 border border-border-light py-2 animate-scaleUp z-50 overflow-hidden backdrop-blur-sm">
           {/* User info in dropdown (mobile) */}
           <div className="md:hidden px-4 py-3 border-b border-secondary">
-            <p className="text-sm font-bold text-foreground">{session.user.login}</p>
-            <p className="text-xs text-success">✓ Verified Student</p>
+            <p className="text-sm font-semibold text-foreground">{session.user.login}</p>
+            <div className="flex items-center gap-1 mt-1">
+              <CheckCircle2 className="w-3 h-3 text-success" />
+              <p className="text-xs text-success font-medium">Verified Student</p>
+            </div>
           </div>
           
           {/* Menu items */}
-          <button
-            onClick={() => {
-              setIsDropdownOpen(false);
-              window.location.href = "/profile";
-            }}
-            className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-secondary transition-colors flex items-center gap-2"
-          >
-            <span>👤</span>
-            My Profile
-          </button>
-          
-          <button
-            onClick={() => {
-              setIsDropdownOpen(false);
-              // Navigate to settings (to be implemented)
-            }}
-            className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-secondary transition-colors flex items-center gap-2"
-          >
-            <span>⚙️</span>
-            Settings
-          </button>
-          
-          <div className="border-t border-secondary my-2"></div>
-          
-          <button
-            onClick={() => {
-              setIsDropdownOpen(false);
-              handleSignOut("/");
-            }}
-            className="w-full text-left px-4 py-2 text-sm text-error hover:bg-error/20 transition-colors flex items-center gap-2"
-          >
-            <span>🚪</span>
-            Sign Out
-          </button>
+          <div className="py-1">
+            <button
+              onClick={() => {
+                setIsDropdownOpen(false);
+                window.location.href = "/profile";
+              }}
+              className="w-full text-left px-4 py-3 text-sm text-foreground hover:bg-secondary/50 transition-all duration-200 flex items-center gap-3 group"
+            >
+              <div className="p-1.5 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                <User className="w-4 h-4 text-primary" />
+              </div>
+              <span className="font-medium">My Profile</span>
+            </button>
+            
+            <div className="border-t border-secondary my-1.5"></div>
+            
+            <button
+              onClick={() => {
+                setIsDropdownOpen(false);
+                handleSignOut("/");
+              }}
+              className="w-full text-left px-4 py-3 text-sm text-error hover:bg-error/10 transition-all duration-200 flex items-center gap-3 group"
+            >
+              <div className="p-1.5 rounded-lg bg-error/10 group-hover:bg-error/20 transition-colors">
+                <LogOut className="w-4 h-4 text-error" />
+              </div>
+              <span className="font-medium">Sign Out</span>
+            </button>
+          </div>
         </div>
       )}
     </div>
