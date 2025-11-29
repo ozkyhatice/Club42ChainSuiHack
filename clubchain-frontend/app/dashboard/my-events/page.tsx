@@ -14,8 +14,8 @@ export default function MyEventsPage() {
         {/* Page header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">My Events</h1>
-            <p className="text-gray-600">Events you've created or joined</p>
+            <h1 className="text-3xl font-bold text-foreground mb-2">My Events</h1>
+            <p className="text-gray-400">Events you've created or joined</p>
           </div>
           <Link href="/events/create">
             <Button variant="primary" className="gap-2">
@@ -26,14 +26,14 @@ export default function MyEventsPage() {
         </div>
         
         {/* Tabs */}
-        <div className="flex gap-2 border-b border-gray-200">
-          <button className="px-4 py-2 font-medium text-blue-600 border-b-2 border-blue-600">
+        <div className="flex gap-2 border-b border-secondary">
+          <button className="px-4 py-2 font-medium text-primary border-b-2 border-primary">
             Registered
           </button>
-          <button className="px-4 py-2 font-medium text-gray-600 hover:text-gray-900">
+          <button className="px-4 py-2 font-medium text-gray-400 hover:text-foreground">
             Created
           </button>
-          <button className="px-4 py-2 font-medium text-gray-600 hover:text-gray-900">
+          <button className="px-4 py-2 font-medium text-gray-400 hover:text-foreground">
             Past Events
           </button>
         </div>
@@ -43,11 +43,11 @@ export default function MyEventsPage() {
           {/* Placeholder for empty state */}
           <Card className="col-span-full hover-lift">
             <CardBody className="text-center py-12">
-              <div className="inline-flex p-6 bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl mb-4">
-                <Calendar className="w-16 h-16 text-purple-600 animate-icon-pulse" />
+              <div className="inline-flex p-6 bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl mb-4 border border-primary/20">
+                <Calendar className="w-16 h-16 text-primary animate-icon-pulse" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">No events yet</h3>
-              <p className="text-gray-600 mb-6">Register for events or create your own</p>
+              <h3 className="text-xl font-bold text-foreground mb-2">No events yet</h3>
+              <p className="text-gray-400 mb-6">Register for events or create your own</p>
               <div className="flex gap-4 justify-center">
                 <Link href="/events">
                   <Button variant="outline" className="gap-2">
@@ -99,8 +99,8 @@ export default function MyEventsPage() {
               <div className="inline-flex p-3 bg-blue-50 rounded-lg mb-2">
                 <Calendar className="w-8 h-8 text-blue-600" />
               </div>
-              <p className="text-2xl font-bold text-gray-900">0</p>
-              <p className="text-sm text-gray-600">Registered</p>
+              <p className="text-2xl font-bold text-foreground">0</p>
+              <p className="text-sm text-gray-400">Registered</p>
             </CardBody>
           </Card>
           

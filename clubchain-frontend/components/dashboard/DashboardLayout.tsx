@@ -20,7 +20,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   };
   
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-background flex">
       {/* Sidebar */}
       <Sidebar isOpen={isMobileMenuOpen} onClose={closeMobileMenu} />
       
@@ -35,8 +35,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </main>
         
         {/* Footer */}
-        <footer className="bg-white border-t border-gray-200 px-6 py-4">
-          <div className="text-center text-sm text-gray-600">
+        <footer className="bg-card border-t border-secondary px-6 py-4">
+          <div className="text-center text-sm text-gray-400">
             <p>Built with ❤️ for the 42 community • Powered by Sui Blockchain</p>
           </div>
         </footer>

@@ -87,13 +87,13 @@ export default function SignInPage() {
           <CardBody className="p-8">
             {/* Header */}
             <div className="text-center mb-8 animate-fadeIn">
-              <div className="inline-flex p-4 bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl mb-4 shadow-elevation-1 animate-icon-pulse">
-                <GraduationCap className="w-16 h-16 text-blue-600" strokeWidth={1.5} />
+              <div className="inline-flex p-4 bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl mb-4 shadow-elevation-1 animate-icon-pulse border border-primary/20">
+                <GraduationCap className="w-16 h-16 text-primary" strokeWidth={1.5} />
               </div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
                 Welcome Back
               </h1>
-              <p className="text-gray-600">Sign in to access 42 Clubs</p>
+              <p className="text-gray-400">Sign in to access 42 Clubs</p>
             </div>
 
             {/* Sign in options */}
@@ -122,7 +122,7 @@ export default function SignInPage() {
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               ) : (
-                <div className="w-full bg-yellow-50 border border-yellow-200 text-yellow-800 py-4 px-4 rounded-lg text-sm">
+                <div className="w-full bg-warning/20 border border-warning/30 text-warning py-4 px-4 rounded-lg text-sm">
                   <p className="font-semibold mb-1 flex items-center gap-2">
                     <AlertTriangle className="w-4 h-4" />
                     42 OAuth Not Configured
@@ -135,10 +135,10 @@ export default function SignInPage() {
 
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300"></div>
+                  <div className="w-full border-t border-secondary"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">or</span>
+                  <span className="px-2 bg-card text-gray-400">or</span>
                 </div>
               </div>
 
@@ -154,14 +154,14 @@ export default function SignInPage() {
 
             {/* Error message */}
             {error && (
-              <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg animate-slideUp">
-                <p className="text-sm text-red-800 flex items-start gap-2">
+              <div className="mt-6 p-4 bg-error/20 border border-error/30 rounded-lg animate-slideUp">
+                <p className="text-sm text-error flex items-start gap-2">
                   <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
                   <span><strong>Authentication Error:</strong> {error}</span>
                 </p>
                 <button
                   onClick={() => setError(null)}
-                  className="mt-2 text-xs text-red-600 hover:text-red-800 underline transition-colors"
+                  className="mt-2 text-xs text-error hover:text-error/80 underline transition-colors"
                 >
                   Dismiss
                 </button>
@@ -169,8 +169,8 @@ export default function SignInPage() {
             )}
 
             {/* Info note */}
-            <div className="mt-8 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-100 animate-slideUp animation-delay-400">
-              <p className="text-xs text-gray-700 text-center flex items-center gap-2 justify-center">
+            <div className="mt-8 p-4 bg-gradient-to-r from-primary/20 to-accent/20 rounded-lg border border-primary/30 animate-slideUp animation-delay-400">
+              <p className="text-xs text-gray-300 text-center flex items-center gap-2 justify-center">
                 <Info className="w-4 h-4 flex-shrink-0" />
                 <span><strong>Note:</strong> You must be a 42 student to create events and use club features.</span>
               </p>

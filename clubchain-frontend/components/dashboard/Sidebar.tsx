@@ -92,18 +92,18 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       {/* Sidebar */}
       <aside
         className={`
-          fixed top-0 left-0 h-screen bg-white border-r border-gray-200 z-40
+          fixed top-0 left-0 h-screen bg-card border-r border-secondary z-40
           transition-transform duration-300 ease-in-out
           ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
           w-64 flex flex-col
         `}
       >
         {/* Sidebar header (mobile only) */}
-        <div className="lg:hidden flex items-center justify-between px-6 py-4 border-b border-gray-200">
-          <span className="text-lg font-bold text-gray-900">Menu</span>
+        <div className="lg:hidden flex items-center justify-between px-6 py-4 border-b border-secondary">
+          <span className="text-lg font-bold text-foreground">Menu</span>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="p-2 rounded-lg hover:bg-secondary transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -124,14 +124,14 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                     className={`
                       flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all group
                       ${isActive(item.href)
-                        ? "bg-blue-50 text-blue-700 shadow-sm"
+                        ? "bg-primary/20 text-primary border border-primary/30 shadow-sm"
                         : item.highlight
-                        ? "bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-md hover-lift"
+                        ? "bg-gradient-to-r from-success to-green-500 text-white hover:from-green-500 hover:to-success shadow-md hover-lift"
                         : (item as any).ownerOnly
-                        ? "bg-gradient-to-r from-yellow-400 to-amber-500 text-white hover:from-yellow-500 hover:to-amber-600 shadow-md hover-lift"
+                        ? "bg-gradient-to-r from-warning to-amber-500 text-white hover:from-amber-500 hover:to-warning shadow-md hover-lift"
                         : (item as any).superAdmin
-                        ? "bg-gradient-to-r from-red-500 to-pink-600 text-white hover:from-red-600 hover:to-pink-700 shadow-md hover-lift animate-pulse-glow"
-                        : "text-gray-700 hover:bg-gray-100 hover:scale-105"
+                        ? "bg-gradient-to-r from-error to-orange-600 text-white hover:from-orange-600 hover:to-error shadow-md hover-lift animate-pulse-glow"
+                        : "text-foreground hover:bg-secondary hover:scale-105"
                       }
                     `}
                   >
@@ -149,10 +149,10 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         </nav>
         
         {/* Sidebar footer */}
-        <div className="px-4 py-4 border-t border-gray-200">
+        <div className="px-4 py-4 border-t border-secondary">
           <Link
             href="/"
-            className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-all group hover:scale-105"
+            className="flex items-center gap-2 text-sm text-gray-400 hover:text-foreground transition-all group hover:scale-105"
           >
             <Home className="w-4 h-4 group-hover:scale-110 transition-transform" />
             <span>Back to Landing</span>

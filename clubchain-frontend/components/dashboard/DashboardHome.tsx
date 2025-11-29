@@ -48,8 +48,8 @@ export default function DashboardHome() {
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-xl p-6 sm:p-8 text-white shadow-lg animate-slideUp relative overflow-hidden">
-        <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
+      <div className="bg-gradient-to-r from-primary via-accent to-primary rounded-xl p-6 sm:p-8 text-gray-100 shadow-lg animate-slideUp relative overflow-hidden">
+        <div className="absolute inset-0 bg-gray-100/5 backdrop-blur-sm"></div>
         <div className="relative z-10">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
@@ -85,8 +85,8 @@ export default function DashboardHome() {
           label="Total Events"
           value={clubsLoading ? "..." : totalEvents}
           icon={Sparkles}
-          iconColor="text-purple-600"
-          iconBgColor="bg-purple-50"
+          iconColor="text-accent"
+          iconBgColor="bg-accent/15"
           onClick={() => router.push("/events")}
         />
         {isOwner && (
@@ -164,7 +164,7 @@ export default function DashboardHome() {
       
       {/* Info Card - For Non-Owners */}
       {!isOwner && (
-        <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl shadow-elevation-2 p-6 border-2 border-blue-200 animate-slideUp animation-delay-400">
+        <div className="bg-gradient-to-br from-primary/10 to-accent/10 rounded-xl shadow-elevation-2 p-6 border-2 border-primary/20 animate-slideUp animation-delay-400">
           <div className="flex items-center gap-2 mb-4">
             <Building2 className="w-6 h-6 text-blue-600 animate-icon-pulse" />
             <h2 className="text-2xl font-bold text-gray-900">Club Membership</h2>
@@ -252,7 +252,7 @@ export default function DashboardHome() {
           title="My Events"
           description="Track your registered events and create new ones"
           icon={Calendar}
-          iconColor="text-purple-600"
+          iconColor="text-accent"
           stats={[
             { label: "Registered", value: "--" },
             { label: "Created", value: isOwner ? myClubEvents.toString() : "--" }
@@ -268,7 +268,7 @@ export default function DashboardHome() {
                   { label: "Browse Events", href: "/events", variant: "primary" }
                 ]
           }
-          badge={{ label: "Upcoming", color: "bg-purple-100 text-purple-800" }}
+          badge={{ label: "Upcoming", color: "bg-accent/15 text-accent border-accent/20" }}
           onClick={() => router.push("/dashboard/my-events")}
         />
         
@@ -293,7 +293,7 @@ export default function DashboardHome() {
           title="Event Listings"
           description="Browse upcoming events and register to participate"
           icon={Sparkles}
-          iconColor="text-pink-600"
+          iconColor="text-warning"
           stats={[
             { label: "Total Events", value: clubsLoading ? "--" : totalEvents.toString() },
             { label: "This Week", value: "--" }
@@ -301,7 +301,7 @@ export default function DashboardHome() {
           actions={[
             { label: "View Events", href: "/events", variant: "primary" }
           ]}
-          badge={{ label: "Live", color: "bg-pink-100 text-pink-800" }}
+          badge={{ label: "Live", color: "bg-success/15 text-success border-success/20" }}
           onClick={() => router.push("/events")}
         />
       </div>

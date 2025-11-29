@@ -36,10 +36,10 @@ export default function Home() {
       {/* Features section */}
       <div id="features" className="relative z-10 max-w-6xl mx-auto px-4 sm:px-8 py-12 sm:py-20">
         <div className="text-center mb-8 sm:mb-12">
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
             Why 42 Clubs?
           </h2>
-          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4">
+          <p className="text-base sm:text-lg text-gray-400 max-w-2xl mx-auto px-4">
             A modern platform built for the 42 community, leveraging blockchain for transparency and security
           </p>
         </div>
@@ -47,12 +47,12 @@ export default function Home() {
       </div>
       
       {/* Clubs section */}
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-8 py-12 sm:py-20 bg-white/80 backdrop-blur-sm">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-8 py-12 sm:py-20 bg-card/80 backdrop-blur-sm border border-secondary rounded-lg">
         <div className="text-center mb-8 sm:mb-12">
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
             Active Clubs
           </h2>
-          <p className="text-base sm:text-lg text-gray-600 mb-6">
+          <p className="text-base sm:text-lg text-gray-400 mb-6">
             Discover and join clubs across campus
           </p>
           <Link href="/clubs">

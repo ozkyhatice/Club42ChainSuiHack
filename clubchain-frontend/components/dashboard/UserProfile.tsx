@@ -33,22 +33,22 @@ export default function UserProfile() {
       {/* Profile button */}
       <button
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+        className="flex items-center gap-3 p-2 rounded-lg hover:bg-secondary transition-colors"
       >
         {/* Avatar */}
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md">
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold shadow-md">
           {userInitials}
         </div>
         
         {/* User info (hidden on mobile) */}
         <div className="hidden md:block text-left">
-          <p className="text-sm font-bold text-gray-900">{session.user.login}</p>
-          <p className="text-xs text-green-600">✓ Verified Student</p>
+          <p className="text-sm font-bold text-foreground">{session.user.login}</p>
+          <p className="text-xs text-success">✓ Verified Student</p>
         </div>
         
         {/* Dropdown arrow */}
         <svg
-          className={`w-4 h-4 text-gray-600 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
+          className={`w-4 h-4 text-gray-400 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -59,11 +59,11 @@ export default function UserProfile() {
 
       {/* Dropdown menu */}
       {isDropdownOpen && (
-        <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 animate-scaleUp z-50">
+        <div className="absolute right-0 mt-2 w-56 bg-card rounded-lg shadow-lg border border-secondary py-2 animate-scaleUp z-50">
           {/* User info in dropdown (mobile) */}
-          <div className="md:hidden px-4 py-3 border-b border-gray-200">
-            <p className="text-sm font-bold text-gray-900">{session.user.login}</p>
-            <p className="text-xs text-green-600">✓ Verified Student</p>
+          <div className="md:hidden px-4 py-3 border-b border-secondary">
+            <p className="text-sm font-bold text-foreground">{session.user.login}</p>
+            <p className="text-xs text-success">✓ Verified Student</p>
           </div>
           
           {/* Menu items */}
@@ -72,7 +72,7 @@ export default function UserProfile() {
               setIsDropdownOpen(false);
               window.location.href = "/profile";
             }}
-            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2"
+            className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-secondary transition-colors flex items-center gap-2"
           >
             <span>👤</span>
             My Profile
@@ -83,20 +83,20 @@ export default function UserProfile() {
               setIsDropdownOpen(false);
               // Navigate to settings (to be implemented)
             }}
-            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2"
+            className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-secondary transition-colors flex items-center gap-2"
           >
             <span>⚙️</span>
             Settings
           </button>
           
-          <div className="border-t border-gray-200 my-2"></div>
+          <div className="border-t border-secondary my-2"></div>
           
           <button
             onClick={() => {
               setIsDropdownOpen(false);
               handleSignOut("/");
             }}
-            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2"
+            className="w-full text-left px-4 py-2 text-sm text-error hover:bg-error/20 transition-colors flex items-center gap-2"
           >
             <span>🚪</span>
             Sign Out

@@ -14,8 +14,8 @@ export default function MyClubsPage() {
         {/* Page header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">My Clubs</h1>
-            <p className="text-gray-600">Clubs you've joined and manage</p>
+            <h1 className="text-3xl font-bold text-foreground mb-2">My Clubs</h1>
+            <p className="text-gray-400">Clubs you've joined and manage</p>
           </div>
           <Link href="/clubs">
             <Button variant="primary">
@@ -29,11 +29,11 @@ export default function MyClubsPage() {
           {/* Placeholder for empty state */}
           <Card className="col-span-full hover-lift">
             <CardBody className="text-center py-12">
-              <div className="inline-flex p-6 bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl mb-4">
-                <Users className="w-16 h-16 text-blue-600 animate-icon-pulse" />
+              <div className="inline-flex p-6 bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl mb-4 border border-primary/20">
+                <Users className="w-16 h-16 text-primary animate-icon-pulse" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">No clubs yet</h3>
-              <p className="text-gray-600 mb-6">Join clubs to see them here</p>
+              <h3 className="text-xl font-bold text-foreground mb-2">No clubs yet</h3>
+              <p className="text-gray-400 mb-6">Join clubs to see them here</p>
               <Link href="/clubs">
                 <Button variant="primary" className="gap-2">
                   <Search className="w-4 h-4" />
@@ -77,8 +77,8 @@ export default function MyClubsPage() {
               <div className="inline-flex p-3 bg-blue-50 rounded-lg mb-2">
                 <Shield className="w-8 h-8 text-blue-600" />
               </div>
-              <p className="text-2xl font-bold text-gray-900">0</p>
-              <p className="text-sm text-gray-600">Clubs Joined</p>
+              <p className="text-2xl font-bold text-foreground">0</p>
+              <p className="text-sm text-gray-400">Clubs Joined</p>
             </CardBody>
           </Card>
           

@@ -3,7 +3,7 @@
 import React from "react";
 
 interface BadgeProps {
-  variant?: "default" | "success" | "warning" | "info" | "error" | "purple" | "pink";
+  variant?: "default" | "success" | "warning" | "info" | "error" | "accent";
   size?: "sm" | "md" | "lg";
   children: React.ReactNode;
   icon?: React.ReactNode;
@@ -12,13 +12,12 @@ interface BadgeProps {
 }
 
 const variantStyles = {
-  default: "bg-gray-100 text-gray-800 border-gray-200",
-  success: "bg-green-100 text-green-800 border-green-200",
-  warning: "bg-yellow-100 text-yellow-800 border-yellow-200",
-  info: "bg-blue-100 text-blue-800 border-blue-200",
-  error: "bg-red-100 text-red-800 border-red-200",
-  purple: "bg-purple-100 text-purple-800 border-purple-200",
-  pink: "bg-pink-100 text-pink-800 border-pink-200",
+  default: "bg-secondary text-foreground border-secondary",
+  success: "bg-success/15 text-success border-success/20",
+  warning: "bg-warning/15 text-warning border-warning/20",
+  info: "bg-primary/15 text-primary border-primary/20",
+  error: "bg-error/15 text-error border-error/20",
+  accent: "bg-accent/15 text-accent border-accent/20",
 };
 
 const sizeStyles = {
