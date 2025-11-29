@@ -38,7 +38,7 @@ clubchain-frontend/.pnpm-debug.log*
 
 # Environment Variables (IMPORTANT!)
 clubchain-frontend/.env*
-clubchain-frontend/.env.local
+
 clubchain-frontend/.env.development.local
 clubchain-frontend/.env.test.local
 clubchain-frontend/.env.production.local

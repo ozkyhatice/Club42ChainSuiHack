@@ -28,13 +28,6 @@ export default function RegistrationSteps({ currentStep }: RegistrationStepsProp
       isComplete: currentStep > 2,
       isActive: currentStep === 2,
     },
-    {
-      number: 3,
-      title: "On-Chain Registration",
-      description: "Link your identity on the blockchain",
-      isComplete: currentStep > 3,
-      isActive: currentStep === 3,
-    },
   ];
 
   return (

@@ -21,13 +21,19 @@ export default function RegisterPage() {
     }
   }, [session, status, router]);
 
-  // Redirect to dashboard if user is already registered
+  // Redirect to dashboard when wallet is connected and session exists
+  // This works for both regular users and club owners
   useEffect(() => {
-    if (account && !isCheckingRegistration && isRegistered) {
-      console.log("User is already registered, redirecting to dashboard...");
-      router.push("/dashboard");
+    if (account && session && !isCheckingRegistration) {
+      // Give a small delay to show the success state, then redirect
+      const timer = setTimeout(() => {
+        console.log("Wallet connected, redirecting to dashboard...");
+        router.push("/dashboard");
+      }, 1500);
+      
+      return () => clearTimeout(timer);
     }
-  }, [account, isRegistered, isCheckingRegistration, router]);
+  }, [account, session, isCheckingRegistration, router]);
 
   if (status === "loading" || isCheckingRegistration) {
     return (
@@ -63,8 +69,8 @@ export default function RegisterPage() {
     );
   }
 
-  // Redirect if already registered (this is a fallback, useEffect should handle it)
-  if (account && isRegistered) {
+  // Redirect if wallet is connected and session exists (fallback)
+  if (account && session && !isCheckingRegistration) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
@@ -75,8 +81,8 @@ export default function RegisterPage() {
     );
   }
 
-  // Calculate current step for progress indicator
-  const currentStep = !session ? 1 : !account ? 2 : 3;
+  // Calculate current step for progress indicator (only 2 steps now)
+  const currentStep = !session ? 1 : !account ? 2 : 2;
 
   return (
     <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8">
