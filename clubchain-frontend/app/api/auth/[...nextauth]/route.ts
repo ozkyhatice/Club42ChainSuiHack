@@ -51,11 +51,24 @@ if (FORTYTWO_CLIENT_ID && FORTYTWO_CLIENT_SECRET) {
 export const authOptions: NextAuthOptions = {
   providers,
   callbacks: {
-    async jwt({ token, account, profile }) {
+    async signIn({ user, account, profile }) {
+      console.log("SignIn callback:", { user, account: account?.provider });
+      return true;
+    },
+    async redirect({ url, baseUrl }) {
+      console.log("Redirect callback:", { url, baseUrl });
+      // Allows relative callback URLs
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      // Allows callback URLs on the same origin
+      else if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
+    },
+    async jwt({ token, account, profile, user }) {
       if (account && profile) {
         const profile42 = profile as Profile42;
         token.intraId = profile42.id;
         token.login = profile42.login;
+        console.log("JWT callback - setting token:", { intraId: token.intraId, login: token.login });
       }
       return token;
     },
@@ -63,15 +76,17 @@ export const authOptions: NextAuthOptions = {
       if (session.user && token.intraId && token.login) {
         session.user.intraId = token.intraId;
         session.user.login = token.login;
+        console.log("Session callback - user authenticated:", { login: token.login });
       }
       return session;
     },
   },
   pages: {
     signIn: "/auth/signin",
+    error: "/auth/signin",
   },
   secret: NEXTAUTH_SECRET || (process.env.NODE_ENV === "development" ? "dev-secret-change-in-production" : undefined),
-  debug: process.env.NODE_ENV === "development",
+  debug: true,
 };
 
 const handler = NextAuth(authOptions);
