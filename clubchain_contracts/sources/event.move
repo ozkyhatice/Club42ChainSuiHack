@@ -4,7 +4,7 @@ module clubchain::event {
     use sui::transfer;
     use std::string::String;
     use clubchain::admin_cap::{Self, ClubAdminCap};
-    use clubchain::club_v2::{Self, Club};
+    use clubchain::club::{Self, Club};
 
     /// Error codes
     const E_NOT_CLUB_ADMIN: u64 = 1;
@@ -39,7 +39,7 @@ module clubchain::event {
         // Verify the caller has admin capability for this club
         admin_cap::assert_admin(cap, club_id);
 
-        let owner = club_v2::get_owner(club);
+        let owner = club::get_owner(club);
         let sender = tx_context::sender(ctx);
         assert!(sender == owner, E_NOT_OWNER);
 
@@ -58,7 +58,7 @@ module clubchain::event {
         };
         let event_id = object::id_address(&event);
         transfer::share_object(event);
-        club_v2::push_event(club, event_id);
+        club::push_event(club, event_id);
     }
 
     /// Update event details (admin only)

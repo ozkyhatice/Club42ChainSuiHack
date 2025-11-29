@@ -15,6 +15,9 @@ export interface EventData {
 /**
  * Build a transaction to create a new event (admin only)
  * Requires a ClubAdminCap for the specified club
+ * 
+ * Smart contract signature:
+ * create_event(cap: &ClubAdminCap, club: &mut Club, title: String, description: String, date: u64, ctx: &mut TxContext)
  */
 export function buildCreateEventTx(
   packageId: string,
@@ -42,11 +45,11 @@ export function buildCreateEventTx(
   tx.moveCall({
     target: `${packageId}::event::create_event`,
     arguments: [
-      tx.object(adminCapId),
-      tx.object(clubId),
-      tx.pure.string(eventData.title),
-      tx.pure.string(eventData.description),
-      tx.pure.u64(dateMs),
+      tx.object(adminCapId),        // cap: &ClubAdminCap
+      tx.object(clubId),             // club: &mut Club
+      tx.pure.string(eventData.title),      // title: String
+      tx.pure.string(eventData.description), // description: String
+      tx.pure.u64(dateMs),           // date: u64
     ],
   });
 
