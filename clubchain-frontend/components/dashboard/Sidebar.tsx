@@ -58,12 +58,6 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         href: "/events/create",
         highlight: true,
       },
-      {
-        icon: Shield,
-        label: "Admin Panel",
-        href: "/admin",
-        ownerOnly: true,
-      },
     ] : []),
     ...(isSuperAdmin ? [
       {
