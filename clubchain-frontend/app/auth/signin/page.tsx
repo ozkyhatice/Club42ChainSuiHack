@@ -9,6 +9,8 @@ import Card, { CardBody } from "@/components/ui/Card";
 import FloatingElements from "@/components/landing/FloatingElements";
 import { GraduationCap, Rocket, AlertTriangle, Info, ArrowRight } from "lucide-react";
 import { useIsRegistered } from "@/hooks/useRegistrationStatus";
+import ZkLoginButton from "@/components/auth/ZkLoginButton";
+import { useZkLogin } from "@/hooks/useZkLogin";
 
 export default function SignInPage() {
   const { data: session, status } = useSession();
@@ -20,6 +22,8 @@ export default function SignInPage() {
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { data: isRegistered, isLoading: isCheckingRegistration } = useIsRegistered();
+  const { providers: zkLoginProviders } = useZkLogin();
+  const googleProvider = zkLoginProviders.find(p => p.name.toLowerCase() === "google");
 
   useEffect(() => {
     const errorParam = searchParams.get("error");
@@ -142,14 +146,14 @@ export default function SignInPage() {
                 </div>
               </div>
 
-              <Button
-                onClick={() => router.push("/")}
-                variant="outline"
-                size="lg"
-                className="w-full"
-              >
-                Continue as Guest
-              </Button>
+              {googleProvider && (
+                <ZkLoginButton
+                  provider={googleProvider}
+                  onSuccess={() => {
+                    // Redirect will be handled by useZkLogin hook
+                  }}
+                />
+              )}
             </div>
 
             {/* Error message */}
