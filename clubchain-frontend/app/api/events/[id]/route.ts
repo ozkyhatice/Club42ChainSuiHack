@@ -51,15 +51,82 @@ export async function GET(
     }
 
     const fields = content.fields as Record<string, any>;
-    const participants = toAddressVector(fields.participants);
+    
+    // Get the event's UID inner ID (this is what's stored in ParticipationBadge.event_id)
+    // The event object ID might be different from the UID inner ID
+    // We need to get the UID inner ID from the event object
+    const eventUidInnerId = response.data?.data?.objectId || id;
+    
+    // Fetch participants from ParticipationBadge objects
+    // Participants are stored in ParticipationBadge, not in Event object
+    const participants: string[] = [];
+    try {
+      // Normalize event ID for comparison
+      const normalizeId = (eventId: string) => {
+        if (!eventId) return "";
+        // Handle both object ID format and UID inner ID format
+        const cleaned = typeof eventId === "string" 
+          ? (eventId.startsWith("0x") ? eventId.slice(2) : eventId)
+          : String(eventId);
+        return cleaned.toLowerCase();
+      };
+      
+      // Try both the object ID and potential UID inner ID
+      const normalizedEventId1 = normalizeId(eventUidInnerId);
+      const normalizedEventId2 = normalizeId(id);
+      
+      // Query all ParticipationBadge objects
+      const participationBadges = await suiClient.queryObjects({
+        filter: {
+          StructType: `${PACKAGE_ID}::club_system::ParticipationBadge`,
+        },
+        options: {
+          showContent: true,
+          showOwner: true,
+        },
+        limit: 1000, // Large limit to get all badges
+      });
+
+      console.log(`🔍 Checking ${participationBadges.data.length} ParticipationBadges for event ${id} (normalized: ${normalizedEventId1}, ${normalizedEventId2})`);
+
+      // Filter badges for this event and extract owner addresses
+      for (const badge of participationBadges.data) {
+        const badgeContent = badge.data?.content;
+        if (badgeContent && "fields" in badgeContent) {
+          const badgeFields = badgeContent.fields as any;
+          const badgeEventId = badgeFields.event_id || badgeFields.eventId || "";
+          
+          // Normalize and compare event IDs
+          const normalizedBadgeEventId = normalizeId(badgeEventId);
+          
+          // Check if this badge belongs to our event
+          if (normalizedBadgeEventId && 
+              (normalizedBadgeEventId === normalizedEventId1 || normalizedBadgeEventId === normalizedEventId2)) {
+            const owner = badge.data?.owner;
+            if (owner && typeof owner === "object" && "AddressOwner" in owner) {
+              const address = (owner as any).AddressOwner;
+              if (address && !participants.includes(address)) {
+                participants.push(address);
+                console.log(`✅ Found participant: ${address.slice(0, 8)}... (badge event_id: ${badgeEventId})`);
+              }
+            }
+          }
+        }
+      }
+      
+      console.log(`✅ Found ${participants.length} participants for event ${id}`);
+    } catch (err) {
+      console.error("Failed to fetch participants from ParticipationBadge:", err);
+      // Continue with empty participants array
+    }
     
     const event = {
       id,
-      clubId: fields.club_id,
-      createdBy: fields.created_by,
-      title: fields.title,
-      description: fields.description,
-      date: Number(fields.date ?? 0),
+      clubId: fields.club_id || fields.clubId || "",
+      createdBy: "", // Not available in new contract
+      title: fields.title || "",
+      description: fields.description || "",
+      date: Number(fields.start_time ?? fields.startTime ?? 0),
       participants,
     };
     

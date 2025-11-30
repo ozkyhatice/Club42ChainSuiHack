@@ -15,7 +15,7 @@ interface CreateEventFormProps {
 
 export default function CreateEventForm({ ownedClubs = [] }: CreateEventFormProps) {
   const account = useCurrentAccount();
-  const { isSubmitting, txStatus, createEvent, resetStatus, adminCaps } = useCreateEvent();
+  const { isSubmitting, txStatus, createEvent, resetStatus, clubOwnerBadges } = useCreateEvent();
 
   const [selectedClubId, setSelectedClubId] = useState<string>('');
   const [formData, setFormData] = useState<EventFormData>({
@@ -61,7 +61,7 @@ export default function CreateEventForm({ ownedClubs = [] }: CreateEventFormProp
   }
 
   // No clubs available
-  if (ownedClubs.length === 0 && !adminCaps?.length) {
+  if (ownedClubs.length === 0 && !clubOwnerBadges?.length) {
     return (
       <div className="bg-warning/10 border border-warning/20 rounded-lg p-8 text-center">
         <Building2 className="w-16 h-16 text-warning mx-auto mb-4" />
@@ -193,7 +193,8 @@ export default function CreateEventForm({ ownedClubs = [] }: CreateEventFormProp
               <p><strong>Account:</strong> {account?.address}</p>
               <p><strong>Selected Club:</strong> {selectedClubId || 'None'}</p>
               <p><strong>Available Clubs:</strong> {ownedClubs.length}</p>
-              <p><strong>Admin Caps:</strong> {adminCaps?.length || 0}</p>
+              <p><strong>Club Owner Badges:</strong> {clubOwnerBadges?.length || 0}</p>
+              <p><strong>Badge Club IDs:</strong> {clubOwnerBadges?.map(b => b.clubId.slice(0, 8)).join(", ") || "None"}</p>
             </div>
           </div>
         )}

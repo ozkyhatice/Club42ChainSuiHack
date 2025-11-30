@@ -96,10 +96,10 @@ export async function verifyPackageFunctions(
 }
 
 /**
- * Build a transaction to create a new club (SUPER ADMIN ONLY)
- * Requires SuperAdminCap
+ * Build a transaction to create a new club (Anyone can create)
+ * Automatically issues ClubOwnerBadge to the creator (valid for 365 days)
  * 
- * Function signature: create_club(_: &SuperAdminCap, name: String, desc: String, ctx: &mut TxContext)
+ * Function signature: create_club(name: String, desc: String, clock: &Clock, ctx: &mut TxContext)
  * 
  * If you encounter ArityMismatch errors:
  * 1. Verify the package ID is correct
@@ -108,18 +108,13 @@ export async function verifyPackageFunctions(
  */
 export function buildCreateClubTx(
   packageId: string,
-  superAdminCapId: string,
   clubName: string,
-  description: string
+  description: string,
+  clockObjectId: string = "0x6"
 ): Transaction {
   if (!packageId) {
     console.error("buildCreateClubTx: packageId is undefined");
     throw new Error("Package ID is required");
-  }
-
-  if (!superAdminCapId) {
-    console.error("buildCreateClubTx: superAdminCapId is undefined");
-    throw new Error("SuperAdminCap ID is required");
   }
 
   if (!clubName || clubName.trim() === "") {
@@ -139,14 +134,14 @@ export function buildCreateClubTx(
   const trimmedName = clubName.trim();
   const trimmedDesc = description.trim();
   
-  // Build the moveCall with SuperAdminCap, name, and desc
-  // The function signature is: create_club(_: &SuperAdminCap, name: String, desc: String, ctx: &mut TxContext)
+  // Build the moveCall with name, desc, and clock
+  // The function signature is: create_club(name: String, desc: String, clock: &Clock, ctx: &mut TxContext)
   tx.moveCall({
     target: functionTarget,
     arguments: [
-      tx.object(superAdminCapId), // super_admin: &SuperAdminCap
       tx.pure.string(trimmedName), // name: String
       tx.pure.string(trimmedDesc), // desc: String
+      tx.object(clockObjectId), // clock: &Clock
     ],
   });
   
@@ -172,15 +167,15 @@ export function buildCreateClubTx(
     target: functionTarget,
     arguments: {
       count: 3,
-      types: ["&SuperAdminCap", "String", "String"],
+      types: ["String", "String", "&Clock"],
       values: {
-        superAdminCapId,
         name: trimmedName,
         description: trimmedDesc,
+        clockObjectId,
       },
     },
-    expectedSignature: "create_club(_: &SuperAdminCap, name: String, desc: String, ctx: &mut TxContext)",
-    note: "ctx is automatically provided by Sui runtime - not passed as argument",
+    expectedSignature: "create_club(name: String, desc: String, clock: &Clock, ctx: &mut TxContext)",
+    note: "ctx is automatically provided by Sui runtime - not passed as argument. ClubOwnerBadge will be automatically issued to creator.",
   });
 
   return tx;

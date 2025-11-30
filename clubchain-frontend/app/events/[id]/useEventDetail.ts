@@ -3,6 +3,8 @@ import { useSignAndExecuteTransaction, useCurrentAccount, useSuiClient } from "@
 import { buildJoinEventTx } from "@/modules/contracts/event";
 import { PACKAGE_ID } from "@/lib/constants";
 import { useQuery } from "@tanstack/react-query";
+import { useHasMemberBadge } from "@/hooks/useMemberBadge";
+import toast from "react-hot-toast";
 
 export type EventDetail = {
   id: string;
@@ -24,10 +26,11 @@ export function useEventDetail(eventId: string) {
   const currentAccount = useCurrentAccount();
   const suiClient = useSuiClient();
   const { mutate: signAndExecute } = useSignAndExecuteTransaction();
+  const { data: hasMemberBadge, isLoading: isCheckingBadge } = useHasMemberBadge();
 
   // Get user's MemberBadge
   const { data: memberBadgeId } = useQuery({
-    queryKey: ["member-badge", currentAccount?.address],
+    queryKey: ["member-badge-id", currentAccount?.address],
     queryFn: async () => {
       if (!currentAccount?.address) return null;
       const objects = await suiClient.getOwnedObjects({
@@ -85,12 +88,12 @@ export function useEventDetail(eventId: string) {
 
   const handleJoin = async () => {
     if (!currentAccount?.address || !event) {
-      setError("Please connect your wallet");
+      toast.error("Please connect your wallet");
       return;
     }
 
-    if (!memberBadgeId) {
-      setError("You need a MemberBadge to join events. Please contact an administrator.");
+    if (!hasMemberBadge || !memberBadgeId) {
+      toast.error("You need to register as a member first to join events");
       return;
     }
 
@@ -105,19 +108,24 @@ export function useEventDetail(eventId: string) {
           transaction: tx,
         },
         {
-          onSuccess: () => {
+          onSuccess: (result) => {
+            toast.success("Successfully joined the event! Participation badge minted.");
             // Refresh event data
             setTimeout(() => {
               window.location.reload();
-            }, 1000);
+            }, 1500);
           },
-          onError: () => {
-            setError("Failed to join event. You may already be a participant.");
+          onError: (error) => {
+            const errorMessage = error instanceof Error ? error.message : "Failed to join event";
+            toast.error(errorMessage);
+            setError(errorMessage);
           },
         }
       );
     } catch (err) {
-      setError("Failed to join event");
+      const errorMessage = err instanceof Error ? err.message : "Failed to join event";
+      toast.error(errorMessage);
+      setError(errorMessage);
     } finally {
       setActionLoading(false);
     }
@@ -137,6 +145,8 @@ export function useEventDetail(eventId: string) {
     handleJoin,
     handleLeave,
     isConnected: !!currentAccount?.address,
+    hasMemberBadge: hasMemberBadge ?? false,
+    isCheckingBadge,
   };
 }
 

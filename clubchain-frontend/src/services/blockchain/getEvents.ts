@@ -47,8 +47,9 @@ const buildEventFromObject = (objectId: string, fields: Record<string, any>): Ev
 });
 
 /**
- * Fetch all events directly from the blockchain by querying transaction history
- * This method finds events created via create_event function
+ * Fetch all events directly from the blockchain
+ * Uses queryObjects for shared Event objects (primary method)
+ * Falls back to queryTransactionBlocks if needed
  */
 export async function fetchEventsFromChain(): Promise<EventInfo[]> {
   try {
@@ -56,50 +57,143 @@ export async function fetchEventsFromChain(): Promise<EventInfo[]> {
     const events: EventInfo[] = [];
     const seenEventIds = new Set<string>();
 
-    // Query transactions that created events via create_event
+    console.log("🔍 Fetching events from chain...");
+
+    // Method 1: Query shared Event objects directly (most reliable)
     try {
-      const queryResponse = await suiClient.queryTransactionBlocks({
+      const objectsResponse = await suiClient.queryObjects({
         filter: {
-          MoveFunction: {
-            package: PACKAGE_ID,
-            module: "club_system",
-            function: "create_event",
-          },
+          StructType: EVENT_STRUCT,
         },
         options: {
-          showEffects: true,
-          showObjectChanges: true,
+          showContent: true,
+          showType: true,
+          showOwner: true,
         },
-        limit: 50,
+        limit: 100,
       });
 
-      for (const tx of queryResponse.data) {
-        const createdEvents = tx.objectChanges?.filter(
-          (change: any) =>
-            change.type === "created" &&
-            change.objectType?.includes("::club_system::Event")
-        ) ?? [];
+      console.log(`📦 Found ${objectsResponse.data.length} Event objects via queryObjects`);
 
-        for (const change of createdEvents) {
-          const eventId = (change as any).objectId;
-          if (!eventId || seenEventIds.has(eventId)) continue;
-          
-          seenEventIds.add(eventId);
-          
-          try {
-            const event = await fetchEventById(eventId);
-            if (event) {
-              events.push(event);
-            }
-          } catch (err) {
-            console.error(`Failed to fetch event ${eventId}:`, err);
-          }
+      for (const item of objectsResponse.data) {
+        const objectId = item.data?.objectId;
+        if (!objectId || seenEventIds.has(objectId)) continue;
+
+        const owner = item.data?.owner;
+        const isShared =
+          typeof owner === "object" &&
+          owner !== null &&
+          "Shared" in owner;
+
+        if (!isShared) continue; // Only process shared events
+
+        seenEventIds.add(objectId);
+
+        const content = item.data?.content;
+        if (
+          content?.dataType === "moveObject" &&
+          content.type === EVENT_STRUCT &&
+          content.fields
+        ) {
+          const event = buildEventFromObject(objectId, content.fields as any);
+          events.push(event);
+          console.log(`✅ Found event: ${event.title} (${objectId.slice(0, 8)}...)`);
         }
       }
     } catch (err) {
-      console.error("Query create_event failed:", err);
+      console.error("❌ Query objects failed:", err);
     }
 
+    // Method 2: Fallback to queryTransactionBlocks if no events found
+    if (events.length === 0) {
+      console.log("⚠️ No events found via queryObjects, trying queryTransactionBlocks...");
+      try {
+        const queryResponse = await suiClient.queryTransactionBlocks({
+          filter: {
+            MoveFunction: {
+              package: PACKAGE_ID,
+              module: "club_system",
+              function: "create_event",
+            },
+          },
+          options: {
+            showEffects: true,
+            showObjectChanges: true,
+          },
+          order: "descending",
+          limit: 100,
+        });
+
+        for (const tx of queryResponse.data) {
+          // Check objectChanges first
+          const createdEvents = tx.objectChanges?.filter(
+            (change: any) =>
+              change.type === "created" &&
+              change.objectType?.includes("::club_system::Event")
+          ) ?? [];
+
+          for (const change of createdEvents) {
+            const eventId = (change as any).objectId;
+            if (!eventId || seenEventIds.has(eventId)) continue;
+
+            seenEventIds.add(eventId);
+
+            try {
+              const event = await fetchEventById(eventId);
+              if (event) {
+                events.push(event);
+                console.log(`✅ Found event from tx: ${event.title} (${eventId.slice(0, 8)}...)`);
+              }
+            } catch (err) {
+              console.error(`Failed to fetch event ${eventId}:`, err);
+            }
+          }
+
+          // Also check effects.created for shared objects
+          if (tx.effects?.created) {
+            for (const created of tx.effects.created) {
+              const objectId = created.reference?.objectId;
+              if (!objectId || seenEventIds.has(objectId)) continue;
+
+              try {
+                const obj = await suiClient.getObject({
+                  id: objectId,
+                  options: {
+                    showType: true,
+                    showContent: true,
+                    showOwner: true,
+                  },
+                });
+
+                const owner = obj.data?.owner;
+                const isShared =
+                  typeof owner === "object" &&
+                  owner !== null &&
+                  "Shared" in owner;
+
+                if (
+                  obj.data?.type?.includes("::club_system::Event") &&
+                  isShared
+                ) {
+                  seenEventIds.add(objectId);
+                  const event = await fetchEventById(objectId);
+                  if (event) {
+                    events.push(event);
+                    console.log(`✅ Found event from effects: ${event.title} (${objectId.slice(0, 8)}...)`);
+                  }
+                }
+              } catch (err) {
+                // Skip silently
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.error("❌ Query transaction blocks failed:", err);
+      }
+    }
+
+    console.log(`✅ Total events found: ${events.length}`);
     return events;
   } catch (error) {
     console.error("❌ Failed to fetch events from chain:", error);

@@ -4,6 +4,7 @@ import { useCurrentAccount, useSuiClient } from "@mysten/dapp-kit";
 import { useQuery } from "@tanstack/react-query";
 import { getUserAdminCaps, hasAdminCapForClub } from "@/modules/contracts/admin-cap";
 import { getClubs, isClubOwner } from "@/src/services/blockchain/getClubs";
+import { useUserClubOwnerBadges } from "@/hooks/useClubOwnerBadge";
 
 /**
  * Hook to check if current user owns a specific club
@@ -54,25 +55,40 @@ export function useUserAdminCaps() {
 
 /**
  * Hook to get all clubs where current user is owner
+ * Uses ClubOwnerBadge to determine ownership
  */
 export function useUserOwnedClubs() {
   const account = useCurrentAccount();
-  const { data: adminCaps } = useUserAdminCaps();
+  const { data: clubOwnerBadges = [] } = useUserClubOwnerBadges();
   
   return useQuery({
-    queryKey: ["user-owned-clubs", account?.address, adminCaps],
+    queryKey: ["user-owned-clubs", account?.address, clubOwnerBadges],
     queryFn: async () => {
       if (!account?.address) return [];
       
       const allClubs = await getClubs();
-      const ownedClubIds = new Set(adminCaps?.map(cap => cap.club_id) || []);
       
-      return allClubs.filter(club => 
-        ownedClubIds.has(club.id) || 
-        club.owner.toLowerCase() === account.address.toLowerCase()
+      // Get club IDs from ClubOwnerBadges
+      const ownedClubIds = new Set(
+        clubOwnerBadges.map(badge => badge.clubId)
       );
+      
+      // Filter clubs where user has a valid ClubOwnerBadge
+      const ownedClubs = allClubs.filter(club => 
+        ownedClubIds.has(club.id)
+      );
+      
+      console.log("useUserOwnedClubs:", {
+        account: account.address,
+        clubOwnerBadgesCount: clubOwnerBadges.length,
+        allClubsCount: allClubs.length,
+        ownedClubIds: Array.from(ownedClubIds),
+        ownedClubsCount: ownedClubs.length,
+      });
+      
+      return ownedClubs;
     },
-    enabled: !!account?.address && !!adminCaps,
+    enabled: !!account?.address,
     staleTime: 60000, // 1 minute
   });
 }

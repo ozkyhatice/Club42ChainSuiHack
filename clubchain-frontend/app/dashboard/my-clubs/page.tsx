@@ -4,14 +4,23 @@ import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import Card, { CardBody, CardHeader } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Link from "next/link";
-import { Users, Shield, Crown, Zap, Search } from "lucide-react";
+import { Users, Crown, Zap, Search, Award, User, Calendar, CheckCircle2, Clock } from "lucide-react";
 import { useUserMemberClubs, useUserOwnedClubs } from "@/hooks/useClubOwnership";
 import { useRouter } from "next/navigation";
+import { useUserClubOwnerBadges } from "@/hooks/useClubOwnerBadge";
+import { useMemberBadge } from "@/hooks/useMemberBadge";
+import { useParticipationBadges } from "@/hooks/useParticipationBadges";
+import GamifiedButton from "@/components/ui/GamifiedButton";
 
 export default function MyClubsPage() {
   const router = useRouter();
   const { data: memberClubs = [], isLoading: memberLoading } = useUserMemberClubs();
   const { data: ownedClubs = [], isLoading: ownedLoading } = useUserOwnedClubs();
+  
+  // Get user's badges
+  const { data: clubOwnerBadges = [], isLoading: badgesLoading } = useUserClubOwnerBadges();
+  const { data: memberBadge, isLoading: memberBadgeLoading } = useMemberBadge();
+  const { data: participationBadges = [], isLoading: participationLoading } = useParticipationBadges();
   
   // Combine owned and member clubs, removing duplicates
   const allMyClubs = [
@@ -123,17 +132,7 @@ export default function MyClubsPage() {
         )}
         
         {/* Stats */}
-        <div className="grid sm:grid-cols-3 gap-4 mt-8">
-          <Card className="hover-lift">
-            <CardBody className="text-center">
-              <div className="inline-flex p-3 bg-[#f5f3f8] rounded-lg mb-2">
-                <Shield className="w-8 h-8 text-[#6b5b95]" />
-              </div>
-              <p className="text-2xl font-bold text-foreground">{memberClubs.length}</p>
-              <p className="text-sm text-gray-400">Clubs Joined</p>
-            </CardBody>
-          </Card>
-          
+        <div className="grid sm:grid-cols-2 gap-4 mt-8">
           <Card className="hover-lift">
             <CardBody className="text-center">
               <div className="inline-flex p-3 bg-yellow-50 rounded-lg mb-2">

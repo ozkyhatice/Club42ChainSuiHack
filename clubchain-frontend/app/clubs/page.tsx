@@ -7,13 +7,13 @@ import { getClubs } from "@/src/services/blockchain/getClubs";
 import { ClubList } from "@/src/modules/clubs/ClubList";
 import GamifiedButton from "@/components/ui/GamifiedButton";
 import StatCard from "@/components/ui/StatCard";
-import { useIsSuperAdmin } from "@/hooks/useSuperAdmin";
 import { Building2, Search, Plus, Sparkles } from "lucide-react";
 import { useState } from "react";
+import { useCurrentAccount } from "@mysten/dapp-kit";
 
 export default function ClubsPage() {
   const router = useRouter();
-  const { data: isSuperAdmin } = useIsSuperAdmin();
+  const account = useCurrentAccount();
   const [searchTerm, setSearchTerm] = useState("");
 
   // Fetch all clubs
@@ -35,13 +35,27 @@ export default function ClubsPage() {
       <div className="space-y-6">
         {/* Header */}
         <div className="rounded-xl p-8 shadow-elevation-3 animate-slideUp" style={{ background: 'linear-gradient(90deg, #A78BFA 0%, #60A5FA 100%)' }}>
-          <div className="flex items-center gap-3 mb-2">
-            <Building2 className="w-10 h-10 animate-icon-pulse" style={{ color: '#FFFFFF' }} />
-            <h1 className="text-3xl md:text-4xl font-bold" style={{ color: '#FFFFFF' }}>All Clubs</h1>
+          <div className="flex items-start justify-between flex-wrap gap-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-2">
+                <Building2 className="w-10 h-10 animate-icon-pulse" style={{ color: '#FFFFFF' }} />
+                <h1 className="text-3xl md:text-4xl font-bold" style={{ color: '#FFFFFF' }}>All Clubs</h1>
+              </div>
+              <p className="text-lg" style={{ color: '#FFFFFF' }}>
+                Discover and explore all clubs on campus
+              </p>
+            </div>
+            {account && (
+              <GamifiedButton
+                variant="primary"
+                icon={Plus}
+                onClick={() => router.push("/clubs/create")}
+                className="bg-white/20 hover:bg-white/30 border-white/30 text-white"
+              >
+                Create Club
+              </GamifiedButton>
+            )}
           </div>
-          <p className="text-lg" style={{ color: '#FFFFFF' }}>
-            Discover and explore all clubs on campus
-          </p>
         </div>
 
         {/* Stats */}
@@ -118,7 +132,7 @@ export default function ClubsPage() {
                   ? "Try a different search term"
                   : "Be the first to create a club!"}
               </p>
-              {!searchTerm && isSuperAdmin && (
+              {!searchTerm && account && (
                 <GamifiedButton
                   variant="primary"
                   icon={Plus}

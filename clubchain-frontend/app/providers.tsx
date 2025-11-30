@@ -9,6 +9,7 @@ import { getFullnodeUrl } from "@mysten/sui/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SessionProvider } from "next-auth/react";
 import { useState } from "react";
+import { Toaster } from "react-hot-toast";
 import "@mysten/dapp-kit/dist/index.css";
 import { NETWORK } from "@/lib/constants";
 import WalletDisconnectListener from "@/components/auth/WalletDisconnectListener";
@@ -44,6 +45,30 @@ export function Providers({ children }: { children: React.ReactNode }) {
         >
           <WalletProvider autoConnect>
             <WalletDisconnectListener />
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                duration: 4000,
+                style: {
+                  background: '#1a1a1a',
+                  color: '#fff',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                },
+                success: {
+                  iconTheme: {
+                    primary: '#10b981',
+                    secondary: '#fff',
+                  },
+                },
+                error: {
+                  iconTheme: {
+                    primary: '#ef4444',
+                    secondary: '#fff',
+                  },
+                },
+              }}
+            />
             {children}
           </WalletProvider>
         </SuiClientProvider>

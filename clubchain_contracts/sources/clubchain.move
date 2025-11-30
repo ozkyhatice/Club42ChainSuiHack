@@ -80,19 +80,32 @@ module clubchain::club_system {
         };
         transfer::share_object(registry);
     }
-    /// Create Club (Admin only)
+    /// Create Club (Anyone can create)
+    /// Automatically issues ClubOwnerBadge to the creator (valid for 365 days)
     public entry fun create_club(
-        _: &SuperAdminCap,
         name: String,
         desc: String,
+        clock: &Clock,
         ctx: &mut TxContext
     ) {
+        let sender = tx_context::sender(ctx);
         let club = Club {
             id: object::new(ctx),
             name,
             description: desc
         };
+        let club_id = object::uid_to_inner(&club.id);
         transfer::share_object(club);
+        
+        // Automatically issue ClubOwnerBadge to the creator (valid for 365 days)
+        let expiration = clock::timestamp_ms(clock) + (365 * 86400000); // 365 days in milliseconds
+        let badge = ClubOwnerBadge {
+            id: object::new(ctx),
+            club_id,
+            expiration_ms: expiration,
+            name
+        };
+        transfer::transfer(badge, sender);
     }
 
     /// Issue Club Owner Badge (Admin only, soulbound)

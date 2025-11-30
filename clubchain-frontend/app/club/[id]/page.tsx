@@ -8,24 +8,57 @@ import { EventList } from "@/src/modules/events/EventList";
 import { EventCreateModal } from "@/src/modules/events/EventCreateModal";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import OwnerBadge from "@/components/ui/OwnerBadge";
-import { Building2, ArrowLeft, Users, Sparkles, Copy, CheckCircle2, UserPlus, UserMinus } from "lucide-react";
+import { Building2, ArrowLeft, Users, Sparkles, Copy, CheckCircle2, UserPlus, UserMinus, AlertCircle } from "lucide-react";
 import Card, { CardBody } from "@/components/ui/Card";
 import StatCard from "@/components/ui/StatCard";
 import Button from "@/components/ui/Button";
 import { useSignAndExecuteTransaction } from "@mysten/dapp-kit";
 import { buildJoinEventTx } from "@/modules/contracts/event";
 import { PACKAGE_ID } from "@/lib/constants";
+import { useHasMemberBadge } from "@/hooks/useMemberBadge";
+import toast from "react-hot-toast";
+import Link from "next/link";
+
+// Helper functions for localStorage membership management
+const getMembershipKey = (address: string) => `club_memberships_${address}`;
+
+const getClubMemberships = (address: string): string[] => {
+  if (typeof window === "undefined") return [];
+  const key = getMembershipKey(address);
+  const stored = localStorage.getItem(key);
+  return stored ? JSON.parse(stored) : [];
+};
+
+const addClubMembership = (address: string, clubId: string) => {
+  if (typeof window === "undefined") return;
+  const key = getMembershipKey(address);
+  const memberships = getClubMemberships(address);
+  if (!memberships.includes(clubId)) {
+    memberships.push(clubId);
+    localStorage.setItem(key, JSON.stringify(memberships));
+  }
+};
+
+const removeClubMembership = (address: string, clubId: string) => {
+  if (typeof window === "undefined") return;
+  const key = getMembershipKey(address);
+  const memberships = getClubMemberships(address);
+  const filtered = memberships.filter((id) => id !== clubId);
+  localStorage.setItem(key, JSON.stringify(filtered));
+};
 
 export default function ClubPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const account = useCurrentAccount();
+  const { data: hasMemberBadge, isLoading: isCheckingBadge } = useHasMemberBadge();
   const [club, setClub] = useState<Club | null>(null);
   const [status, setStatus] = useState<"loading" | "error" | "success">(
     "loading"
   );
   const [copied, setCopied] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+  const [isMember, setIsMember] = useState(false);
   const { mutate: signAndExecute } = useSignAndExecuteTransaction();
 
   useEffect(() => {
@@ -47,6 +80,14 @@ export default function ClubPage() {
 
     fetchClub();
   }, [params.id]);
+
+  // Check membership status from localStorage
+  useEffect(() => {
+    if (account?.address && params.id) {
+      const memberships = getClubMemberships(account.address);
+      setIsMember(memberships.includes(params.id));
+    }
+  }, [account?.address, params.id]);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -99,41 +140,35 @@ export default function ClubPage() {
     !!account?.address &&
     account.address.toLowerCase() === club.owner.toLowerCase();
 
-  // Check if user is a member (participated in at least one event)
-  const isMember = !!account?.address && club.events.some(event => 
-    event.participants?.some(participant => 
-      participant.toLowerCase() === account.address.toLowerCase()
-    )
-  );
-
   const userStatus = isOwner ? "Owner" : (isMember ? "Member" : "Not a Member");
-
-  // Get first available event for joining
-  const firstEvent = club.events.find(event => 
-    !event.participants?.some(p => p.toLowerCase() === account?.address?.toLowerCase())
-  );
 
   const handleJoinClub = async () => {
     if (!account?.address) {
-      alert("Please connect your wallet first");
+      toast.error("Please connect your wallet first");
       return;
     }
 
-    if (club.events.length === 0) {
-      alert("This club has no events yet. Please wait for the owner to create events.");
+    if (!hasMemberBadge) {
+      toast.error("You need to register as a member first");
       return;
     }
 
-    // Scroll to events section
-    const eventsSection = document.getElementById("events-section");
-    if (eventsSection) {
-      eventsSection.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    // Add to localStorage (off-chain membership)
+    addClubMembership(account.address, params.id);
+    setIsMember(true);
+    toast.success("Successfully joined the club!");
   };
 
   const handleLeaveClub = async () => {
-    // Leave event functionality has been removed from the contract
-    alert("Leaving events is not currently supported. Please contact support if needed.");
+    if (!account?.address) {
+      toast.error("Please connect your wallet first");
+      return;
+    }
+
+    // Remove from localStorage (off-chain membership)
+    removeClubMembership(account.address, params.id);
+    setIsMember(false);
+    toast.success("Left the club successfully");
   };
 
   return (
@@ -220,7 +255,28 @@ export default function ClubPage() {
           <div className="flex justify-center animate-slideUp animation-delay-300">
             <Card className="w-full max-w-md">
               <CardBody className="text-center p-6">
-                {isMember ? (
+                {isCheckingBadge ? (
+                  <div className="space-y-4">
+                    <p className="text-text-muted">Checking membership status...</p>
+                  </div>
+                ) : !hasMemberBadge ? (
+                  <div className="space-y-4">
+                    <AlertCircle className="w-12 h-12 text-warning mx-auto mb-2" />
+                    <p className="text-text-muted mb-4">
+                      You need to register as a member first to join clubs
+                    </p>
+                    <Link href="/membership/register">
+                      <Button
+                        variant="primary"
+                        size="lg"
+                        className="w-full group"
+                      >
+                        <UserPlus className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                        Register as Member
+                      </Button>
+                    </Link>
+                  </div>
+                ) : isMember ? (
                   <div className="space-y-4">
                     <p className="text-text-muted mb-4">You are a member of this club</p>
                     <Button
@@ -231,7 +287,7 @@ export default function ClubPage() {
                       className="w-full group"
                     >
                       <UserMinus className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                      {actionLoading ? "Leaving..." : "Üyelikten Çık"}
+                      {actionLoading ? "Leaving..." : "Leave Club"}
                     </Button>
                   </div>
                 ) : (
@@ -241,10 +297,11 @@ export default function ClubPage() {
                       variant="primary"
                       size="lg"
                       onClick={handleJoinClub}
+                      disabled={actionLoading}
                       className="w-full group"
                     >
                       <UserPlus className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                      Üye Ol
+                      {actionLoading ? "Joining..." : "Join Club"}
                     </Button>
                   </div>
                 )}

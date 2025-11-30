@@ -38,9 +38,17 @@ export function useCreateEvent() {
     }
 
     // Find a valid club owner badge for this club
-    const validBadge = clubOwnerBadges.find(badge => badge.clubId === clubId && !badge.isExpired);
+    // useUserClubOwnerBadges already filters expired badges, so we just need to match clubId
+    const validBadge = clubOwnerBadges.find(badge => badge.clubId === clubId);
     if (!validBadge) {
-      setState({ isSubmitting: false, txStatus: "No valid ClubOwnerBadge found for this club" });
+      setState({ 
+        isSubmitting: false, 
+        txStatus: "❌ No valid ClubOwnerBadge found for this club. Please make sure you have a valid badge for the selected club." 
+      });
+      console.error("No valid badge found:", {
+        clubId,
+        availableBadges: clubOwnerBadges.map(b => ({ clubId: b.clubId, objectId: b.objectId })),
+      });
       return;
     }
 
@@ -59,7 +67,8 @@ export function useCreateEvent() {
         clubId,
         title: formData.title,
         description: formData.description,
-        adminCapId: adminCap.id,
+        badgeId: validBadge.objectId,
+        badgeClubId: validBadge.clubId,
         date: formData.date,
         packageId: PACKAGE_ID,
         clockId: CLOCK_OBJECT_ID,
@@ -90,11 +99,11 @@ export function useCreateEvent() {
       // Debug logging
       console.log("Transaction details:", {
         target: `${PACKAGE_ID}::club_system::create_event`,
-        adminCapId: adminCap.id,
+        badgeId: validBadge.objectId,
+        badgeClubId: validBadge.clubId,
         clubId,
         title: formData.title,
         description: formData.description,
-        location: "TBD",
         startTime,
         endTime,
         clockId: CLOCK_OBJECT_ID,
@@ -132,7 +141,7 @@ export function useCreateEvent() {
         tx.moveCall({
           target: `${PACKAGE_ID}::club_system::create_event`,
           arguments: [
-            tx.object(validBadge.id), // badge: &ClubOwnerBadge
+            tx.object(validBadge.objectId), // badge: &ClubOwnerBadge
             tx.object(clubId), // club: &Club
             tx.pure.string(formData.title), // title: String
             tx.pure.u64(startTime), // start_time: u64
@@ -243,6 +252,7 @@ export function useCreateEvent() {
     txStatus: state.txStatus,
     createEvent,
     resetStatus,
-    adminCaps: clubOwnerBadges,
+    clubOwnerBadges: clubOwnerBadges,
+    adminCaps: clubOwnerBadges, // For backward compatibility
   };
 }

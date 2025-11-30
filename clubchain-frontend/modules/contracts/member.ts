@@ -11,9 +11,51 @@ export interface UserRegistrationData {
   email: string;
 }
 
+export interface MemberRegistrationData {
+  intraId: string;
+  username: string;
+}
+
 /**
- * Build a transaction to register a new user
+ * Build a transaction to register a new member (self-registration)
+ * Anyone can call this function to register themselves
+ * 
+ * Function signature: register_member(registry: &mut MemberRegistry, intra_id: String, username: String, ctx: &mut TxContext)
+ */
+export function buildRegisterMemberTx(
+  packageId: string,
+  registryObjectId: string,
+  memberData: MemberRegistrationData
+): Transaction {
+  if (!packageId || !registryObjectId) {
+    throw new Error("Package ID and Registry ID are required");
+  }
+
+  if (!memberData.intraId || !memberData.username) {
+    throw new Error("Intra ID and username are required");
+  }
+
+  const tx = new Transaction();
+
+  tx.moveCall({
+    target: `${packageId}::club_system::register_member`,
+    arguments: [
+      tx.object(registryObjectId), // registry: &mut MemberRegistry
+      tx.pure.string(memberData.intraId), // intra_id: String
+      tx.pure.string(memberData.username), // username: String
+    ],
+  });
+
+  tx.setGasBudget(100_000_000); // 100 MIST
+
+  return tx;
+}
+
+/**
+ * Build a transaction to register a new user (admin only)
  * This will mint both a UserProfile and a ClubMemberSBT
+ * 
+ * Function signature: issue_member_badge(_: &SuperAdminCap, registry: &mut MemberRegistry, recipient: address, intra_id: String, username: String, ctx: &mut TxContext)
  */
 export function buildRegisterUserTx(
   packageId: string,

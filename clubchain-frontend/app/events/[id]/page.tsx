@@ -5,6 +5,7 @@ import { ConnectButton } from "@mysten/dapp-kit";
 import Link from "next/link";
 import { useEventDetail } from "./useEventDetail";
 import { useCanJoinEvent } from "@/hooks/useBadgeAuth";
+import { AlertCircle } from "lucide-react";
 
 export default function EventDetailPage({
   params,
@@ -21,16 +22,18 @@ export default function EventDetailPage({
     handleJoin,
     handleLeave,
     isConnected,
+    hasMemberBadge,
+    isCheckingBadge,
   } = useEventDetail(id);
   const canJoinEvent = useCanJoinEvent();
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-8">
+    <main className="min-h-screen bg-background p-8">
       <div className="max-w-4xl mx-auto">
         <header className="flex justify-between items-center mb-12">
           <Link
             href="/"
-            className="text-3xl font-bold text-blue-900 hover:text-blue-700"
+            className="text-3xl font-bold text-foreground hover:text-primary transition-colors"
           >
             ClubChain
           </Link>
@@ -38,28 +41,28 @@ export default function EventDetailPage({
         </header>
 
         {loading && (
-          <div className="bg-white/80 rounded-2xl border border-blue-100 p-8 animate-pulse">
-            <div className="h-8 bg-[#e8e3f0] rounded w-3/4 mb-4"></div>
-            <div className="h-4 bg-[#f5f3f8] rounded w-1/2 mb-6"></div>
-            <div className="h-32 bg-[#f5f3f8] rounded mb-6"></div>
-            <div className="h-10 bg-[#e8e3f0] rounded w-32"></div>
+          <div className="bg-card rounded-2xl border border-border p-8 animate-pulse">
+            <div className="h-8 bg-secondary rounded w-3/4 mb-4"></div>
+            <div className="h-4 bg-secondary rounded w-1/2 mb-6"></div>
+            <div className="h-32 bg-secondary rounded mb-6"></div>
+            <div className="h-10 bg-secondary rounded w-32"></div>
           </div>
         )}
 
         {error && !loading && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-800 mb-6">
+          <div className="bg-error/10 border border-error/30 rounded-lg p-4 text-error mb-6">
             {error}
           </div>
         )}
 
         {!loading && event && (
-          <div className="bg-white/80 rounded-2xl border border-blue-100 p-8 shadow-sm">
+          <div className="bg-card rounded-2xl border border-border p-8 shadow-lg">
             {/* Event Header */}
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-blue-900 mb-4">
+              <h1 className="text-4xl font-bold text-foreground mb-4">
                 {event.title}
               </h1>
-              <div className="flex items-center gap-4 text-gray-600">
+              <div className="flex items-center gap-4 text-text-muted">
                 <span className="text-sm">
                   📅{" "}
                   {new Date(event.date).toLocaleDateString("en-US", {
@@ -76,29 +79,29 @@ export default function EventDetailPage({
 
             {/* Event Description */}
             <div className="mb-8">
-              <h2 className="text-xl font-semibold text-gray-900 mb-3">
+              <h2 className="text-xl font-semibold text-foreground mb-3">
                 About This Event
               </h2>
-              <p className="text-gray-700 leading-relaxed">
+              <p className="text-text-muted leading-relaxed">
                 {event.description}
               </p>
             </div>
 
             {/* Participants Section */}
             <div className="mb-8">
-              <h2 className="text-xl font-semibold text-gray-900 mb-3">
+              <h2 className="text-xl font-semibold text-foreground mb-3">
                 Participants ({event.participants.length})
               </h2>
               {event.participants.length === 0 ? (
-                <p className="text-gray-500 text-sm">
+                <p className="text-text-secondary text-sm">
                   No participants yet. Be the first to join!
                 </p>
               ) : (
-                <div className="bg-[#f5f3f8] rounded-lg p-4 max-h-60 overflow-y-auto">
+                <div className="bg-secondary rounded-lg p-4 max-h-60 overflow-y-auto">
                   {event.participants.map((participant, index) => (
                     <div
                       key={participant}
-                      className="text-sm text-gray-700 py-2 border-b border-blue-100 last:border-0"
+                      className="text-sm text-text-muted py-2 border-b border-border last:border-0"
                     >
                       {index + 1}. {participant.slice(0, 10)}...
                       {participant.slice(-8)}
@@ -111,18 +114,38 @@ export default function EventDetailPage({
             {/* Action Buttons */}
             <div className="flex gap-4 items-center">
               {!isConnected ? (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-yellow-800">
+                <div className="bg-warning/10 border border-warning/30 rounded-lg p-4 text-warning">
                   Please connect your wallet to join this event
                 </div>
-              ) : !canJoinEvent ? (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-yellow-800">
-                  You must be a verified member (have UserProfile) to join events
+              ) : isCheckingBadge ? (
+                <div className="bg-primary/10 border border-primary/30 rounded-lg p-4 text-primary">
+                  Checking membership status...
+                </div>
+              ) : !hasMemberBadge ? (
+                <div className="bg-warning/10 border border-warning/30 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-warning mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-warning font-medium mb-2">
+                        You need to register as a member first
+                      </p>
+                      <p className="text-warning/80 text-sm mb-3">
+                        Register to get your MemberBadge and join events
+                      </p>
+                      <Link
+                        href="/membership/register"
+                        className="inline-block bg-warning text-white px-4 py-2 rounded-lg hover:bg-warning-light transition font-medium text-sm"
+                      >
+                        Register as Member
+                      </Link>
+                    </div>
+                  </div>
                 </div>
               ) : isParticipant ? (
                 <button
                   onClick={handleLeave}
                   disabled={actionLoading}
-                  className="bg-red-500 text-white px-8 py-3 rounded-lg hover:bg-red-600 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-error text-white px-8 py-3 rounded-lg hover:bg-error-light transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {actionLoading ? "Processing..." : "Leave Event"}
                 </button>
@@ -138,24 +161,24 @@ export default function EventDetailPage({
 
               <Link
                 href={`/club/${event.clubId}`}
-                className="bg-gray-200 text-gray-700 px-8 py-3 rounded-lg hover:bg-gray-300 transition font-semibold"
+                className="bg-secondary text-foreground px-8 py-3 rounded-lg hover:bg-secondary-hover transition font-semibold"
               >
                 View Club
               </Link>
             </div>
 
             {/* Event Info Footer */}
-            <div className="mt-8 pt-6 border-t border-gray-200">
+            <div className="mt-8 pt-6 border-t border-border">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-gray-500">Event ID:</span>
-                  <p className="text-gray-700 font-mono text-xs break-all">
+                  <span className="text-text-secondary">Event ID:</span>
+                  <p className="text-text-muted font-mono text-xs break-all">
                     {event.id}
                   </p>
                 </div>
                 <div>
-                  <span className="text-gray-500">Created By:</span>
-                  <p className="text-gray-700 font-mono text-xs break-all">
+                  <span className="text-text-secondary">Created By:</span>
+                  <p className="text-text-muted font-mono text-xs break-all">
                     {event.createdBy}
                   </p>
                 </div>
@@ -168,7 +191,7 @@ export default function EventDetailPage({
         <div className="mt-8 flex gap-4">
           <Link
             href="/events"
-            className="text-[#6b5b95] hover:text-[#4a3d75] font-medium"
+            className="text-primary hover:text-primary-hover font-medium transition-colors"
           >
             ← Back to All Events
           </Link>

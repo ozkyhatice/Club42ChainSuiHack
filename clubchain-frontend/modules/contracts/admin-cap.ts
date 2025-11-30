@@ -1,4 +1,5 @@
 import { SuiClient } from "@mysten/sui/client";
+import { Transaction } from "@mysten/sui/transactions";
 import { PACKAGE_ID } from "@/lib/constants";
 
 /**
@@ -9,6 +10,45 @@ import { PACKAGE_ID } from "@/lib/constants";
 export interface ClubAdminCap {
   id: string;
   club_id: string;
+}
+
+/**
+ * Build a transaction to issue a ClubOwnerBadge (Super Admin only)
+ * 
+ * Function signature: issue_owner_badge(_: &SuperAdminCap, club: &Club, recipient: address, days_valid: u64, clock: &Clock, ctx: &mut TxContext)
+ */
+export function buildIssueOwnerBadgeTx(
+  packageId: string,
+  superAdminCapId: string,
+  clubId: string,
+  recipientAddress: string,
+  daysValid: number,
+  clockObjectId: string = "0x6"
+): Transaction {
+  if (!packageId || !superAdminCapId || !clubId || !recipientAddress) {
+    throw new Error("Package ID, SuperAdminCap ID, Club ID, and recipient address are required");
+  }
+
+  if (daysValid <= 0) {
+    throw new Error("Days valid must be greater than 0");
+  }
+
+  const tx = new Transaction();
+
+  tx.moveCall({
+    target: `${packageId}::club_system::issue_owner_badge`,
+    arguments: [
+      tx.object(superAdminCapId), // _: &SuperAdminCap
+      tx.object(clubId), // club: &Club
+      tx.pure.address(recipientAddress), // recipient: address
+      tx.pure.u64(daysValid), // days_valid: u64
+      tx.object(clockObjectId), // clock: &Clock
+    ],
+  });
+
+  tx.setGasBudget(100_000_000); // 100 MIST
+
+  return tx;
 }
 
 /**

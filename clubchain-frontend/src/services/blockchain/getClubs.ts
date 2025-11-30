@@ -161,80 +161,115 @@ const fetchClubObject = async (
 export async function fetchClubsFromChain(): Promise<Club[]> {
   try {
     const suiClient = getClient();
+    const clubs: Club[] = [];
+    const seenClubIds = new Set<string>();
 
-    // Method 1: Try registry if available
-    if (CLUB_REGISTRY_OBJECT_ID) {
-      try {
-        const registryResponse = await suiClient.getObject({
-          id: CLUB_REGISTRY_OBJECT_ID,
-          options: { showContent: true },
-        });
+    console.log("🔍 Fetching clubs with PACKAGE_ID:", PACKAGE_ID);
 
-        if (
-          registryResponse.data?.content?.dataType === "moveObject" &&
-          registryResponse.data.content
-        ) {
-          const clubs = await extractClubsFromRegistry(
-            registryResponse.data.content as RegistryContent
-          );
-          if (clubs.length) {
-            return clubs;
-          }
-        }
-      } catch (err) {
-        // Registry query failed - continue to fallback method
-      }
-    }
-
-    // Method 2: Query all shared Club objects by type
+    // Method: Query all shared Club objects by transaction history
     try {
       // Use queryTransactionBlocks to find created Club objects
       const queryResponse = await suiClient.queryTransactionBlocks({
         filter: {
           MoveFunction: {
             package: PACKAGE_ID,
-            module: "club",
+            module: "club_system",
             function: "create_club",
           },
         },
         options: {
           showEffects: true,
           showObjectChanges: true,
+          showInput: false,
+          showEvents: false,
         },
-        limit: 50,
+        limit: 100,
+        order: "descending",
       });
 
-      const clubs: Club[] = [];
-      const seenClubIds = new Set<string>();
+      console.log(`📦 Found ${queryResponse.data.length} create_club transactions`);
 
       for (const tx of queryResponse.data) {
-        // Look in objectChanges for created Club objects
-        const createdClubs = tx.objectChanges?.filter(
-          (change: any) =>
-            change.type === "created" &&
-            change.objectType?.includes("::club_system::Club")
-        ) ?? [];
-
-        for (const change of createdClubs) {
-          const clubId = (change as any).objectId;
-          if (!clubId || seenClubIds.has(clubId)) continue;
-          
-          seenClubIds.add(clubId);
-          
-          try {
-            const club = await fetchClubObject(clubId, suiClient);
-            if (club) {
-              clubs.push(club);
+        // Method 1: Check objectChanges for shared objects
+        if (tx.objectChanges) {
+          for (const change of tx.objectChanges) {
+            // Check if it's a created shared Club object
+            if (
+              change.type === "created" &&
+              change.objectType?.includes("::club_system::Club")
+            ) {
+              const clubId = (change as any).objectId;
+              const owner = (change as any).owner;
+              
+              // Shared objects have owner.Shared (object with Shared property)
+              const isShared = 
+                typeof owner === "object" && 
+                owner !== null && 
+                "Shared" in owner;
+              
+              if (clubId && isShared) {
+                if (!seenClubIds.has(clubId)) {
+                  seenClubIds.add(clubId);
+                  try {
+                    const club = await fetchClubObject(clubId, suiClient);
+                    if (club) {
+                      clubs.push(club);
+                      console.log(`✅ Found club: ${club.name} (${clubId})`);
+                    }
+                  } catch (err) {
+                    console.warn(`Failed to fetch club ${clubId}:`, err);
+                  }
+                }
+              }
             }
+          }
+        }
+
+        // Method 2: Check effects.created for shared objects
+        if (tx.effects?.created) {
+          for (const created of tx.effects.created) {
+            const objectId = created.reference?.objectId;
+            if (!objectId || seenClubIds.has(objectId)) continue;
+            
+            try {
+              const obj = await suiClient.getObject({
+                id: objectId,
+                options: { 
+                  showType: true, 
+                  showContent: true,
+                  showOwner: true,
+                },
+              });
+              
+              // Check if it's a shared Club object
+              const owner = obj.data?.owner;
+              const isShared = 
+                typeof owner === "object" && 
+                owner !== null && 
+                "Shared" in owner;
+              
+              if (
+                obj.data?.type?.includes("::club_system::Club") &&
+                isShared
+              ) {
+                seenClubIds.add(objectId);
+                const club = await fetchClubObject(objectId, suiClient);
+                if (club) {
+                  clubs.push(club);
+                  console.log(`✅ Found club from effects: ${club.name} (${objectId})`);
+                }
+              }
           } catch (err) {
-            // Failed to fetch club - skip silently
+              // Skip silently
+            }
           }
         }
       }
 
+      console.log(`✅ Total clubs found: ${clubs.length}`);
       return clubs;
     } catch (err) {
-      console.error("Query by type failed:", err);
+      console.error("❌ Query transaction blocks failed:", err);
     }
 
     return [];
