@@ -6,12 +6,16 @@ module clubchain::club_system {
     use std::string::String;
     use sui::event;
     use sui::table::{Self, Table};
+    use sui::coin::{Self, Coin};
+    use sui::sui::SUI;
     // === Error Codes ===
     const ENotAuthorized: u64 = 1;
     const EBadgeExpired: u64 = 2;
     const EWrongClub: u64 = 3;
     const EAlreadyJoined: u64 = 4;
     const EAlreadyRegistered: u64 = 5;
+    const EInsufficientBalance: u64 = 6;
+    const EInvalidAmount: u64 = 7;
     // === Badges ===
     /// Super Admin Cap (can create clubs and issue badges)
     public struct SuperAdminCap has key, store {
@@ -42,6 +46,8 @@ module clubchain::club_system {
         id: UID,
         name: String,
         description: String,
+        balance: u64,
+        treasury: Coin<SUI>,
     }
     public struct Event has key, store {
         id: UID,
@@ -58,6 +64,20 @@ module clubchain::club_system {
         event_id: ID,
         club_id: ID,
         title: String
+    }
+
+    // Donation event
+    public struct DonationEvent has copy, drop {
+        club_id: ID,
+        donor: address,
+        amount: u64
+    }
+
+    // Withdrawal event
+    public struct WithdrawalEvent has copy, drop {
+        club_id: ID,
+        owner: address,
+        amount: u64
     }
 
     /// Registry to track registered members (prevent duplicate badges)
@@ -92,7 +112,9 @@ module clubchain::club_system {
         let club = Club {
             id: object::new(ctx),
             name,
-            description: desc
+            description: desc,
+            balance: 0,
+            treasury: coin::zero<SUI>(ctx)
         };
         let club_id = object::uid_to_inner(&club.id);
         transfer::share_object(club);
@@ -236,5 +258,72 @@ module clubchain::club_system {
             image_blob_id: event.encrypted_blob_id
         };
         transfer::transfer(proof, tx_context::sender(ctx));
+    }
+
+    /// Donate to Club (Only members with MemberBadge can donate)
+    public entry fun donate_to_club(
+        _: &MemberBadge,
+        club: &mut Club,
+        payment: Coin<SUI>,
+        ctx: &mut TxContext
+    ) {
+        let donor = tx_context::sender(ctx);
+        let amount = coin::value(&payment);
+        
+        // Validate amount > 0
+        assert!(amount > 0, EInvalidAmount);
+        
+        // Add amount to club balance
+        club.balance = club.balance + amount;
+        
+        // Merge payment coin into treasury
+        coin::join(&mut club.treasury, payment);
+        
+        // Emit donation event
+        event::emit(DonationEvent {
+            club_id: object::uid_to_inner(&club.id),
+            donor,
+            amount
+        });
+    }
+
+    /// Withdraw Donations (Only club owner can withdraw)
+    public entry fun withdraw_donations(
+        owner_badge: &ClubOwnerBadge,
+        club: &mut Club,
+        amount: u64,
+        ctx: &mut TxContext
+    ) {
+        let owner = tx_context::sender(ctx);
+        let club_id = object::uid_to_inner(&club.id);
+        
+        // Validate owner_badge.club_id == club.id
+        assert!(owner_badge.club_id == club_id, EWrongClub);
+        
+        // Validate amount <= club.balance
+        assert!(amount <= club.balance, EInsufficientBalance);
+        
+        // Validate amount > 0
+        assert!(amount > 0, EInvalidAmount);
+        
+        // Validate treasury has enough coins
+        let treasury_balance = coin::value(&club.treasury);
+        assert!(amount <= treasury_balance, EInsufficientBalance);
+        
+        // Subtract amount from club balance
+        club.balance = club.balance - amount;
+        
+        // Split coin from treasury
+        let coin_to_transfer = coin::split(&mut club.treasury, amount, ctx);
+        
+        // Transfer coin to owner
+        transfer::public_transfer(coin_to_transfer, owner);
+        
+        // Emit withdrawal event
+        event::emit(WithdrawalEvent {
+            club_id,
+            owner,
+            amount
+        });
     }
 }

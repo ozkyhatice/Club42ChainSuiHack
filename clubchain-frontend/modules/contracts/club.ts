@@ -181,5 +181,55 @@ export function buildCreateClubTx(
   return tx;
 }
 
+/**
+ * Build a transaction to donate SUI to a club
+ * Requires MemberBadge to donate
+ * The transaction will split the amount from gas coin and donate it
+ * 
+ * Smart contract signature:
+ * donate_to_club(_: &MemberBadge, club: &mut Club, payment: Coin<SUI>, ctx: &mut TxContext)
+ */
+export function buildDonateToClubTx(
+  packageId: string,
+  memberBadgeId: string,
+  clubId: string,
+  amountMist: bigint // Amount in MIST (1 SUI = 1,000,000,000 MIST)
+): Transaction {
+  if (!packageId) {
+    throw new Error("Package ID is required");
+  }
+
+  if (!memberBadgeId || memberBadgeId.trim() === "") {
+    throw new Error("Member Badge ID is required");
+  }
+
+  if (!clubId || clubId.trim() === "") {
+    throw new Error("Club ID is required");
+  }
+
+  if (amountMist <= 0n) {
+    throw new Error("Donation amount must be greater than 0");
+  }
+
+  const tx = new Transaction();
+
+  // Split coin from gas for donation
+  const [donationCoin] = tx.splitCoins(tx.gas, [amountMist]);
+
+  // Call donate_to_club with the split coin
+  tx.moveCall({
+    target: `${packageId}::club_system::donate_to_club`,
+    arguments: [
+      tx.object(memberBadgeId), // MemberBadge
+      tx.object(clubId),        // club: &mut Club
+      donationCoin,             // payment: Coin<SUI>
+    ],
+  });
+
+  tx.setGasBudget(100_000_000); // 100 MIST
+
+  return tx;
+}
+
 // Note: update_club_name and delete_club functions are not available in the new contract
 

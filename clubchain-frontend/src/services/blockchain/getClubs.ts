@@ -21,6 +21,7 @@ export type Club = {
   name: string;
   description: string;
   events: EventInfo[];
+  balance?: number; // Donation balance in MIST (1 SUI = 1,000,000,000 MIST)
 };
 
 const CLUB_STRUCT = `${PACKAGE_ID}::club_system::Club`;
@@ -121,6 +122,7 @@ export const extractClubsFromRegistry = async (
       name: fields.name ?? "Unnamed Club",
       description: fields.description ?? "No description provided",
       events,
+      balance: fields.balance ? Number(fields.balance) : 0,
     });
   }
 
@@ -155,6 +157,7 @@ const fetchClubObject = async (
     name: fields.name ?? "Unnamed Club",
     description: fields.description ?? "",
     events,
+    balance: fields.balance ? Number(fields.balance) : 0,
   };
 };
 

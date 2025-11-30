@@ -8,44 +8,20 @@ import { EventList } from "@/src/modules/events/EventList";
 import { EventCreateModal } from "@/src/modules/events/EventCreateModal";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import OwnerBadge from "@/components/ui/OwnerBadge";
-import { Building2, ArrowLeft, Users, Sparkles, Copy, CheckCircle2, UserPlus, UserMinus, AlertCircle } from "lucide-react";
+import { Building2, ArrowLeft, Users, Sparkles, Copy, CheckCircle2, UserPlus, UserMinus, AlertCircle, Heart, Coins } from "lucide-react";
 import Card, { CardBody } from "@/components/ui/Card";
 import StatCard from "@/components/ui/StatCard";
 import Button from "@/components/ui/Button";
 import { useSignAndExecuteTransaction } from "@mysten/dapp-kit";
 import { buildJoinEventTx } from "@/modules/contracts/event";
+import { buildDonateToClubTx } from "@/modules/contracts/club";
 import { PACKAGE_ID } from "@/lib/constants";
-import { useHasMemberBadge } from "@/hooks/useMemberBadge";
+import { useHasMemberBadge, useMemberBadge } from "@/hooks/useMemberBadge";
 import toast from "react-hot-toast";
 import Link from "next/link";
 
-// Helper functions for localStorage membership management
-const getMembershipKey = (address: string) => `club_memberships_${address}`;
-
-const getClubMemberships = (address: string): string[] => {
-  if (typeof window === "undefined") return [];
-  const key = getMembershipKey(address);
-  const stored = localStorage.getItem(key);
-  return stored ? JSON.parse(stored) : [];
-};
-
-const addClubMembership = (address: string, clubId: string) => {
-  if (typeof window === "undefined") return;
-  const key = getMembershipKey(address);
-  const memberships = getClubMemberships(address);
-  if (!memberships.includes(clubId)) {
-    memberships.push(clubId);
-    localStorage.setItem(key, JSON.stringify(memberships));
-  }
-};
-
-const removeClubMembership = (address: string, clubId: string) => {
-  if (typeof window === "undefined") return;
-  const key = getMembershipKey(address);
-  const memberships = getClubMemberships(address);
-  const filtered = memberships.filter((id) => id !== clubId);
-  localStorage.setItem(key, JSON.stringify(filtered));
-};
+// Membership is now determined by having a MemberBadge on-chain
+// No need for localStorage - membership is automatic if user has MemberBadge
 
 export default function ClubPage() {
   const params = useParams<{ id: string }>();
@@ -59,7 +35,10 @@ export default function ClubPage() {
   const [copied, setCopied] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [isMember, setIsMember] = useState(false);
+  const [donationAmount, setDonationAmount] = useState("");
+  const [isDonating, setIsDonating] = useState(false);
   const { mutate: signAndExecute } = useSignAndExecuteTransaction();
+  const { data: memberBadge } = useMemberBadge();
 
   useEffect(() => {
     const fetchClub = async () => {
@@ -81,13 +60,15 @@ export default function ClubPage() {
     fetchClub();
   }, [params.id]);
 
-  // Check membership status from localStorage
+  // Check membership status - if user has MemberBadge, they are automatically a member
   useEffect(() => {
-    if (account?.address && params.id) {
-      const memberships = getClubMemberships(account.address);
-      setIsMember(memberships.includes(params.id));
+    if (account?.address && hasMemberBadge) {
+      // If user has MemberBadge, they are considered a member
+      setIsMember(true);
+    } else {
+      setIsMember(false);
     }
-  }, [account?.address, params.id]);
+  }, [account?.address, hasMemberBadge]);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -140,35 +121,81 @@ export default function ClubPage() {
     !!account?.address &&
     account.address.toLowerCase() === club.owner.toLowerCase();
 
-  const userStatus = isOwner ? "Owner" : (isMember ? "Member" : "Not a Member");
+  // User status: Owner if they own the club, Member if they have MemberBadge, otherwise Not a Member
+  const userStatus = isOwner ? "Owner" : (hasMemberBadge ? "Member" : "Not a Member");
 
-  const handleJoinClub = async () => {
+
+  const handleDonate = async () => {
     if (!account?.address) {
       toast.error("Please connect your wallet first");
       return;
     }
 
-    if (!hasMemberBadge) {
-      toast.error("You need to register as a member first");
+    if (!hasMemberBadge || !memberBadge) {
+      toast.error("You need a MemberBadge to donate");
       return;
     }
 
-    // Add to localStorage (off-chain membership)
-    addClubMembership(account.address, params.id);
-    setIsMember(true);
-    toast.success("Successfully joined the club!");
+    if (!donationAmount || parseFloat(donationAmount) <= 0) {
+      toast.error("Please enter a valid donation amount");
+      return;
+    }
+
+    const amountSui = parseFloat(donationAmount);
+    if (isNaN(amountSui) || amountSui <= 0) {
+      toast.error("Please enter a valid donation amount");
+      return;
+    }
+
+    // Convert SUI to MIST (1 SUI = 1,000,000,000 MIST)
+    const amountMist = BigInt(Math.floor(amountSui * 1_000_000_000));
+
+    setIsDonating(true);
+
+    try {
+      if (!PACKAGE_ID) {
+        toast.error("Configuration error: PACKAGE_ID not set");
+        return;
+      }
+
+      const tx = buildDonateToClubTx(
+        PACKAGE_ID,
+        memberBadge.objectId,
+        params.id,
+        amountMist
+      );
+
+      signAndExecute(
+        { transaction: tx },
+        {
+          onSuccess: () => {
+            toast.success(`Successfully donated ${donationAmount} SUI!`);
+            setDonationAmount("");
+            // Refresh club data
+            fetch(`/api/clubs/${params.id}`, { cache: "no-store" })
+              .then((res) => res.json())
+              .then((data) => setClub(data.club))
+              .catch(console.error);
+          },
+          onError: (err) => {
+            toast.error(err.message || "Failed to donate");
+          },
+          onSettled: () => {
+            setIsDonating(false);
+          },
+        }
+      );
+    } catch (err: any) {
+      toast.error(err.message || "Failed to create donation transaction");
+      setIsDonating(false);
+    }
   };
 
-  const handleLeaveClub = async () => {
-    if (!account?.address) {
-      toast.error("Please connect your wallet first");
-      return;
-    }
-
-    // Remove from localStorage (off-chain membership)
-    removeClubMembership(account.address, params.id);
-    setIsMember(false);
-    toast.success("Left the club successfully");
+  // Format balance from MIST to SUI
+  const formatBalance = (balanceMist?: number): string => {
+    if (!balanceMist) return "0.00";
+    const sui = balanceMist / 1_000_000_000;
+    return sui.toFixed(2);
   };
 
   return (
@@ -250,7 +277,77 @@ export default function ClubPage() {
           />
         </div>
 
-        {/* Join/Leave Club Button - Prominent */}
+        {/* Donation Box */}
+        <Card className="animate-slideUp animation-delay-300">
+          <CardBody className="p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <Heart className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-foreground">Bağış Kutusu</h2>
+                <p className="text-sm text-text-muted">Kulübe bağış yaparak destek olun</p>
+              </div>
+            </div>
+
+            <div className="mb-6 p-4 bg-secondary/50 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Coins className="w-5 h-5 text-accent" />
+                  <span className="text-sm text-text-muted">Toplam Bağış:</span>
+                </div>
+                <span className="text-2xl font-bold text-foreground">
+                  {formatBalance(club.balance)} SUI
+                </span>
+              </div>
+            </div>
+
+            {hasMemberBadge ? (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Bağış Miktarı (SUI)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    value={donationAmount}
+                    onChange={(e) => setDonationAmount(e.target.value)}
+                    placeholder="0.00"
+                    className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground"
+                    disabled={isDonating}
+                  />
+                </div>
+                <Button
+                  variant="primary"
+                  size="lg"
+                  onClick={handleDonate}
+                  disabled={isDonating || !donationAmount || parseFloat(donationAmount) <= 0}
+                  className="w-full group"
+                >
+                  <Heart className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                  {isDonating ? "Bağış Yapılıyor..." : "Bağış Yap"}
+                </Button>
+              </div>
+            ) : (
+              <div className="text-center py-4">
+                <AlertCircle className="w-12 h-12 text-warning mx-auto mb-2" />
+                <p className="text-text-muted mb-4">
+                  Bağış yapmak için önce üye olmanız gerekiyor
+                </p>
+                <Link href="/membership/register">
+                  <Button variant="outline" size="lg" className="w-full">
+                    <UserPlus className="w-5 h-5" />
+                    Üye Ol
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </CardBody>
+        </Card>
+
+        {/* Membership Status - Automatic with MemberBadge */}
         {!isOwner && account?.address && (
           <div className="flex justify-center animate-slideUp animation-delay-300">
             <Card className="w-full max-w-md">
@@ -263,7 +360,7 @@ export default function ClubPage() {
                   <div className="space-y-4">
                     <AlertCircle className="w-12 h-12 text-warning mx-auto mb-2" />
                     <p className="text-text-muted mb-4">
-                      You need to register as a member first to join clubs
+                      You need to register as a member first. Your 42 account will be linked to your Sui wallet.
                     </p>
                     <Link href="/membership/register">
                       <Button
@@ -276,33 +373,20 @@ export default function ClubPage() {
                       </Button>
                     </Link>
                   </div>
-                ) : isMember ? (
-                  <div className="space-y-4">
-                    <p className="text-text-muted mb-4">You are a member of this club</p>
-                    <Button
-                      variant="outline"
-                      size="lg"
-                      onClick={handleLeaveClub}
-                      disabled={actionLoading}
-                      className="w-full group"
-                    >
-                      <UserMinus className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                      {actionLoading ? "Leaving..." : "Leave Club"}
-                    </Button>
-                  </div>
                 ) : (
                   <div className="space-y-4">
-                    <p className="text-text-muted mb-4">Join this club to participate in events</p>
-                    <Button
-                      variant="primary"
-                      size="lg"
-                      onClick={handleJoinClub}
-                      disabled={actionLoading}
-                      className="w-full group"
-                    >
-                      <UserPlus className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                      {actionLoading ? "Joining..." : "Join Club"}
-                    </Button>
+                    <div className="w-16 h-16 rounded-full bg-success/20 flex items-center justify-center mx-auto mb-4 border-2 border-success/40">
+                      <CheckCircle2 className="w-8 h-8 text-success" />
+                    </div>
+                    <h3 className="text-xl font-bold text-foreground mb-2">You are a Member!</h3>
+                    <p className="text-text-muted mb-4">
+                      Your MemberBadge gives you automatic access to all clubs. You can participate in events and make donations.
+                    </p>
+                    <div className="bg-success/10 border border-success/20 rounded-lg p-3">
+                      <p className="text-sm text-success font-medium">
+                        ✓ MemberBadge Active
+                      </p>
+                    </div>
                   </div>
                 )}
               </CardBody>
