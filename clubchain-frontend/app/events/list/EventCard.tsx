@@ -2,6 +2,7 @@
 
 import { memo } from 'react';
 import type { EventItem } from '../types';
+import { NETWORK } from '@/lib/constants';
 
 interface EventCardProps {
   event: EventItem;
@@ -84,7 +85,7 @@ const EventCard = memo(function EventCard({ event }: EventCardProps) {
           Club: {event.clubId.slice(0, 8)}...
         </span>
         <a
-          href={`https://suiscan.xyz/devnet/object/${event.objectId}`}
+          href={`https://suiscan.xyz/${NETWORK}/object/${event.objectId}`}
           target="_blank"
           rel="noopener noreferrer"
           className="text-primary hover:text-primary-hover underline text-sm font-medium transition-colors"

@@ -63,10 +63,12 @@ export default function CreateEventForm({ ownedClubs = [] }: CreateEventFormProp
   // No clubs available
   if (ownedClubs.length === 0 && !clubOwnerBadges?.length) {
     return (
-      <div className="bg-warning/10 border border-warning/20 rounded-lg p-8 text-center">
-        <Building2 className="w-16 h-16 text-warning mx-auto mb-4" />
+      <div className="bg-card border border-border rounded-xl shadow-elevation-2 p-8 text-center">
+        <div className="inline-flex p-4 bg-primary/10 rounded-lg mb-4">
+          <Building2 className="w-12 h-12 text-primary" />
+        </div>
         <h3 className="text-xl font-semibold text-foreground mb-2">No Clubs Available</h3>
-        <p className="text-gray-400 mb-4">
+        <p className="text-text-muted mb-6">
           You need to be the admin of at least one club to create events.
         </p>
         <GamifiedButton
@@ -80,19 +82,21 @@ export default function CreateEventForm({ ownedClubs = [] }: CreateEventFormProp
   }
 
   return (
-    <div className="bg-card border border-secondary rounded-xl shadow-elevation-2 p-8">
+    <div className="bg-card border border-border rounded-xl shadow-elevation-2 p-8 animate-slideUp animation-delay-200">
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Club Selection */}
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-3 flex items-center gap-2">
-            <Building2 className="w-5 h-5 text-primary" />
-            Select Your Club
+        <div className="space-y-3">
+          <label className="block text-sm font-semibold text-foreground flex items-center gap-2">
+            <div className="p-1.5 bg-primary/10 rounded-lg">
+              <Building2 className="w-4 h-4 text-primary" />
+            </div>
+            <span>Select Your Club</span>
           </label>
           <select
             required
             value={selectedClubId}
             onChange={(e) => setSelectedClubId(e.target.value)}
-            className="w-full px-4 py-3 bg-input-bg border border-input-border rounded-lg text-foreground focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-colors"
+            className="w-full px-4 py-3 bg-input-bg border border-input-border rounded-lg text-foreground focus:ring-2 focus:ring-input-focus focus:border-input-focus outline-none transition-all hover:border-primary/50"
           >
             <option value="">-- Choose a club to host this event --</option>
             {ownedClubs.map((club) => (
@@ -101,17 +105,19 @@ export default function CreateEventForm({ ownedClubs = [] }: CreateEventFormProp
               </option>
             ))}
           </select>
-          <p className="text-xs text-gray-400 mt-2 flex items-center gap-1">
+          <p className="text-xs text-text-muted mt-2 flex items-center gap-2">
             <OwnerBadge size="sm" showLabel={false} animate={false} />
-            You can only create events for clubs where you are the admin
+            <span>You can only create events for clubs where you are the admin</span>
           </p>
         </div>
 
         {/* Event Title */}
-        <div>
-          <label htmlFor="title" className="block text-sm font-medium text-foreground mb-2 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-primary" />
-            Event Title *
+        <div className="space-y-3">
+          <label htmlFor="title" className="block text-sm font-semibold text-foreground flex items-center gap-2">
+            <div className="p-1.5 bg-primary/10 rounded-lg">
+              <Sparkles className="w-4 h-4 text-primary" />
+            </div>
+            <span>Event Title *</span>
           </label>
           <input
             id="title"
@@ -119,16 +125,18 @@ export default function CreateEventForm({ ownedClubs = [] }: CreateEventFormProp
             value={formData.title}
             onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
             placeholder="Enter event title"
-            className="w-full px-4 py-3 bg-input-bg border border-input-border rounded-lg text-foreground placeholder:text-text-muted focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-colors"
+            className="w-full px-4 py-3 bg-input-bg border border-input-border rounded-lg text-foreground placeholder:text-text-muted focus:ring-2 focus:ring-input-focus focus:border-input-focus outline-none transition-all hover:border-primary/50"
             required
           />
         </div>
 
         {/* Event Description */}
-        <div>
-          <label htmlFor="description" className="block text-sm font-medium text-foreground mb-2 flex items-center gap-2">
-            <FileText className="w-5 h-5 text-primary" />
-            Description *
+        <div className="space-y-3">
+          <label htmlFor="description" className="block text-sm font-semibold text-foreground flex items-center gap-2">
+            <div className="p-1.5 bg-primary/10 rounded-lg">
+              <FileText className="w-4 h-4 text-primary" />
+            </div>
+            <span>Description *</span>
           </label>
           <textarea
             id="description"
@@ -136,85 +144,78 @@ export default function CreateEventForm({ ownedClubs = [] }: CreateEventFormProp
             onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
             placeholder="Describe your event"
             rows={4}
-            className="w-full px-4 py-3 bg-input-bg border border-input-border rounded-lg text-foreground placeholder:text-text-muted focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-colors resize-vertical"
+            className="w-full px-4 py-3 bg-input-bg border border-input-border rounded-lg text-foreground placeholder:text-text-muted focus:ring-2 focus:ring-input-focus focus:border-input-focus outline-none transition-all resize-vertical hover:border-primary/50"
             required
           />
         </div>
 
         {/* Event Date */}
-        <div>
-          <label htmlFor="date" className="block text-sm font-medium text-foreground mb-2 flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-primary" />
-            Event Date & Time *
+        <div className="space-y-3">
+          <label htmlFor="date" className="block text-sm font-semibold text-foreground flex items-center gap-2">
+            <div className="p-1.5 bg-primary/10 rounded-lg">
+              <Calendar className="w-4 h-4 text-primary" />
+            </div>
+            <span>Event Date & Time *</span>
           </label>
-          <input
-            id="date"
-            type="datetime-local"
-            value={formData.date}
-            onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
-            className="w-full px-4 py-3 bg-input-bg border border-input-border rounded-lg text-foreground focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-colors"
-            required
-          />
-          <p className="text-xs text-gray-400 mt-1">
-            Event will be automatically set to 2 hours duration
+          <div className="relative">
+            <input
+              id="date"
+              type="datetime-local"
+              value={formData.date}
+              onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+              className="w-full px-4 py-3 bg-input-bg border border-input-border rounded-lg text-foreground focus:ring-2 focus:ring-input-focus focus:border-input-focus outline-none transition-all hover:border-primary/50"
+              required
+            />
+          </div>
+          <p className="text-xs text-text-muted flex items-center gap-1">
+            <Clock className="w-3 h-3" />
+            <span>Event will be automatically set to 2 hours duration</span>
           </p>
         </div>
 
         {/* Status Display */}
         {txStatus && (
-          <div className={`p-4 rounded-lg flex items-center gap-3 ${
-            txStatus.includes('✅') ? 'bg-success/10 border border-success/20' :
-            txStatus.includes('❌') ? 'bg-error/10 border border-error/20' :
-            txStatus.includes('⚠️') ? 'bg-warning/10 border border-warning/20' :
-            'bg-primary/10 border border-primary/20'
+          <div className={`p-4 rounded-lg flex items-start gap-3 border ${
+            txStatus.includes('✅') || txStatus.includes('Success') ? 'bg-success/10 border-success/30' :
+            txStatus.includes('❌') || txStatus.includes('Error') ? 'bg-error/10 border-error/30' :
+            txStatus.includes('⚠️') || txStatus.includes('Warning') ? 'bg-warning/10 border-warning/30' :
+            'bg-primary/10 border-primary/30'
           }`}>
-            {txStatus.includes('✅') && <CheckCircle className="w-5 h-5 text-success" />}
-            {txStatus.includes('❌') && <XCircle className="w-5 h-5 text-error" />}
-            {txStatus.includes('⚠️') && <AlertCircle className="w-5 h-5 text-warning" />}
-            {!txStatus.includes('✅') && !txStatus.includes('❌') && !txStatus.includes('⚠️') && (
-              <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
-            )}
-            <span className={
-              txStatus.includes('✅') ? 'text-success' :
-              txStatus.includes('❌') ? 'text-error' :
-              txStatus.includes('⚠️') ? 'text-warning' :
+            <div className="flex-shrink-0 mt-0.5">
+              {(txStatus.includes('✅') || txStatus.includes('Success')) && <CheckCircle className="w-5 h-5 text-success" />}
+              {(txStatus.includes('❌') || txStatus.includes('Error')) && <XCircle className="w-5 h-5 text-error" />}
+              {(txStatus.includes('⚠️') || txStatus.includes('Warning')) && <AlertCircle className="w-5 h-5 text-warning" />}
+              {!txStatus.includes('✅') && !txStatus.includes('Success') && !txStatus.includes('❌') && !txStatus.includes('Error') && !txStatus.includes('⚠️') && !txStatus.includes('Warning') && (
+                <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full" />
+              )}
+            </div>
+            <span className={`flex-1 ${
+              txStatus.includes('✅') || txStatus.includes('Success') ? 'text-success' :
+              txStatus.includes('❌') || txStatus.includes('Error') ? 'text-error' :
+              txStatus.includes('⚠️') || txStatus.includes('Warning') ? 'text-warning' :
               'text-primary'
-            }>
+            }`}>
               {txStatus}
             </span>
           </div>
         )}
 
-        {/* Debug Info */}
-        {process.env.NODE_ENV === 'development' && (
-          <div className="bg-secondary/50 rounded-lg p-4">
-            <h3 className="font-medium text-foreground mb-2">Debug Info</h3>
-            <div className="text-sm text-gray-400 space-y-1">
-              <p><strong>Account:</strong> {account?.address}</p>
-              <p><strong>Selected Club:</strong> {selectedClubId || 'None'}</p>
-              <p><strong>Available Clubs:</strong> {ownedClubs.length}</p>
-              <p><strong>Club Owner Badges:</strong> {clubOwnerBadges?.length || 0}</p>
-              <p><strong>Badge Club IDs:</strong> {clubOwnerBadges?.map(b => b.clubId.slice(0, 8)).join(", ") || "None"}</p>
-            </div>
-          </div>
-        )}
-
         {/* Wallet Interaction Info */}
         {!txStatus && (
-          <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
+          <div className="bg-primary/10 border border-primary/30 rounded-lg p-4">
             <div className="flex items-start gap-3">
-              <div className="w-5 h-5 text-primary mt-0.5">
-                ℹ️
+              <div className="p-1.5 bg-primary/20 rounded-lg flex-shrink-0">
+                <AlertCircle className="w-4 h-4 text-primary" />
               </div>
-              <div className="text-sm text-gray-400">
-                <p className="font-medium mb-1">Transaction Process:</p>
-                <ol className="list-decimal list-inside space-y-1 text-xs">
-                  <li>Click "Create Event" to prepare the transaction</li>
+              <div className="text-sm text-text-muted flex-1">
+                <p className="font-semibold text-foreground mb-2">Transaction Process:</p>
+                <ol className="list-decimal list-inside space-y-1.5 text-xs">
+                  <li>Click "Publish Event" to prepare the transaction</li>
                   <li>Your wallet will open asking for approval</li>
                   <li>Review the transaction details and click "Approve"</li>
                   <li>Wait for the transaction to be processed on the blockchain</li>
                 </ol>
-                <p className="text-xs mt-2 opacity-80">
+                <p className="text-xs mt-3 text-text-secondary">
                   💡 If you see "Transaction cancelled", it means you clicked "Reject" in your wallet. This is normal!
                 </p>
               </div>

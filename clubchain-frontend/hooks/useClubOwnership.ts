@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getUserAdminCaps, hasAdminCapForClub } from "@/modules/contracts/admin-cap";
 import { getClubs, isClubOwner } from "@/src/services/blockchain/getClubs";
 import { useUserClubOwnerBadges } from "@/hooks/useClubOwnerBadge";
+import { PACKAGE_ID } from "@/lib/constants";
 
 /**
  * Hook to check if current user owns a specific club
@@ -126,42 +127,78 @@ export function useIsAnyClubOwner() {
 
 /**
  * Hook to get all clubs where current user is a member
- * A user is considered a member if they have participated in at least one event of that club
+ * A user is considered a member if:
+ * 1. They have a MemberBadge (general membership - access to all clubs)
+ * 2. They have participated in at least one event of that club
  */
 export function useUserMemberClubs() {
   const account = useCurrentAccount();
+  const suiClient = useSuiClient();
   
   return useQuery({
     queryKey: ["user-member-clubs", account?.address],
     queryFn: async () => {
       if (!account?.address) return [];
       
-      const allClubs = await getClubs();
-      const userAddress = account.address.toLowerCase();
-      
-      // Filter clubs where user has participated in at least one event
-      const memberClubs = allClubs.filter(club => {
-        // Check if user has participated in any event of this club
-        const hasParticipated = club.events.some(event => {
-          if (!event.participants || event.participants.length === 0) {
-            return false;
-          }
-          return event.participants.some(participant => {
-            // Participants should be strings (addresses)
-            const participantAddress = typeof participant === "string" 
-              ? participant 
-              : String(participant || "");
-            return participantAddress.toLowerCase() === userAddress;
+      try {
+        // First check if user has MemberBadge (general membership)
+        let hasMemberBadge = false;
+        try {
+          const memberBadgeResult = await suiClient.getOwnedObjects({
+            owner: account.address,
+            filter: {
+              StructType: `${PACKAGE_ID}::club_system::MemberBadge`,
+            },
+            options: {
+              showContent: true,
+            },
+            limit: 1,
           });
+          hasMemberBadge = memberBadgeResult.data.length > 0;
+        } catch (error) {
+          console.error("Error checking MemberBadge:", error);
+        }
+        
+        const allClubs = await getClubs();
+        const userAddress = account.address.toLowerCase();
+        
+        // If user has MemberBadge, they are a member of all clubs (except owned ones)
+        if (hasMemberBadge) {
+          console.log("User has MemberBadge - showing all clubs as member clubs");
+          // Return all clubs (they will be filtered to exclude owned clubs in the component)
+          return allClubs;
+        }
+        
+        // Otherwise, filter clubs where user has participated in at least one event
+        const memberClubs = allClubs.filter(club => {
+          // Check if user has participated in any event of this club
+          const hasParticipated = club.events.some(event => {
+            if (!event.participants || event.participants.length === 0) {
+              return false;
+            }
+            return event.participants.some(participant => {
+              // Participants should be strings (addresses)
+              const participantAddress = typeof participant === "string" 
+                ? participant 
+                : String(participant || "");
+              return participantAddress.toLowerCase() === userAddress;
+            });
+          });
+          
+          return hasParticipated;
         });
         
-        return hasParticipated;
-      });
-      
-      return memberClubs;
+        return memberClubs;
+      } catch (error) {
+        console.error("Error fetching user member clubs:", error);
+        // Return empty array on error to prevent UI crash
+        return [];
+      }
     },
     enabled: !!account?.address,
     staleTime: 30000, // 30 seconds - shorter cache for more real-time updates
+    retry: 2, // Retry twice on failure
+    retryDelay: 1000, // Wait 1 second between retries
   });
 }
 

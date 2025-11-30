@@ -146,7 +146,7 @@ export default function WalletAnalyzerPage() {
                       <>
                         <p><strong>Club ID:</strong> {fields.club_id}</p>
                         <p><strong>Expiration:</strong> {expirationMs ? new Date(expirationMs).toLocaleString() : 'Unknown'}</p>
-                        <p><strong>Status:</strong> {isExpired === null ? 'Unknown' : isExpired ? '❌ EXPIRED' : '✅ VALID'}</p>
+                        <p><strong>Status:</strong> {isExpired === null ? 'Unknown' : isExpired ? '❌ EXPIRED' : '  VALID'}</p>
                         <p><strong>Time Until Expiry:</strong> {expirationMs ? Math.max(0, expirationMs - Date.now()) : 'Unknown'} ms</p>
                       </>
                     )}

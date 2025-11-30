@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useCurrentAccount } from "@mysten/dapp-kit";
+import { useQueryClient } from "@tanstack/react-query";
 import type { Club } from "@/src/services/blockchain/getClubs";
 import { EventList } from "@/src/modules/events/EventList";
 import { EventCreateModal } from "@/src/modules/events/EventCreateModal";
@@ -27,7 +28,8 @@ export default function ClubPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const account = useCurrentAccount();
-  const { data: hasMemberBadge, isLoading: isCheckingBadge } = useHasMemberBadge();
+  const queryClient = useQueryClient();
+  const { data: hasMemberBadge, isLoading: isCheckingBadge, refetch: refetchMemberBadge } = useHasMemberBadge();
   const [club, setClub] = useState<Club | null>(null);
   const [status, setStatus] = useState<"loading" | "error" | "success">(
     "loading"
@@ -39,6 +41,21 @@ export default function ClubPage() {
   const [isDonating, setIsDonating] = useState(false);
   const { mutate: signAndExecute } = useSignAndExecuteTransaction();
   const { data: memberBadge } = useMemberBadge();
+
+  // Refetch member badge when page becomes visible (e.g., returning from registration)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && account?.address) {
+        console.log("Page visible, refetching member badge...");
+        queryClient.invalidateQueries({ queryKey: ["member-badge", account.address] });
+        queryClient.invalidateQueries({ queryKey: ["member-badge-detail", account.address] });
+        refetchMemberBadge();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [account?.address, queryClient, refetchMemberBadge]);
 
   useEffect(() => {
     const fetchClub = async () => {
@@ -62,13 +79,28 @@ export default function ClubPage() {
 
   // Check membership status - if user has MemberBadge, they are automatically a member
   useEffect(() => {
-    if (account?.address && hasMemberBadge) {
-      // If user has MemberBadge, they are considered a member
-      setIsMember(true);
-    } else {
-      setIsMember(false);
+    console.log("ClubPage: Membership check", {
+      address: account?.address,
+      hasMemberBadge,
+      isCheckingBadge,
+    });
+
+    // Only set membership status if we're done checking
+    if (!isCheckingBadge) {
+      if (account?.address && hasMemberBadge === true) {
+        // If user has MemberBadge, they are considered a member
+        setIsMember(true);
+        console.log("ClubPage: User is a member (has MemberBadge)");
+      } else {
+        setIsMember(false);
+        console.log("ClubPage: User is not a member", {
+          hasAccount: !!account?.address,
+          hasMemberBadge,
+          isCheckingBadge,
+        });
+      }
     }
-  }, [account?.address, hasMemberBadge]);
+  }, [account?.address, hasMemberBadge, isCheckingBadge]);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -122,7 +154,12 @@ export default function ClubPage() {
     account.address.toLowerCase() === club.owner.toLowerCase();
 
   // User status: Owner if they own the club, Member if they have MemberBadge, otherwise Not a Member
-  const userStatus = isOwner ? "Owner" : (hasMemberBadge ? "Member" : "Not a Member");
+  // Only show "Member" if we're sure (not checking and has badge)
+  const userStatus = isOwner 
+    ? "Owner" 
+    : (!isCheckingBadge && hasMemberBadge) 
+      ? "Member" 
+      : "Not a Member";
 
 
   const handleDonate = async () => {
@@ -359,17 +396,18 @@ export default function ClubPage() {
                 ) : !hasMemberBadge ? (
                   <div className="space-y-4">
                     <AlertCircle className="w-12 h-12 text-warning mx-auto mb-2" />
+                    <h3 className="text-xl font-bold text-foreground mb-2">Join This Club</h3>
                     <p className="text-text-muted mb-4">
-                      You need to register as a member first. Your 42 account will be linked to your Sui wallet.
+                      To join this club and participate in events, you need to register as a member first. Your 42 account will be linked to your Sui wallet.
                     </p>
-                    <Link href="/membership/register">
+                    <Link href={`/membership/register?returnUrl=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : `/club/${params.id}`)}`}>
                       <Button
                         variant="primary"
                         size="lg"
                         className="w-full group"
                       >
                         <UserPlus className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                        Register as Member
+                        Join Club (Register as Member)
                       </Button>
                     </Link>
                   </div>
@@ -384,7 +422,7 @@ export default function ClubPage() {
                     </p>
                     <div className="bg-success/10 border border-success/20 rounded-lg p-3">
                       <p className="text-sm text-success font-medium">
-                        ✓ MemberBadge Active
+                        ✓ MemberBadge Active - You can participate in all club events
                       </p>
                     </div>
                   </div>

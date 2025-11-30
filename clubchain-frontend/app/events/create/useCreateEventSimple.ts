@@ -171,7 +171,7 @@ export function useCreateEvent() {
             console.log("Event creation successful:", result);
             setState({ 
               isSubmitting: false, 
-              txStatus: "✅ Event created successfully!" 
+              txStatus: "  Event created successfully!" 
             });
           },
           onError: (error) => {

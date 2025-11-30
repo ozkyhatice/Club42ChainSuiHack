@@ -41,7 +41,7 @@ export async function verifyPackageFunctions(
           const userParams = params.filter((p: string) => !p.includes("TxContext"));
           const paramCount = userParams.length;
           
-          console.log("✅ create_club function found:", {
+          console.log("  create_club function found:", {
             visibility: funcInfo.visibility,
             isEntry: funcInfo.isEntry,
             totalParams: params.length,
@@ -72,7 +72,7 @@ export async function verifyPackageFunctions(
                 actual: userParams,
               });
             } else {
-              console.log("✅ Function signature matches expected signature");
+              console.log("  Function signature matches expected signature");
             }
           }
         } else {
@@ -161,7 +161,7 @@ export function buildCreateClubTx(
   }
 
   // Detailed logging for debugging
-  console.log("✅ Transaction built for create_club:", {
+  console.log("  Transaction built for create_club:", {
     function: "create_club",
     packageId,
     target: functionTarget,
@@ -187,7 +187,7 @@ export function buildCreateClubTx(
  * The transaction will split the amount from gas coin and donate it
  * 
  * Smart contract signature:
- * donate_to_club(_: &MemberBadge, club: &mut Club, payment: Coin<SUI>, ctx: &mut TxContext)
+ * donate_to_club(_: &MemberBadge, club: &mut Club, payment: Coin<SUI>, amount: u64, ctx: &mut TxContext)
  */
 export function buildDonateToClubTx(
   packageId: string,
@@ -207,26 +207,45 @@ export function buildDonateToClubTx(
     throw new Error("Club ID is required");
   }
 
-  if (amountMist <= 0n) {
+  if (amountMist <= BigInt(0)) {
     throw new Error("Donation amount must be greater than 0");
   }
+
+  console.log("Building donate transaction:", {
+    packageId,
+    memberBadgeId,
+    clubId,
+    amountMist: amountMist.toString(),
+  });
 
   const tx = new Transaction();
 
   // Split coin from gas for donation
+  // splitCoins returns an array, we need to destructure it
   const [donationCoin] = tx.splitCoins(tx.gas, [amountMist]);
 
-  // Call donate_to_club with the split coin
+  console.log("Building donate transaction:", {
+    packageId,
+    memberBadgeId,
+    clubId,
+    amountMist: amountMist.toString(),
+    functionTarget: `${packageId}::club_system::donate_to_club`,
+  });
+
+  // Call donate_to_club with the split coin and amount
+  // Function signature: donate_to_club(_: &MemberBadge, club: &mut Club, payment: Coin<SUI>, amount: u64, ctx: &mut TxContext)
   tx.moveCall({
     target: `${packageId}::club_system::donate_to_club`,
     arguments: [
-      tx.object(memberBadgeId), // MemberBadge
+      tx.object(memberBadgeId), // MemberBadge: &MemberBadge
       tx.object(clubId),        // club: &mut Club
-      donationCoin,             // payment: Coin<SUI>
+      donationCoin,             // payment: Coin<SUI> - split coin result
+      tx.pure.u64(amountMist),  // amount: u64 - explicit amount parameter
     ],
   });
 
-  tx.setGasBudget(100_000_000); // 100 MIST
+  // Set gas budget - ensure enough for the transaction
+  tx.setGasBudget(200_000_000); // 200 MIST = 0.0002 SUI
 
   return tx;
 }

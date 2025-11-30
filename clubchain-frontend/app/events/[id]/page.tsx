@@ -24,6 +24,8 @@ export default function EventDetailPage({
     isConnected,
     hasMemberBadge,
     isCheckingBadge,
+    showSuccessMessage,
+    currentAccount,
   } = useEventDetail(id);
   const canJoinEvent = useCanJoinEvent();
 
@@ -87,26 +89,62 @@ export default function EventDetailPage({
               </p>
             </div>
 
+            {/* Success Message */}
+            {showSuccessMessage && (
+              <div className="mb-6 bg-success/10 border border-success/30 rounded-lg p-4">
+                <p className="text-success font-medium">
+                    Bu etkinliğe kayıt oldunuz!
+                </p>
+              </div>
+            )}
+
             {/* Participants Section */}
             <div className="mb-8">
               <h2 className="text-xl font-semibold text-foreground mb-3">
-                Participants ({event.participants.length})
+                Participants ({event.participants?.length || 0})
               </h2>
-              {event.participants.length === 0 ? (
+              {!event.participants || event.participants.length === 0 ? (
                 <p className="text-text-secondary text-sm">
                   No participants yet. Be the first to join!
                 </p>
               ) : (
-                <div className="bg-secondary rounded-lg p-4 max-h-60 overflow-y-auto">
-                  {event.participants.map((participant, index) => (
-                    <div
-                      key={participant}
-                      className="text-sm text-text-muted py-2 border-b border-border last:border-0"
-                    >
-                      {index + 1}. {participant.slice(0, 10)}...
-                      {participant.slice(-8)}
-                    </div>
-                  ))}
+                <div className="bg-secondary rounded-lg p-4 max-h-60 overflow-y-auto space-y-2">
+                  {event.participants.map((participant, index) => {
+                    const isCurrentUser = currentAccount && participant?.toLowerCase() === currentAccount.toLowerCase();
+                    return (
+                      <div
+                        key={participant}
+                        className={`flex items-center justify-between p-3 rounded-lg border ${
+                          isCurrentUser 
+                            ? "bg-primary/10 border-primary/30 text-primary" 
+                            : "bg-card border-border text-text-muted"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold ${
+                            isCurrentUser 
+                              ? "bg-primary text-white" 
+                              : "bg-secondary text-text-muted"
+                          }`}>
+                            {index + 1}
+                          </div>
+                          <div>
+                            <p className={`font-medium ${isCurrentUser ? "text-primary" : "text-foreground"}`}>
+                              {isCurrentUser ? "You" : `Participant ${index + 1}`}
+                            </p>
+                            <p className="text-xs text-text-secondary font-mono">
+                              {participant.slice(0, 6)}...{participant.slice(-4)}
+                            </p>
+                          </div>
+                        </div>
+                        {isCurrentUser && (
+                          <span className="px-2 py-1 text-xs font-semibold bg-primary/20 text-primary rounded-full">
+                            You
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -145,7 +183,7 @@ export default function EventDetailPage({
                 <button
                   onClick={handleLeave}
                   disabled={actionLoading}
-                  className="bg-error text-white px-8 py-3 rounded-lg hover:bg-error-light transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-secondary text-foreground px-8 py-3 rounded-lg hover:bg-secondary-hover transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {actionLoading ? "Processing..." : "Leave Event"}
                 </button>

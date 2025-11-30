@@ -265,13 +265,17 @@ module clubchain::club_system {
         _: &MemberBadge,
         club: &mut Club,
         payment: Coin<SUI>,
+        amount: u64,
         ctx: &mut TxContext
     ) {
         let donor = tx_context::sender(ctx);
-        let amount = coin::value(&payment);
+        let payment_amount = coin::value(&payment);
         
         // Validate amount > 0
         assert!(amount > 0, EInvalidAmount);
+        
+        // Validate payment coin amount matches specified amount
+        assert!(payment_amount == amount, EInvalidAmount);
         
         // Add amount to club balance
         club.balance = club.balance + amount;

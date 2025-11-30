@@ -52,28 +52,25 @@ export async function GET(
 
     const fields = content.fields as Record<string, any>;
     
-    // Get the event's UID inner ID (this is what's stored in ParticipationBadge.event_id)
-    // The event object ID might be different from the UID inner ID
-    // We need to get the UID inner ID from the event object
-    const eventUidInnerId = response.data?.data?.objectId || id;
+    // Get the event object ID - this is what's stored in ParticipationBadge.event_id
+    // In Sui, when we use object::uid_to_inner(&event.id), we get the object ID
+    // The event object ID is what's stored in ParticipationBadge.event_id
+    // Use the provided id parameter (which is the event object ID from the URL)
+    const eventObjectId = id;
     
     // Fetch participants from ParticipationBadge objects
     // Participants are stored in ParticipationBadge, not in Event object
     const participants: string[] = [];
     try {
-      // Normalize event ID for comparison
-      const normalizeId = (eventId: string) => {
+      // Normalize event ID for comparison (remove 0x prefix and lowercase)
+      const normalizeId = (eventId: string | undefined | null): string => {
         if (!eventId) return "";
-        // Handle both object ID format and UID inner ID format
-        const cleaned = typeof eventId === "string" 
-          ? (eventId.startsWith("0x") ? eventId.slice(2) : eventId)
-          : String(eventId);
+        const str = String(eventId);
+        const cleaned = str.startsWith("0x") ? str.slice(2) : str;
         return cleaned.toLowerCase();
       };
       
-      // Try both the object ID and potential UID inner ID
-      const normalizedEventId1 = normalizeId(eventUidInnerId);
-      const normalizedEventId2 = normalizeId(id);
+      const normalizedEventId = normalizeId(eventObjectId);
       
       // Query all ParticipationBadge objects
       const participationBadges = await suiClient.queryObjects({
@@ -87,34 +84,50 @@ export async function GET(
         limit: 1000, // Large limit to get all badges
       });
 
-      console.log(`🔍 Checking ${participationBadges.data.length} ParticipationBadges for event ${id} (normalized: ${normalizedEventId1}, ${normalizedEventId2})`);
+      console.log(`🔍 Checking ${participationBadges.data.length} ParticipationBadges for event ${id} (normalized event ID: ${normalizedEventId})`);
 
       // Filter badges for this event and extract owner addresses
       for (const badge of participationBadges.data) {
         const badgeContent = badge.data?.content;
         if (badgeContent && "fields" in badgeContent) {
           const badgeFields = badgeContent.fields as any;
-          const badgeEventId = badgeFields.event_id || badgeFields.eventId || "";
+          // event_id is stored as ID type, which can be a string or object with id field
+          let badgeEventId = badgeFields.event_id || badgeFields.eventId || "";
+          
+          // Handle ID type - it might be an object with an 'id' field or a direct string
+          if (typeof badgeEventId === "object" && badgeEventId !== null) {
+            badgeEventId = badgeEventId.id || badgeEventId.value || String(badgeEventId);
+          }
+          badgeEventId = String(badgeEventId);
           
           // Normalize and compare event IDs
           const normalizedBadgeEventId = normalizeId(badgeEventId);
           
+          // Debug log - show first few badges for debugging
+          if (participationBadges.data.indexOf(badge) < 5) {
+            console.log(`  Badge #${participationBadges.data.indexOf(badge)}: event_id="${badgeEventId}" -> normalized="${normalizedBadgeEventId}", event ID="${normalizedEventId}", matches=${normalizedBadgeEventId === normalizedEventId}`);
+          }
+          
           // Check if this badge belongs to our event
-          if (normalizedBadgeEventId && 
-              (normalizedBadgeEventId === normalizedEventId1 || normalizedBadgeEventId === normalizedEventId2)) {
+          // Try both normalized comparison and direct comparison
+          const matches = normalizedBadgeEventId === normalizedEventId || 
+                         badgeEventId.toLowerCase() === id.toLowerCase() ||
+                         normalizeId(badgeEventId) === normalizeId(id);
+          
+          if (matches) {
             const owner = badge.data?.owner;
             if (owner && typeof owner === "object" && "AddressOwner" in owner) {
               const address = (owner as any).AddressOwner;
               if (address && !participants.includes(address)) {
                 participants.push(address);
-                console.log(`✅ Found participant: ${address.slice(0, 8)}... (badge event_id: ${badgeEventId})`);
+                console.log(`  Found participant: ${address} (badge event_id: ${badgeEventId}, badge object ID: ${badge.data?.objectId})`);
               }
             }
           }
         }
       }
       
-      console.log(`✅ Found ${participants.length} participants for event ${id}`);
+      console.log(`  Found ${participants.length} participants for event ${id}`);
     } catch (err) {
       console.error("Failed to fetch participants from ParticipationBadge:", err);
       // Continue with empty participants array

@@ -112,23 +112,23 @@ export default function CreateEventPage() {
     <DashboardLayout>
       <div className="max-w-3xl mx-auto">
         {/* Header */}
-        <div className="mb-6 flex items-center justify-between">
-          <Link href="/events" className="text-[#6b5b95] hover:underline flex items-center gap-2 group">
+        <div className="mb-8 flex items-center justify-between">
+          <Link href="/events" className="text-primary hover:text-primary-hover flex items-center gap-2 group transition-colors">
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            Back to Events
+            <span>Back to Events</span>
           </Link>
           <OwnerBadge />
         </div>
         
         {/* Title Section */}
-        <div className="bg-primary rounded-xl p-8 text-white shadow-elevation-3 mb-6 animate-slideUp">
-          <div className="flex items-center gap-3 mb-2">
-            <Sparkles className="w-8 h-8 animate-icon-pulse" />
-            <h1 className="text-3xl md:text-4xl font-bold">Create New Event</h1>
+        <div className="bg-gradient-to-br from-primary/20 to-primary/10 rounded-xl p-8 border border-primary/30 shadow-elevation-2 mb-8 animate-slideUp">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2 bg-primary/20 rounded-lg">
+              <Sparkles className="w-6 h-6 text-primary animate-icon-pulse" />
+            </div>
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground">Create New Event</h1>
           </div>
-          <p className="text-white/90">
-            Create an event for one of your {clubCount} club{clubCount !== 1 ? 's' : ''}
-          </p>
+          
         </div>
 
         {/* Form */}

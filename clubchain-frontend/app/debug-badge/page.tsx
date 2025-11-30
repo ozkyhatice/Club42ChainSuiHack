@@ -30,10 +30,10 @@ export default function DebugBadgePage() {
           <h2 className="text-xl font-semibold mb-4">Badge Auth State</h2>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p><strong>Is Super Admin:</strong> {badgeAuth.isSuperAdmin ? '✅ Yes' : '❌ No'}</p>
-              <p><strong>Is Club Owner:</strong> {badgeAuth.isClubOwner ? '✅ Yes' : '❌ No'}</p>
-              <p><strong>Is Member:</strong> {badgeAuth.isMember ? '✅ Yes' : '❌ No'}</p>
-              <p><strong>Is Loading:</strong> {badgeAuth.isLoading ? '⏳ Yes' : '✅ No'}</p>
+              <p><strong>Is Super Admin:</strong> {badgeAuth.isSuperAdmin ? '  Yes' : '❌ No'}</p>
+              <p><strong>Is Club Owner:</strong> {badgeAuth.isClubOwner ? '  Yes' : '❌ No'}</p>
+              <p><strong>Is Member:</strong> {badgeAuth.isMember ? '  Yes' : '❌ No'}</p>
+              <p><strong>Is Loading:</strong> {badgeAuth.isLoading ? '⏳ Yes' : '  No'}</p>
             </div>
             <div>
               <p><strong>Owned Club IDs:</strong> {badgeAuth.ownedClubIds.length > 0 ? badgeAuth.ownedClubIds.join(', ') : 'None'}</p>
@@ -47,18 +47,18 @@ export default function DebugBadgePage() {
           <div className="space-y-3">
             <div>
               <p><strong>useIsSuperAdmin:</strong></p>
-              <p className="ml-4">Data: {isSuperAdmin ? '✅ True' : '❌ False'}</p>
-              <p className="ml-4">Loading: {superAdminLoading ? '⏳ Yes' : '✅ No'}</p>
+              <p className="ml-4">Data: {isSuperAdmin ? '  True' : '❌ False'}</p>
+              <p className="ml-4">Loading: {superAdminLoading ? '⏳ Yes' : '  No'}</p>
             </div>
             <div>
               <p><strong>useHasAnyValidClubOwnerBadge:</strong></p>
-              <p className="ml-4">Data: {hasValidBadge ? '✅ True' : '❌ False'}</p>
-              <p className="ml-4">Loading: {badgeLoading ? '⏳ Yes' : '✅ No'}</p>
+              <p className="ml-4">Data: {hasValidBadge ? '  True' : '❌ False'}</p>
+              <p className="ml-4">Loading: {badgeLoading ? '⏳ Yes' : '  No'}</p>
             </div>
             <div>
               <p><strong>useUserClubOwnerBadges:</strong></p>
               <p className="ml-4">Badges Count: {clubOwnerBadges.length}</p>
-              <p className="ml-4">Loading: {badgesLoading ? '⏳ Yes' : '✅ No'}</p>
+              <p className="ml-4">Loading: {badgesLoading ? '⏳ Yes' : '  No'}</p>
               {clubOwnerBadges.length > 0 && (
                 <div className="ml-4 mt-2">
                   <p><strong>Badge Details:</strong></p>
@@ -67,7 +67,7 @@ export default function DebugBadgePage() {
                       <p>Object ID: {badge.objectId}</p>
                       <p>Club ID: {badge.clubId}</p>
                       <p>Expiration: {new Date(badge.expirationMs).toLocaleString()}</p>
-                      <p>Valid: {badge.expirationMs > Date.now() ? '✅ Yes' : '❌ Expired'}</p>
+                      <p>Valid: {badge.expirationMs > Date.now() ? '  Yes' : '❌ Expired'}</p>
                     </div>
                   ))}
                 </div>
@@ -80,7 +80,7 @@ export default function DebugBadgePage() {
         <Card>
           <h2 className="text-xl font-semibold mb-4">Event Creation Permission</h2>
           <div>
-            <p><strong>Can Create Events:</strong> {(badgeAuth.isSuperAdmin || badgeAuth.isClubOwner) ? '✅ Yes' : '❌ No'}</p>
+            <p><strong>Can Create Events:</strong> {(badgeAuth.isSuperAdmin || badgeAuth.isClubOwner) ? '  Yes' : '❌ No'}</p>
             <p className="text-sm text-gray-600 mt-2">
               Logic: isSuperAdmin ({badgeAuth.isSuperAdmin ? 'true' : 'false'}) || isClubOwner ({badgeAuth.isClubOwner ? 'true' : 'false'})
             </p>

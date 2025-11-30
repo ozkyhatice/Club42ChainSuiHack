@@ -172,6 +172,8 @@ export async function fetchClubsFromChain(): Promise<Club[]> {
     // Method: Query all shared Club objects by transaction history
     try {
       // Use queryTransactionBlocks to find created Club objects
+      // Reduced limit and better error handling
+      console.log("🔍 Querying transaction blocks for create_club...");
       const queryResponse = await suiClient.queryTransactionBlocks({
         filter: {
           MoveFunction: {
@@ -186,8 +188,11 @@ export async function fetchClubsFromChain(): Promise<Club[]> {
           showInput: false,
           showEvents: false,
         },
-        limit: 100,
+        limit: 50, // Reduced limit to avoid timeout
         order: "descending",
+      }).catch((error) => {
+        console.error("❌ queryTransactionBlocks error:", error);
+        throw error;
       });
 
       console.log(`📦 Found ${queryResponse.data.length} create_club transactions`);
@@ -217,7 +222,7 @@ export async function fetchClubsFromChain(): Promise<Club[]> {
                     const club = await fetchClubObject(clubId, suiClient);
                     if (club) {
                       clubs.push(club);
-                      console.log(`✅ Found club: ${club.name} (${clubId})`);
+                      console.log(`  Found club: ${club.name} (${clubId})`);
                     }
                   } catch (err) {
                     console.warn(`Failed to fetch club ${clubId}:`, err);
@@ -259,7 +264,7 @@ export async function fetchClubsFromChain(): Promise<Club[]> {
                 const club = await fetchClubObject(objectId, suiClient);
                 if (club) {
                   clubs.push(club);
-                  console.log(`✅ Found club from effects: ${club.name} (${objectId})`);
+                  console.log(`  Found club from effects: ${club.name} (${objectId})`);
                 }
               }
           } catch (err) {
@@ -269,13 +274,18 @@ export async function fetchClubsFromChain(): Promise<Club[]> {
         }
       }
 
-      console.log(`✅ Total clubs found: ${clubs.length}`);
+      console.log(`  Total clubs found: ${clubs.length}`);
       return clubs;
     } catch (err) {
       console.error("❌ Query transaction blocks failed:", err);
+      // Log more details about the error
+      if (err instanceof Error) {
+        console.error("Error message:", err.message);
+        console.error("Error stack:", err.stack);
+      }
+      // Return empty array instead of throwing
+      return [];
     }
-
-    return [];
   } catch (error) {
     console.error("❌ Failed to fetch clubs from chain:", error);
     return [];

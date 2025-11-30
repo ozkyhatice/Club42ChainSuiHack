@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSignAndExecuteTransaction, useCurrentAccount, useSuiClient } from "@mysten/dapp-kit";
 import { buildJoinEventTx } from "@/modules/contracts/event";
 import { PACKAGE_ID } from "@/lib/constants";
@@ -22,6 +22,7 @@ export function useEventDetail(eventId: string) {
   const [error, setError] = useState<string | null>(null);
   const [isParticipant, setIsParticipant] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   const currentAccount = useCurrentAccount();
   const suiClient = useSuiClient();
@@ -49,42 +50,110 @@ export function useEventDetail(eventId: string) {
   });
 
   // Fetch event details
-  useEffect(() => {
-    async function fetchEvent() {
-      try {
-        setLoading(true);
-        const response = await fetch(`/api/events/${eventId}`);
-        
-        if (!response.ok) {
-          throw new Error("Failed to fetch event");
-        }
-
-        const data = await response.json();
-        setEvent(data.event);
-        setError(null);
-      } catch (err) {
-        setError("Failed to load event");
-      } finally {
-        setLoading(false);
+  const fetchEvent = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/events/${eventId}`);
+      
+      if (!response.ok) {
+        throw new Error("Failed to fetch event");
       }
-    }
 
+      const data = await response.json();
+      setEvent(data.event);
+      setError(null);
+    } catch (err) {
+      setError("Failed to load event");
+    } finally {
+      setLoading(false);
+    }
+  }, [eventId]);
+
+  useEffect(() => {
     if (eventId) {
       fetchEvent();
     }
-  }, [eventId]);
+  }, [eventId, fetchEvent]);
+
+  // Check if current user is a participant by checking their ParticipationBadges
+  const { data: userParticipationBadges = [] } = useQuery({
+    queryKey: ["user-participation-badges", currentAccount?.address, eventId],
+    queryFn: async () => {
+      if (!currentAccount?.address || !eventId) return [];
+      
+      try {
+        const objects = await suiClient.getOwnedObjects({
+          owner: currentAccount.address,
+          filter: {
+            StructType: `${PACKAGE_ID}::club_system::ParticipationBadge`,
+          },
+          options: {
+            showContent: true,
+          },
+        });
+
+        const normalizeId = (id: string | any): string => {
+          if (!id) return "";
+          const str = typeof id === "object" && id !== null ? (id.id || id.value || String(id)) : String(id);
+          const cleaned = str.startsWith("0x") ? str.slice(2) : str;
+          return cleaned.toLowerCase();
+        };
+
+        const normalizedEventId = normalizeId(eventId);
+        
+        return objects.data
+          .map(obj => {
+            const content = obj.data?.content;
+            if (content && "fields" in content) {
+              const fields = content.fields as any;
+              let badgeEventId = fields.event_id || fields.eventId || "";
+              if (typeof badgeEventId === "object" && badgeEventId !== null) {
+                badgeEventId = badgeEventId.id || badgeEventId.value || String(badgeEventId);
+              }
+              return {
+                objectId: obj.data?.objectId,
+                eventId: String(badgeEventId),
+                normalizedEventId: normalizeId(badgeEventId),
+              };
+            }
+            return null;
+          })
+          .filter(badge => badge && badge.normalizedEventId === normalizedEventId);
+      } catch (error) {
+        console.error("Error fetching user participation badges:", error);
+        return [];
+      }
+    },
+    enabled: !!currentAccount?.address && !!eventId,
+    staleTime: 10000, // 10 seconds
+  });
 
   // Check if current user is a participant
   useEffect(() => {
     if (event && currentAccount?.address) {
-      const isParticipating = event.participants.some(
-        (addr) => addr.toLowerCase() === currentAccount.address.toLowerCase()
-      );
+      const normalizedUserAddress = currentAccount.address.toLowerCase();
+      // Check both from event participants list and from user's badges
+      const isInParticipantsList = event.participants?.some(
+        (addr) => addr?.toLowerCase() === normalizedUserAddress
+      ) ?? false;
+      const hasBadge = userParticipationBadges.length > 0;
+      const isParticipating = isInParticipantsList || hasBadge;
+      
+      console.log("isParticipant check:", {
+        userAddress: currentAccount.address,
+        normalizedUserAddress,
+        participants: event.participants,
+        isInParticipantsList,
+        hasBadge,
+        userBadges: userParticipationBadges,
+        isParticipating
+      });
+      
       setIsParticipant(isParticipating);
     } else {
       setIsParticipant(false);
     }
-  }, [event, currentAccount]);
+  }, [event, currentAccount, userParticipationBadges]);
 
   const handleJoin = async () => {
     if (!currentAccount?.address || !event) {
@@ -108,12 +177,17 @@ export function useEventDetail(eventId: string) {
           transaction: tx,
         },
         {
-          onSuccess: (result) => {
+          onSuccess: async (result) => {
             toast.success("Successfully joined the event! Participation badge minted.");
-            // Refresh event data
-            setTimeout(() => {
-              window.location.reload();
-            }, 1500);
+            setShowSuccessMessage(true);
+            // Refresh event data after a delay to allow blockchain to update
+            // Try multiple times as blockchain updates may take a moment
+            setTimeout(async () => {
+              await fetchEvent();
+            }, 3000);
+            setTimeout(async () => {
+              await fetchEvent();
+            }, 6000);
           },
           onError: (error) => {
             const errorMessage = error instanceof Error ? error.message : "Failed to join event";
@@ -147,6 +221,8 @@ export function useEventDetail(eventId: string) {
     isConnected: !!currentAccount?.address,
     hasMemberBadge: hasMemberBadge ?? false,
     isCheckingBadge,
+    showSuccessMessage,
+    currentAccount: currentAccount?.address,
   };
 }
 

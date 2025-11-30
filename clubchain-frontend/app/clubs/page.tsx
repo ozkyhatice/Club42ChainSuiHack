@@ -34,14 +34,14 @@ export default function ClubsPage() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="rounded-xl p-8 shadow-elevation-3 animate-slideUp" style={{ background: 'linear-gradient(90deg, #A78BFA 0%, #60A5FA 100%)' }}>
+        <div className="rounded-xl p-8 shadow-elevation-3 animate-slideUp bg-gradient-to-r from-primary via-primary/90 to-accent">
           <div className="flex items-start justify-between flex-wrap gap-4">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
-                <Building2 className="w-10 h-10 animate-icon-pulse" style={{ color: '#FFFFFF' }} />
-                <h1 className="text-3xl md:text-4xl font-bold" style={{ color: '#FFFFFF' }}>All Clubs</h1>
+                <Building2 className="w-10 h-10 animate-icon-pulse text-white" />
+                <h1 className="text-3xl md:text-4xl font-bold text-white">All Clubs</h1>
               </div>
-              <p className="text-lg" style={{ color: '#FFFFFF' }}>
+              <p className="text-lg text-white/90">
                 Discover and explore all clubs on campus
               </p>
             </div>
@@ -50,7 +50,7 @@ export default function ClubsPage() {
                 variant="primary"
                 icon={Plus}
                 onClick={() => router.push("/clubs/create")}
-                className="bg-white/20 hover:bg-white/30 border-white/30 text-white"
+                className="bg-white/20 hover:bg-white/30 border-white/30 text-white backdrop-blur-sm"
               >
                 Create Club
               </GamifiedButton>

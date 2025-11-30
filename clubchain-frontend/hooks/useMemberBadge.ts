@@ -23,24 +23,69 @@ export function useHasMemberBadge() {
       if (!account?.address || !PACKAGE_ID) return false;
 
       try {
-        const objects = await suiClient.getOwnedObjects({
-          owner: account.address,
-          filter: {
-            StructType: `${PACKAGE_ID}::club_system::MemberBadge`,
-          },
-          options: {
-            showContent: true,
-          },
+        console.log("useHasMemberBadge: Checking for MemberBadge", {
+          address: account.address,
+          packageId: PACKAGE_ID,
         });
 
-        return objects.data.length > 0;
+        // Use pagination to ensure we check all objects
+        let cursor: string | null = null;
+        let hasNextPage = true;
+        let found = false;
+        let totalChecked = 0;
+
+        while (hasNextPage && !found) {
+          const result = await suiClient.getOwnedObjects({
+            owner: account.address,
+            filter: {
+              StructType: `${PACKAGE_ID}::club_system::MemberBadge`,
+            },
+            options: {
+              showContent: true,
+            },
+            cursor: cursor || undefined,
+            limit: 50,
+          });
+
+          totalChecked += result.data.length;
+          console.log("useHasMemberBadge: Query result", {
+            address: account.address,
+            cursor,
+            hasNextPage: result.hasNextPage,
+            dataLength: result.data.length,
+            totalChecked,
+            objectIds: result.data.map(obj => obj.data?.objectId),
+          });
+
+          if (result.data.length > 0) {
+            found = true;
+            console.log("useHasMemberBadge: Found MemberBadge!", {
+              address: account.address,
+              count: result.data.length,
+              objectIds: result.data.map(obj => obj.data?.objectId),
+            });
+          }
+
+          hasNextPage = result.hasNextPage;
+          cursor = result.nextCursor || null;
+        }
+
+        console.log("useHasMemberBadge: Final result", {
+          address: account.address,
+          hasMemberBadge: found,
+          totalChecked,
+        });
+
+        return found;
       } catch (error) {
         console.error("Error checking member badge:", error);
         return false;
       }
     },
     enabled: !!account?.address && !!PACKAGE_ID,
-    staleTime: 30000, // 30 seconds
+    staleTime: 10000, // 10 seconds - reduced for faster updates
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 }
 
@@ -57,37 +102,51 @@ export function useMemberBadge() {
       if (!account?.address || !PACKAGE_ID) return null;
 
       try {
-        const objects = await suiClient.getOwnedObjects({
-          owner: account.address,
-          filter: {
-            StructType: `${PACKAGE_ID}::club_system::MemberBadge`,
-          },
-          options: {
-            showContent: true,
-          },
-        });
+        // Use pagination to ensure we check all objects
+        let cursor: string | null = null;
+        let hasNextPage = true;
+        let memberBadge: MemberBadge | null = null;
 
-        if (objects.data.length === 0) return null;
+        while (hasNextPage && !memberBadge) {
+          const result = await suiClient.getOwnedObjects({
+            owner: account.address,
+            filter: {
+              StructType: `${PACKAGE_ID}::club_system::MemberBadge`,
+            },
+            options: {
+              showContent: true,
+            },
+            cursor: cursor || undefined,
+            limit: 50,
+          });
 
-        const obj = objects.data[0];
-        const content = obj.data?.content;
-        if (content && "fields" in content) {
-          const fields = content.fields as any;
-          return {
-            objectId: obj.data!.objectId,
-            intraId: fields.intra_id || "",
-            username: fields.username || "",
-          };
+          if (result.data.length > 0) {
+            const obj = result.data[0];
+            const content = obj.data?.content;
+            if (content && "fields" in content) {
+              const fields = content.fields as any;
+              memberBadge = {
+                objectId: obj.data!.objectId,
+                intraId: fields.intra_id || "",
+                username: fields.username || "",
+              };
+            }
+          }
+
+          hasNextPage = result.hasNextPage;
+          cursor = result.nextCursor || null;
         }
 
-        return null;
+        return memberBadge;
       } catch (error) {
         console.error("Error getting member badge:", error);
         return null;
       }
     },
     enabled: !!account?.address && !!PACKAGE_ID,
-    staleTime: 30000, // 30 seconds
+    staleTime: 10000, // 10 seconds - reduced for faster updates
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 }
 

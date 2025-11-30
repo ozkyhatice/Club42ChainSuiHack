@@ -41,12 +41,13 @@ export function buildRegisterMemberTx(
     target: `${packageId}::club_system::register_member`,
     arguments: [
       tx.object(registryObjectId), // registry: &mut MemberRegistry
-      tx.pure.string(memberData.intraId), // intra_id: String
-      tx.pure.string(memberData.username), // username: String
+      tx.pure.string(String(memberData.intraId)), // intra_id: String
+      tx.pure.string(String(memberData.username)), // username: String
     ],
   });
 
-  tx.setGasBudget(100_000_000); // 100 MIST
+  // Set gas budget - use a reasonable amount
+  tx.setGasBudget(50_000_000); // 50M MIST = 0.05 SUI
 
   return tx;
 }

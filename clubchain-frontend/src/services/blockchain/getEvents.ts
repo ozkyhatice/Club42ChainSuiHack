@@ -59,55 +59,9 @@ export async function fetchEventsFromChain(): Promise<EventInfo[]> {
 
     console.log("🔍 Fetching events from chain...");
 
-    // Method 1: Query shared Event objects directly (most reliable)
+    // Query transaction blocks to find event creation transactions
+    // This is the primary method since queryObjects is not available in this SDK version
     try {
-      const objectsResponse = await suiClient.queryObjects({
-        filter: {
-          StructType: EVENT_STRUCT,
-        },
-        options: {
-          showContent: true,
-          showType: true,
-          showOwner: true,
-        },
-        limit: 100,
-      });
-
-      console.log(`📦 Found ${objectsResponse.data.length} Event objects via queryObjects`);
-
-      for (const item of objectsResponse.data) {
-        const objectId = item.data?.objectId;
-        if (!objectId || seenEventIds.has(objectId)) continue;
-
-        const owner = item.data?.owner;
-        const isShared =
-          typeof owner === "object" &&
-          owner !== null &&
-          "Shared" in owner;
-
-        if (!isShared) continue; // Only process shared events
-
-        seenEventIds.add(objectId);
-
-        const content = item.data?.content;
-        if (
-          content?.dataType === "moveObject" &&
-          content.type === EVENT_STRUCT &&
-          content.fields
-        ) {
-          const event = buildEventFromObject(objectId, content.fields as any);
-          events.push(event);
-          console.log(`✅ Found event: ${event.title} (${objectId.slice(0, 8)}...)`);
-        }
-      }
-    } catch (err) {
-      console.error("❌ Query objects failed:", err);
-    }
-
-    // Method 2: Fallback to queryTransactionBlocks if no events found
-    if (events.length === 0) {
-      console.log("⚠️ No events found via queryObjects, trying queryTransactionBlocks...");
-      try {
         const queryResponse = await suiClient.queryTransactionBlocks({
           filter: {
             MoveFunction: {
@@ -142,7 +96,7 @@ export async function fetchEventsFromChain(): Promise<EventInfo[]> {
               const event = await fetchEventById(eventId);
               if (event) {
                 events.push(event);
-                console.log(`✅ Found event from tx: ${event.title} (${eventId.slice(0, 8)}...)`);
+                console.log(`  Found event from tx: ${event.title} (${eventId.slice(0, 8)}...)`);
               }
             } catch (err) {
               console.error(`Failed to fetch event ${eventId}:`, err);
@@ -179,7 +133,7 @@ export async function fetchEventsFromChain(): Promise<EventInfo[]> {
                   const event = await fetchEventById(objectId);
                   if (event) {
                     events.push(event);
-                    console.log(`✅ Found event from effects: ${event.title} (${objectId.slice(0, 8)}...)`);
+                    console.log(`  Found event from effects: ${event.title} (${objectId.slice(0, 8)}...)`);
                   }
                 }
               } catch (err) {
@@ -191,9 +145,8 @@ export async function fetchEventsFromChain(): Promise<EventInfo[]> {
       } catch (err) {
         console.error("❌ Query transaction blocks failed:", err);
       }
-    }
 
-    console.log(`✅ Total events found: ${events.length}`);
+    console.log(`  Total events found: ${events.length}`);
     return events;
   } catch (error) {
     console.error("❌ Failed to fetch events from chain:", error);

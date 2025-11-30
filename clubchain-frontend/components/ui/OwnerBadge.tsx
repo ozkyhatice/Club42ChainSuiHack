@@ -31,7 +31,7 @@ export default function OwnerBadge({
     <span 
       className={`
         inline-flex items-center gap-1.5 font-semibold rounded-full
-        bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-600
+        bg-gradient-to-r from-primary via-primary-light to-primary-hover
         text-white shadow-elevation-2
         ${sizeStyles[size]}
         ${animate ? "animate-icon-pulse" : ""}
